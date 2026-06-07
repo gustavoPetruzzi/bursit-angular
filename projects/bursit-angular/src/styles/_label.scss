@@ -1,0 +1,33 @@
+.bursit-label {
+  --label-height: var(--input-label-font-size);
+  display: block;
+  color: var(--input-label-color);
+  font-size: var(--input-label-font-size);
+  font-weight: var(--input-label-font-weight);
+  margin-bottom: var(--space-2xs);
+  background-color: var(--input-label-bg);
+}
+
+.bursit-form-field-floating-label {
+  .bursit-label {
+    position: absolute;
+    margin-bottom: 0;
+    top: calc(50% - var(--label-height) / 2);
+    left: var(--input-padding-x);
+    transition: var(--input-label-transition);
+  }
+}
+
+.bursit-form-field-floating-label.bursit-form-field-has-value,
+.bursit-form-field-floating-label.bursit-focus {
+  .bursit-label {
+    top: 3px;
+  }
+}
+
+.bursit-form-field-floating-label.bursit-form-field-error.bursit-focus,
+.bursit-form-field-floating-label.bursit-form-field-error.bursit-form-field-has-value {
+  .bursit-label {
+    top: 3px;
+  }
+}

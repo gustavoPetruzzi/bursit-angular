@@ -1,0 +1,53 @@
+# openspec/config.yaml — SDD configuration for bursit-angular
+schema: spec-driven
+
+context: |
+  Stack: Angular 21.2 library (ng-packagr), TypeScript 5.9 strict, SCSS, Jest, Storybook 10
+  Architecture: Directive-based UI library (not components), design tokens (bursit-ui-tokens), signal-based theme service
+  Testing: Jest via @angular-builders/jest, *.spec.ts alongside source, coverage configured (no threshold enforced)
+  Style: Prettier (100 chars, single quotes, Angular HTML parser), design-token-based SCSS, Conventional Commits
+
+strict_tdd: true
+
+testing:
+  runner: jest
+  command: npm run test
+  framework: jest-preset-angular
+  layers:
+    unit: true
+    integration: false
+    e2e: false
+  coverage:
+    available: true
+    command: npm run test -- --coverage
+    threshold_enforced: false
+    stated_threshold: 80%
+  quality:
+    linter: false
+    type_checker: typescript-strict
+    formatter: prettier
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns (directive-based, barrel exports, token-driven SCSS)
+    - Prefer signals over RxJS for state management
+    - Use design token CSS custom properties, never hardcode colors
+    tdd: true
+    test_command: npm run test --
+  verify:
+    test_command: npm run test --
+    build_command: npm run build
+    coverage_threshold: 80
+  archive:
+    - Warn before merging destructive deltas

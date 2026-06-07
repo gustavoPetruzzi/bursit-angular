@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "BursitAngularNgAddSchema",
+  "title": "Bursit Angular ng-add Options",
+  "type": "object",
+  "properties": {
+    "includeComponentTokens": {
+      "type": "boolean",
+      "default": true,
+      "description": "Include component-specific design tokens (buttons, inputs, cards, etc.). If false, only base tokens (colors, spacing, typography) are loaded."
+    }
+  },
+  "required": []
+}

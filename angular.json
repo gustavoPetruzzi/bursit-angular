@@ -1,0 +1,79 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "schematics": {
+    "@schematics/angular:directive": {
+      "flat": false,
+      "type": "directive"
+    }
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "bursit-angular": {
+      "projectType": "library",
+      "root": "projects/bursit-angular",
+      "sourceRoot": "projects/bursit-angular/src",
+      "prefix": "bursit",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/bursit-angular/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/bursit-angular/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-builders/jest:run",
+          "options": {
+            "tsConfig": "projects/bursit-angular/tsconfig.spec.json",
+            "config": "jest.config.js",
+            "coverage": true
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": "projects/bursit-angular/.storybook",
+            "browserTarget": "bursit-angular:build",
+            "compodoc": true,
+            "compodocArgs": ["-e", "json", "-d", "projects/bursit-angular"],
+            "port": 6006,
+            "styles": [
+              "node_modules/bursit-ui-tokens/src/index.scss",
+              "projects/bursit-angular/src/styles/_index.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules/bursit-ui-tokens/src"]
+            }
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": "projects/bursit-angular/.storybook",
+            "browserTarget": "bursit-angular:build",
+            "compodoc": true,
+            "compodocArgs": ["-e", "json", "-d", "projects/bursit-angular"],
+            "outputDir": "storybook-static",
+            "styles": [
+              "node_modules/bursit-ui-tokens/src/index.scss",
+              "projects/bursit-angular/src/styles/_index.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules/bursit-ui-tokens/src"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

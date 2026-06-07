@@ -1,0 +1,64 @@
+{
+  "name": "bursit-angular",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "npm run build:schematics && ng build",
+    "build:schematics": "tsc -p projects/bursit-angular/schematics/tsconfig.json",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "storybook": "ng run bursit-angular:storybook",
+    "build-storybook": "ng run bursit-angular:build-storybook",
+    "prepare": "husky"
+  },
+  "private": true,
+  "packageManager": "npm@11.12.1",
+  "dependencies": {
+    "@angular/cdk": "^21.2.14",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "bursit-ui-tokens": "file:../bursit-ui-tokens",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular-builders/jest": "^21.0.3",
+    "@angular-devkit/architect": "^0.2102.0",
+    "@angular-devkit/build-angular": "^21.2.0",
+    "@angular-devkit/core": "^21.2.0",
+    "@angular-devkit/schematics": "^21.2.10",
+    "@angular/build": "^21.2.10",
+    "@angular/cli": "^21.2.10",
+    "@angular/compiler-cli": "^21.2.0",
+    "@angular/platform-browser-dynamic": "^21.2.0",
+    "@compodoc/compodoc": "^1.2.1",
+    "@storybook/addon-a11y": "^10.3.6",
+    "@storybook/addon-docs": "^10.3.6",
+    "@storybook/addon-onboarding": "^10.3.6",
+    "@storybook/addon-themes": "^10.4.2",
+    "@storybook/angular": "^10.3.6",
+    "@types/jest": "^30.0.0",
+    "husky": "^9.1.7",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "jest-preset-angular": "^16.1.5",
+    "jsdom": "^28.0.0",
+    "lint-staged": "^17.0.5",
+    "ng-packagr": "^21.2.0",
+    "prettier": "^3.8.1",
+    "storybook": "^10.3.6",
+    "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "yargs": "18.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,html,scss,css,json,md}": "prettier --write",
+    "**/*.spec.ts": "jest --passWithNoTests"
+  }
+}

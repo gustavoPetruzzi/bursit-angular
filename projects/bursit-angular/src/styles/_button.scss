@@ -1,0 +1,92 @@
+@use 'mixins';
+
+@mixin setVariantValues($state) {
+  --btn-color: var(--btn-#{$state}-color);
+  --btn-bg-color: var(--btn-#{$state}-bg);
+  --btn-hover-bg-color: var(--btn-#{$state}-hover-bg);
+  --btn-hover-color: var(--btn-#{$state}-hover-color);
+  --btn-active-bg-color: var(--btn-#{$state}-active-bg);
+}
+
+.bursit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--btn-padding-y-md) var(--btn-padding-x-md);
+  font-family: var(--font-family-sans);
+  font-size: var(--btn-font-size-md);
+  font-weight: var(--btn-font-weight);
+  line-height: var(--btn-line-height);
+  color: var(--btn-color);
+  background-color: var(--btn-bg-color);
+  border: var(--btn-border-width) solid transparent;
+  border-radius: var(--btn-border-radius);
+  cursor: pointer;
+  transition: var(--btn-transition);
+
+  &:hover {
+    background-color: var(--btn-hover-bg-color);
+    color: var(--btn-hover-color);
+  }
+
+  &:active {
+    background-color: var(--btn-active-bg-color);
+  }
+
+  &[disabled] {
+    opacity: var(--btn-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  // Sizes
+  &[size='small'] {
+    padding: var(--btn-padding-y-sm) var(--btn-padding-x-sm);
+    font-size: var(--btn-font-size-sm);
+  }
+
+  &[size='large'] {
+    padding: var(--btn-padding-y-lg) var(--btn-padding-x-lg);
+    font-size: var(--btn-font-size-lg);
+  }
+
+  &[size='fluid'] {
+    display: flex;
+    width: 100%;
+  }
+
+  &.bursit-button-primary {
+    @include setVariantValues('primary');
+  }
+
+  &.bursit-button-secondary {
+    @include setVariantValues('secondary');
+  }
+
+  &.bursit-button-outline {
+    @include setVariantValues('outline');
+    border-color: var(--btn-outline-border-color);
+
+    &:hover {
+      border-color: var(--btn-outline-hover-border-color);
+    }
+  }
+
+  &.bursit-button-ghost {
+    @include setVariantValues('ghost');
+  }
+
+  &.bursit-button-link {
+    @include setVariantValues('link');
+    text-decoration: var(--btn-link-text-decoration);
+    // TODO Check padding:
+
+    &:hover {
+      text-decoration: var(--btn-link-hover-text-decoration);
+    }
+  }
+
+  &.bursit-button-danger {
+    @include setVariantValues('danger');
+  }
+}

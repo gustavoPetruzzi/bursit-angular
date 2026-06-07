@@ -1,0 +1,48 @@
+.bursit-input {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-style: solid;
+  border-color: var(--input-border-color);
+  border-width: var(--input-border-width);
+  border-radius: var(--input-border-radius);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  font-size: var(--input-font-size);
+  font-weight: var(--input-font-weight);
+  min-height: 44px;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: var(--input-placeholder-color);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: var(--input-disabled-bg);
+    color: var(--input-disabled-color);
+    border-color: var(--input-disabled-border-color);
+    opacity: var(--input-disabled-opacity);
+  }
+
+  &:focus-visible {
+    outline-width: var(--input-focus-outline-width);
+    outline-color: var(--input-focus-outline-color);
+    outline-style: var(--input-focus-outline-style);
+    outline-offset: var(--input-focus-outline-offset);
+    box-shadow: var(--input-focus-shadow);
+  }
+}
+
+.bursit-form-field-floating-label {
+  .bursit-input {
+    &::placeholder {
+      color: transparent;
+    }
+  }
+}
+.bursit-form-field-floating-label.bursit-form-field-has-value,
+.bursit-form-field-floating-label.bursit-focus {
+  .bursit-input {
+    padding-top: 18px;
+    padding-bottom: 4px;
+  }
+}
