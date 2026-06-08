@@ -28,7 +28,6 @@
     outline-color: var(--input-focus-outline-color);
     outline-style: var(--input-focus-outline-style);
     outline-offset: var(--input-focus-outline-offset);
-    box-shadow: var(--input-focus-shadow);
   }
 }
 
@@ -44,5 +43,13 @@
   .bursit-input {
     padding-top: 18px;
     padding-bottom: 4px;
+  }
+}
+
+// --- Error state ---
+
+.bursit-form-field-error {
+  .bursit-input {
+    border-color: var(--input-error-border-color);
   }
 }

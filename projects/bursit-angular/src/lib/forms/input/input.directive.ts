@@ -55,11 +55,6 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     this.stateChanges.update((v) => v + 1);
   }
 
-  @HostListener('keyup') onKeyUp() {
-    this.invalid = false;
-    this.stateChanges.update((v) => v + 1);
-  }
-
   @HostListener('focus') onFocus() {
     this.focused = true;
     this.stateChanges.update((v) => v + 1);
