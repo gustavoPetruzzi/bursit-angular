@@ -2,7 +2,7 @@
 
 <ng-content></ng-content>
 
-@if (formFieldControl()?.invalid) {
+@if (formFieldControl()?.invalid()) {
   <ng-content select="bursit-error"></ng-content>
 }
 <ng-content select="bursit-message"></ng-content>

@@ -11,14 +11,14 @@ import { FormFieldTypes } from './form-field-types.enum';
   host: {
     '[class.bursit-form-field]': 'true',
     '[class.bursit-form-field-disabled]': 'formFieldControl()?.disabled()',
-    '[class.bursit-focus]': 'formFieldControl()?.focused',
+    '[class.bursit-focus]': 'formFieldControl()?.focused()',
     '[class.bursit-placeholder]': 'formFieldControl()?.hasPlaceholder',
-    '[class.bursit-hover]': 'formFieldControl()?.hovered',
-    '[class.bursit-form-field-error]': 'formFieldControl()?.invalid',
+    '[class.bursit-hover]': 'formFieldControl()?.hovered()',
+    '[class.bursit-form-field-error]': 'formFieldControl()?.invalid()',
     '[class.bursit-form-field-floating-label]': 'formFieldControl()?.floatingLabel()',
     '[class.bursit-form-field-required]': 'formFieldControl()?.required()',
     '[class.bursit-form-field-has-value]':
-      'formFieldControl()?.hasValue ?? !!formFieldControl()?.control?.value',
+      'formFieldControl()?.hasValue() ?? !!formFieldControl()?.control?.value',
     '[class.bursit-form-field-no-label]': '!label()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,

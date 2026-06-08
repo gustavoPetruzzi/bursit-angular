@@ -29,12 +29,11 @@ import { NgControl } from '@angular/forms';
 export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> {
   validationInteraction = input<'default' | 'touched'>('default');
   floatingLabel = input<boolean>(false);
-  stateChanges = signal(0);
   type: FormFieldTypes | undefined = undefined;
-  focused = false;
-  hovered = false;
-  invalid = false;
-  hasValue = false;
+  focused = signal(false);
+  hovered = signal(false);
+  invalid = signal(false);
+  hasValue = signal(false);
   private readonly _subscriptions: Array<Subscription> = [];
 
   required = input<boolean>(false);
@@ -46,28 +45,24 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
   ) {}
 
   @HostListener('mouseover') onMouseOver() {
-    this.hovered = true;
-    this.stateChanges.update((v) => v + 1);
+    this.hovered.set(true);
   }
 
   @HostListener('mouseleave') onMouseLeave() {
-    this.hovered = false;
-    this.stateChanges.update((v) => v + 1);
+    this.hovered.set(false);
   }
 
   @HostListener('focus') onFocus() {
-    this.focused = true;
-    this.stateChanges.update((v) => v + 1);
+    this.focused.set(true);
   }
 
   @HostListener('blur') onBlur() {
-    this.focused = false;
-    this.stateChanges.update((v) => v + 1);
+    this.focused.set(false);
   }
 
   ngOnInit() {
-    this.hasValue = this.inputHasValue();
-    this.invalid = this.isInputInvalid();
+    this.hasValue.set(this.inputHasValue());
+    this.invalid.set(this.isInputInvalid());
 
     if (this.control) {
       this.disabled.set(this.control.disabled || false);
@@ -104,13 +99,12 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
       return true;
     }
 
-    return !!(this.control.dirty || this.control.touched);
+    return !!this.control.touched;
   }
 
   private onValueChanges() {
     this.disabled.set(this.control.disabled || false);
-    this.hasValue = this.inputHasValue();
-    this.invalid = this.isInputInvalid();
-    this.stateChanges.update((v) => v + 1);
+    this.hasValue.set(this.inputHasValue());
+    this.invalid.set(this.isInputInvalid());
   }
 }
