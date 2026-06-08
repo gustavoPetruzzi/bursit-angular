@@ -93,7 +93,7 @@ type Story = StoryObj<InputStoryArgs>;
  */
 const StandaloneTemplate: Story['render'] = (args) => ({
   props: args,
-  template: `<input bursitInput [disabled]="disabled" [required]="required" [value]="value" [placeholder]="placeholder" />`,
+  template: `<input bursitInput [disabled]="disabled" [required]="required" [validationInteraction]="validationInteraction" [value]="value" [placeholder]="placeholder" />`,
 });
 
 /**
@@ -109,7 +109,7 @@ const FormFieldTemplate: Story['render'] = (args) => ({
   template: `
     <bursit-form-field>
       <label bursitLabel>{{label || 'Label'}}</label>
-      <input bursitInput [formControl]="control" [required]="required" [floatingLabel]="floatingLabel" [placeholder]="placeholder" />
+      <input bursitInput [formControl]="control" [required]="required" [validationInteraction]="validationInteraction" [floatingLabel]="floatingLabel" [placeholder]="placeholder" />
     </bursit-form-field>
   `,
 });
@@ -127,7 +127,7 @@ const FormFieldRequiredTemplate: Story['render'] = (args) => ({
   template: `
     <bursit-form-field>
       <label bursitLabel>{{label || 'Label'}}</label>
-      <input bursitInput [formControl]="control" [required]="required" [floatingLabel]="floatingLabel" [placeholder]="placeholder" />
+      <input bursitInput [formControl]="control" [required]="required" [validationInteraction]="validationInteraction" [floatingLabel]="floatingLabel" [placeholder]="placeholder" />
     </bursit-form-field>
   `,
 });

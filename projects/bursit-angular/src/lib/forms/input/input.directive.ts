@@ -58,6 +58,12 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
 
   @HostListener('blur') onBlur() {
     this.focused.set(false);
+    // Re-evaluate invalid state after Angular marks the control as touched.
+    // Using queueMicrotask ensures the DefaultValueAccessor's blur handler
+    // has already called markAsTouched() before we check this.control.touched.
+    queueMicrotask(() => {
+      this.invalid.set(this.isInputInvalid());
+    });
   }
 
   ngOnInit() {
