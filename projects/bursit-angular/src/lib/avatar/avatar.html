@@ -1,0 +1,7 @@
+@if (src()) {
+  <img alt="{{ userName() }}" title="{{ userName() }}" [src]="src()" />
+} @else {
+  <span title="{{ userName() }}" role="img">
+    {{ userInitials() }}
+  </span>
+}
