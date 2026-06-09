@@ -18,6 +18,11 @@
       "root": "projects/bursit-angular",
       "sourceRoot": "projects/bursit-angular/src",
       "prefix": "bursit",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
