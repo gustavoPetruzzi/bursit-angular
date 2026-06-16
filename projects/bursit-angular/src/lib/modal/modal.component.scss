@@ -1,0 +1,14 @@
+:host {
+  background-color: var(--modal-bg);
+  box-shadow: var(--modal-shadow);
+
+  border-radius: var(--modal-border-radius);
+  border-width: var(--modal-border-width);
+  border-color: var(--modal-border-color);
+
+  //TODO mmm Check this, this should be the default even if this is the medium?
+  max-width: var(--modal-max-width);
+  padding: var(--modal-padding);
+
+  
+}
