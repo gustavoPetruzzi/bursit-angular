@@ -18,7 +18,12 @@ import { NgControl } from '@angular/forms';
 
 @Directive({
   selector: 'input[bursitInput], input[bursit-input]',
-  host: { class: 'bursit-input', '[disabled]': 'disabled()' },
+  host: { 
+    class: 'bursit-input', 
+    '[disabled]': 'disabled()',
+    '[attr.aria-required]': 'required()',
+    '[attr.aria-invalid]': 'invalid()'
+  },
   providers: [
     {
       provide: FormFieldControl,
