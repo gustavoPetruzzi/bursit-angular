@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { ModalComponent } from './modal.component';
-import { MODAL_CONFIG, ModalSize } from './modal.config';
+import { MODAL_CONFIG, ModalConfig, ModalSize } from './modal.config';
 
 // --- Test host for slot projection ---
 
@@ -21,7 +21,9 @@ class TestHostComponent {}
 
 // --- Helpers ---
 
-function setup(config = { size: ModalSize.SMALL }) {
+function setup(overrides: Partial<ModalConfig> = {}) {
+  const config = { ...overrides } as ModalConfig;
+
   TestBed.configureTestingModule({
     imports: [ModalComponent, TestHostComponent],
     providers: [{ provide: MODAL_CONFIG, useValue: config }],
@@ -30,7 +32,9 @@ function setup(config = { size: ModalSize.SMALL }) {
   return { fixture: TestBed.createComponent(ModalComponent), config };
 }
 
-function setupWithHost(config = { size: ModalSize.SMALL }) {
+function setupWithHost(overrides: Partial<ModalConfig> = {}) {
+  const config = { ...overrides } as ModalConfig;
+
   TestBed.configureTestingModule({
     imports: [ModalComponent, TestHostComponent],
     providers: [{ provide: MODAL_CONFIG, useValue: config }],
@@ -68,6 +72,58 @@ describe('ModalComponent', () => {
       fixture.detectChanges();
       const host = fixture.nativeElement as HTMLElement;
       expect(host.getAttribute('aria-modal')).toBe('true');
+    });
+
+    it('should set aria-label when config.ariaLabel is provided', () => {
+      const { fixture } = setup({ ariaLabel: 'Delete confirmation' });
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.getAttribute('aria-label')).toBe('Delete confirmation');
+    });
+
+    it('should set aria-labelledby when config.ariaLabelledBy is provided', () => {
+      const { fixture } = setup({ ariaLabelledBy: 'modal-title-42' });
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.getAttribute('aria-labelledby')).toBe('modal-title-42');
+    });
+
+    it('should not set aria-label or aria-labelledby when config omits them', () => {
+      const { fixture } = setup({ size: ModalSize.MEDIUM });
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.hasAttribute('aria-label')).toBe(false);
+      expect(host.hasAttribute('aria-labelledby')).toBe(false);
+    });
+
+    it('should warn in dev mode when no accessible name is provided', () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const { fixture } = setup({ size: ModalSize.MEDIUM });
+      fixture.detectChanges();
+
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('[bursit-modal] No accessible name provided'),
+      );
+
+      (console.warn as jest.Mock).mockRestore();
+    });
+
+    it('should NOT warn when ariaLabel is provided', () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const { fixture } = setup({ ariaLabel: 'Test' });
+      fixture.detectChanges();
+
+      expect(console.warn).not.toHaveBeenCalled();
+      (console.warn as jest.Mock).mockRestore();
+    });
+
+    it('should NOT warn when ariaLabelledBy is provided', () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const { fixture } = setup({ ariaLabelledBy: 'modal-title' });
+      fixture.detectChanges();
+
+      expect(console.warn).not.toHaveBeenCalled();
+      (console.warn as jest.Mock).mockRestore();
     });
   });
 

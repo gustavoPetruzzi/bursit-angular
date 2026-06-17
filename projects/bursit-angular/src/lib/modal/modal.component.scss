@@ -1,14 +1,101 @@
+// =============================================================================
+// Modal Component — host styles
+// =============================================================================
+
 :host {
+  display: block;
   background-color: var(--modal-bg);
   box-shadow: var(--modal-shadow);
-
   border-radius: var(--modal-border-radius);
+  border-style: solid;
   border-width: var(--modal-border-width);
   border-color: var(--modal-border-color);
-
-  //TODO mmm Check this, this should be the default even if this is the medium?
   max-width: var(--modal-max-width);
   padding: var(--modal-padding);
 
-  
+  animation: bursit-modal-enter var(--duration-normal) var(--ease-out);
+}
+
+// ---------------------------------------------------------------------------
+// Size variants
+// ---------------------------------------------------------------------------
+
+:host(.bursit-size-small) {
+  max-width: var(--modal-max-width-sm, 24rem);
+}
+
+:host(.bursit-size-medium) {
+  max-width: var(--modal-max-width, 32rem);
+}
+
+:host(.bursit-size-large) {
+  max-width: var(--modal-max-width-lg, 48rem);
+}
+
+:host(.bursit-size-fullscreen) {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Exit animation
+// ---------------------------------------------------------------------------
+
+:host(.bursit-modal-exit) {
+  animation: bursit-modal-exit var(--duration-fast) var(--ease-in);
+}
+
+// ---------------------------------------------------------------------------
+// Keyframes
+// ---------------------------------------------------------------------------
+
+@keyframes bursit-modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bursit-modal-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Accessibility: reduced motion
+// ---------------------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    animation: none;
+  }
+
+  :host(.bursit-modal-exit) {
+    animation: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Responsive: fullscreen on small viewports
+// ---------------------------------------------------------------------------
+
+@media (max-width: 640px) {
+  :host {
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
 }

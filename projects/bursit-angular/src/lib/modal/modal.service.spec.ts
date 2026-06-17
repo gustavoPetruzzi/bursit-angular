@@ -1,11 +1,11 @@
-import { Component, Injector, Injectable, Inject } from '@angular/core';
+import { Component, Injector, Injectable, Inject, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Overlay, OverlayModule } from '@angular/cdk/overlay';
 import { Observable } from 'rxjs';
 
 import { ModalService } from './modal.service';
 import { ModalRef } from './modal-ref';
-import { MODAL_DATA, ModalSize } from './modal.config';
+import { MODAL_DATA, MODAL_REF, ModalSize } from './modal.config';
 
 // --- Test helpers ---
 
@@ -21,6 +21,14 @@ class TestContentComponent {}
 })
 class DataAwareContentComponent {
   constructor(@Inject(MODAL_DATA) public data: { message: string } | null) {}
+}
+
+/** Content component that injects MODAL_REF */
+@Component({
+  template: '<button (click)="ref.close()">Close</button>',
+})
+class RefAwareContentComponent {
+  ref = inject<ModalRef<RefAwareContentComponent>>(MODAL_REF);
 }
 
 function setup(): { service: ModalService } {
@@ -61,6 +69,18 @@ describe('ModalService', () => {
       });
 
       expect(ref.componentInstance.data).toEqual({ message: 'hello' });
+    });
+
+    it('should inject MODAL_REF into the content component', () => {
+      const { service } = setup();
+      const ref = service.open(RefAwareContentComponent);
+      const results: (RefAwareContentComponent | undefined)[] = [];
+      ref.afterClosed().subscribe((r) => results.push(r));
+
+      // Access ModalRef from inside the content component and close
+      ref.componentInstance.ref.close();
+
+      expect(results).toEqual([undefined]);
     });
 
     // TODO(T-005): depends on ModalComponent rendering [role="dialog"]

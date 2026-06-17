@@ -78,6 +78,17 @@ describe('ModalRef', () => {
   });
 
   describe('backdropClick', () => {
+    it('should emit MouseEvent when _emitBackdropClick is called', () => {
+      const ref = new ModalRef<string>();
+      const events: MouseEvent[] = [];
+      const fakeEvent = new MouseEvent('click');
+
+      ref.backdropClick().subscribe((e) => events.push(e));
+      ref._emitBackdropClick(fakeEvent);
+
+      expect(events).toEqual([fakeEvent]);
+    });
+
     it('should return an Observable', () => {
       const ref = new ModalRef<string>();
       const obs = ref.backdropClick();

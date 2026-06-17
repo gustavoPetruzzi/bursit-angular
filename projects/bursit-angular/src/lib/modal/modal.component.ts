@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, isDevMode } from '@angular/core';
 import { A11yModule, CdkTrapFocus } from '@angular/cdk/a11y';
 
 import { MODAL_CONFIG, ModalSize } from './modal.config';
@@ -19,6 +19,7 @@ import { MODAL_CONFIG, ModalSize } from './modal.config';
   selector: 'bursit-modal',
   standalone: true,
   imports: [A11yModule],
+  styleUrls: ['./modal.component.scss'],
   template: `
     <ng-content select="[bursitModalHeader]"></ng-content>
     <ng-content select="[bursitModalBody]"></ng-content>
@@ -28,6 +29,8 @@ import { MODAL_CONFIG, ModalSize } from './modal.config';
   host: {
     'role': 'dialog',
     'aria-modal': 'true',
+    '[attr.aria-label]': 'this.config.ariaLabel',
+    '[attr.aria-labelledby]': 'this.config.ariaLabelledBy',
     '[class.bursit-size-small]': 'this.config.size === sizes.SMALL',
     '[class.bursit-size-medium]': 'this.config.size === sizes.MEDIUM',
     '[class.bursit-size-large]': 'this.config.size === sizes.LARGE',
@@ -39,4 +42,13 @@ import { MODAL_CONFIG, ModalSize } from './modal.config';
 export class ModalComponent {
   readonly config = inject(MODAL_CONFIG);
   protected readonly sizes = ModalSize;
+
+  constructor() {
+    if (isDevMode() && !this.config.ariaLabel && !this.config.ariaLabelledBy) {
+      console.warn(
+        '[bursit-modal] No accessible name provided. ' +
+          'Pass `ariaLabel` or `ariaLabelledBy` in ModalConfig so screen readers can announce the dialog purpose.',
+      );
+    }
+  }
 }
