@@ -1,10 +1,8 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   FormControl,
   FormGroupDirective,
-  FormControlName,
-  NgControl,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -48,11 +46,6 @@ describe('InputDirective — validationInteraction=touched + required', () => {
     control: FormControl,
     validationInteraction: 'default' | 'touched' = 'touched',
   ) {
-    const nativeElement = document.createElement('input');
-
-    TestBed.overrideProvider(ElementRef, { useValue: new ElementRef(nativeElement) });
-    TestBed.overrideProvider(NgControl, { useValue: null });
-
     // We use a simple component that projects the directive via reactive forms
     @Component({
       template: `
@@ -75,7 +68,7 @@ describe('InputDirective — validationInteraction=touched + required', () => {
     const dirEl = wrapperFixture.debugElement.query(By.directive(InputDirective));
     const dir = dirEl.injector.get(InputDirective);
 
-    return { fixture: wrapperFixture, directive: dir, nativeElement };
+    return { fixture: wrapperFixture, directive: dir, nativeElement: dirEl.nativeElement };
   }
 
   it('should NOT mark invalid initially when validationInteraction=touched and field is empty+required', () => {
