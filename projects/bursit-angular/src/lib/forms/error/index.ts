@@ -1,1 +1,1 @@
-export * from './error.directive';
+export * from './error.component';

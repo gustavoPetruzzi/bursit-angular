@@ -1,9 +1,12 @@
-import { Directive, ElementRef, inject, OnInit, Optional } from '@angular/core';
+import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
 
-@Directive({
-  selector: '[bursitMessage]',
-  host: { class: 'bursit-message' },
+@Component({
+  selector: '<bursit-message>',
+  template: `
+    <ng-content></ng-content>
+  `,
+  styleUrl: './message.component.scss',
 })
 export class MessageDirective implements OnInit {
   private readonly _el = inject(ElementRef);
