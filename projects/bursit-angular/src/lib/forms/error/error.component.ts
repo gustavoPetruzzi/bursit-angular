@@ -1,8 +1,12 @@
-import { Directive, ElementRef, inject, OnInit, Optional } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Optional } from '@angular/core';
 import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
 
-@Directive({
+@Component({
   selector: '[bursitError]',
+  template: `
+    <ng-content></ng-content>
+  `,
+  styleUrl: './error.component.scss',
   host: { class: 'bursit-error', role: 'alert' },
 })
 export class ErrorDirective implements OnInit {
