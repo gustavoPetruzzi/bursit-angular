@@ -12,22 +12,39 @@
   .bursit-label {
     position: absolute;
     margin-bottom: 0;
-    top: calc(50% - var(--label-height) / 2);
+    top: 50%;
     left: var(--input-padding-x);
+    transform: translateY(-50%);
+    transform-origin: left center;
     transition: var(--input-label-transition);
+    pointer-events: none;
   }
 }
 
-.bursit-form-field-floating-label.bursit-form-field-has-value,
+
+.bursit-form-field-floating-label.bursit-focus,
+.bursit-form-field-floating-label.bursit-form-field-has-value {
+  .bursit-label {
+    top: var(--space-xs);
+    transform: translateY(0) scale(var(--input-label-scale));
+  }
+}
+
+
 .bursit-form-field-floating-label.bursit-focus {
   .bursit-label {
-    top: 3px;
+    color: var(--input-label-floating-color);
   }
 }
 
-.bursit-form-field-floating-label.bursit-form-field-error.bursit-focus,
-.bursit-form-field-floating-label.bursit-form-field-error.bursit-form-field-has-value {
+.bursit-form-field-floating-label.bursit-form-field-has-value:not(.bursit-focus) {
   .bursit-label {
-    top: 3px;
+    color: var(--input-label-filled-color);
+  }
+}
+
+.bursit-form-field-floating-label.bursit-form-field-error {
+  .bursit-label {
+    color: var(--input-helper-error-color);
   }
 }
