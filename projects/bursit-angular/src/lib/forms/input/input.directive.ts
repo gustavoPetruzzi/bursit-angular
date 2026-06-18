@@ -79,6 +79,7 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     this.hasValue.set(this.inputHasValue());
     this.invalid.set(this.isInputInvalid());
 
+    this._wireId();
     this._wireAriaDescribedBy();
 
     if (this.control) {
@@ -93,6 +94,13 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
 
   ngOnDestroy() {
     this._subscriptions.forEach((s) => s.unsubscribe());
+  }
+
+  private _wireId(): void {
+    const userSet = this.el.nativeElement.getAttribute('id');
+    if (!userSet && this._fieldId) {
+      this.el.nativeElement.setAttribute('id', this._fieldId);
+    }
   }
 
   private _wireAriaDescribedBy(): void {
