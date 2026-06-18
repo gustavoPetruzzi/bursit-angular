@@ -3,8 +3,8 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputDirective } from './input.directive';
 import { FormField } from '../form-field/form-field';
 import { LabelDirective } from '../label/label.directive';
-import { ErrorDirective } from '../error/error.directive';
-import { MessageDirective } from '../message/message.directive';
+import { ErrorDirective } from '../error/error.component';
+import { MessageDirective } from '../message/message.component';
 
 type InputStoryArgs = {
   placeholder?: string;
