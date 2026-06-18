@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Meta, StoryObj, moduleMetadata, argsToTemplate } from '@storybook/angular';
 
 import { ModalService } from './modal.service';
@@ -78,27 +78,29 @@ class ServiceContent {
   template: `<button bursitButton (click)="open()">{{ label }}</button>`,
 })
 class ModalTrigger {
-  @Input() label = 'Open Modal';
-  @Input() size: ModalSize = ModalSize.MEDIUM;
-  @Input() ariaLabel?: string;
-  @Input() ariaLabelledBy?: string;
-  @Input() backdropClosable = true;
-  @Input() escClosable = true;
-  @Input() hasBackdrop = true;
-  @Input() content: 'slots' | 'service' = 'slots';
+  readonly label = input('Open Modal');
+  readonly size = input<ModalSize>(ModalSize.MEDIUM);
+  readonly ariaLabel = input<string | undefined>(undefined);
+  readonly ariaLabelledBy = input<string | undefined>(undefined);
+  readonly backdropClosable = input(true);
+  readonly escClosable = input(true);
+  readonly hasBackdrop = input(true);
+  readonly content = input<'slots' | 'service'>('slots');
 
   private ms = inject(ModalService);
 
   open(): void {
-    const component = this.content === 'slots' ? SlotModalContent : ServiceContent;
+    const component = this.content() === 'slots' ? SlotModalContent : ServiceContent;
     const config: ModalConfig = {
-      size: this.size,
-      backdropClosable: this.backdropClosable,
-      escClosable: this.escClosable,
-      hasBackdrop: this.hasBackdrop,
+      size: this.size(),
+      backdropClosable: this.backdropClosable(),
+      escClosable: this.escClosable(),
+      hasBackdrop: this.hasBackdrop(),
     };
-    if (this.ariaLabel) config.ariaLabel = this.ariaLabel;
-    if (this.ariaLabelledBy) config.ariaLabelledBy = this.ariaLabelledBy;
+    const label = this.ariaLabel();
+    if (label) config.ariaLabel = label;
+    const labelledBy = this.ariaLabelledBy();
+    if (labelledBy) config.ariaLabelledBy = labelledBy;
     this.ms.open(component, config);
   }
 }

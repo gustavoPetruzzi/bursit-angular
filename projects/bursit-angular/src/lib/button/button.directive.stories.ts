@@ -2,7 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from '@storybook/angular';
 import { ButtonDirective } from './button.directive';
 import { ButtonColor } from './models/button-color.type';
 
-type ButtonStoryArgs = ButtonDirective & { size?: 'small' | 'medium' | 'large' };
+type ButtonStoryArgs = { color?: ButtonColor; size?: 'small' | 'medium' | 'large' };
 
 const meta: Meta<ButtonStoryArgs> = {
   title: 'Directives/Button',
