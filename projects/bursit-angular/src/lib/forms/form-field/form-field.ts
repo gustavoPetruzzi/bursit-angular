@@ -1,10 +1,14 @@
-import { contentChild, ChangeDetectionStrategy, Component } from '@angular/core';
+import { contentChild, ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormFieldControl } from './form-field-control.directive';
 import { LabelDirective } from '../label/label.directive';
 import { FormFieldTypes } from './form-field-types.enum';
+import { createFieldId, FORM_FIELD_ID } from './form-field-id.token';
 
 @Component({
   selector: 'bursit-form-field',
+  providers: [
+    { provide: FORM_FIELD_ID, useFactory: createFieldId }
+  ],
   imports: [],
   templateUrl: './form-field.html',
   styleUrl: './form-field.scss',
@@ -20,6 +24,7 @@ import { FormFieldTypes } from './form-field-types.enum';
     '[class.bursit-form-field-has-value]':
       'formFieldControl()?.hasValue() ?? !!formFieldControl()?.control?.value',
     '[class.bursit-form-field-no-label]': '!label()',
+    '[attr.role]': '"group"'
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -28,6 +33,7 @@ export class FormField {
   label = contentChild(LabelDirective, { read: LabelDirective });
 
   formFieldTypes = FormFieldTypes;
+  readonly fieldId = inject(FORM_FIELD_ID);
 
   constructor() {}
 }

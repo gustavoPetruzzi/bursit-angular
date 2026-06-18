@@ -75,7 +75,7 @@ class ServiceContent {
   selector: 'story-modal-trigger',
   standalone: true,
   imports: [ButtonDirective],
-  template: `<button bursitButton (click)="open()">{{ label }}</button>`,
+  template: `<button bursitButton (click)="open()">{{ label() }}</button>`,
 })
 class ModalTrigger {
   readonly label = input('Open Modal');

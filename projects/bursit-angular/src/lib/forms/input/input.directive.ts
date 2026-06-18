@@ -10,10 +10,12 @@ import {
   ElementRef,
   OnInit,
   OnDestroy,
+  inject,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormFieldControl } from '../form-field';
 import { FormFieldTypes } from '../form-field/form-field-types.enum';
+import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
 import { NgControl } from '@angular/forms';
 
 @Directive({
@@ -43,6 +45,8 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
 
   required = input<boolean>(false);
   disabled = model<boolean>(false);
+
+  private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
 
   constructor(
     private readonly el: ElementRef,
@@ -75,6 +79,8 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     this.hasValue.set(this.inputHasValue());
     this.invalid.set(this.isInputInvalid());
 
+    this._wireAriaDescribedBy();
+
     if (this.control) {
       this.disabled.set(this.control.disabled || false);
 
@@ -87,6 +93,16 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
 
   ngOnDestroy() {
     this._subscriptions.forEach((s) => s.unsubscribe());
+  }
+
+  private _wireAriaDescribedBy(): void {
+    const userSet = this.el.nativeElement.getAttribute('aria-describedby');
+    if (!userSet && this._fieldId) {
+      this.el.nativeElement.setAttribute(
+        'aria-describedby',
+        `${this._fieldId}-error ${this._fieldId}-message`,
+      );
+    }
   }
 
   private inputHasValue() {
