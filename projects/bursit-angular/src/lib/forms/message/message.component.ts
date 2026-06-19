@@ -8,7 +8,7 @@ import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
   `,
   styleUrl: './message.component.scss',
 })
-export class MessageDirective implements OnInit {
+export class MessageComponent implements OnInit {
   private readonly _el = inject(ElementRef);
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
 

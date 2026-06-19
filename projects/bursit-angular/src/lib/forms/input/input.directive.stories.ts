@@ -4,7 +4,7 @@ import { InputDirective } from './input.directive';
 import { FormField } from '../form-field/form-field';
 import { LabelDirective } from '../label/label.directive';
 import { ErrorComponent } from '../error/error.component';
-import { MessageDirective } from '../message/message.component';
+import { MessageComponent } from '../message/message.component';
 
 type InputStoryArgs = {
   placeholder?: string;
@@ -21,7 +21,7 @@ const meta: Meta<InputStoryArgs> = {
   component: InputDirective,
   decorators: [
     moduleMetadata({
-      imports: [InputDirective, FormField, LabelDirective, ErrorComponent, MessageDirective, ReactiveFormsModule],
+      imports: [InputDirective, FormField, LabelDirective, ErrorComponent, MessageComponent, ReactiveFormsModule],
     }),
   ],
   argTypes: {
