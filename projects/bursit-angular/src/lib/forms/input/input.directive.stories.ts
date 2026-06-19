@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputDirective } from './input.directive';
 import { FormField } from '../form-field/form-field';
 import { LabelDirective } from '../label/label.directive';
-import { ErrorDirective } from '../error/error.component';
+import { ErrorComponent } from '../error/error.component';
 import { MessageDirective } from '../message/message.component';
 
 type InputStoryArgs = {
@@ -21,7 +21,7 @@ const meta: Meta<InputStoryArgs> = {
   component: InputDirective,
   decorators: [
     moduleMetadata({
-      imports: [InputDirective, FormField, LabelDirective, ErrorDirective, MessageDirective, ReactiveFormsModule],
+      imports: [InputDirective, FormField, LabelDirective, ErrorComponent, MessageDirective, ReactiveFormsModule],
     }),
   ],
   argTypes: {

@@ -9,7 +9,7 @@ import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
   styleUrl: './error.component.scss',
   host: { class: 'bursit-error', role: 'alert' },
 })
-export class ErrorDirective implements OnInit {
+export class ErrorComponent implements OnInit {
   private readonly _el = inject(ElementRef);
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
 

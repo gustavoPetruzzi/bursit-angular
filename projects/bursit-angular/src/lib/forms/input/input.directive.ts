@@ -19,7 +19,7 @@ import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
 import { NgControl } from '@angular/forms';
 
 @Directive({
-  selector: 'input[bursitInput], input[bursit-input]',
+  selector: 'input[bursitInput], input[bursit-input], textarea[bursitInput], textarea[bursit-input]',
   host: { 
     class: 'bursit-input', 
     '[disabled]': 'disabled()',
