@@ -87,7 +87,7 @@ type Story = StoryObj<TextareaStoryArgs>;
 
 const StandaloneTemplate: Story['render'] = (args) => ({
   props: args,
-  template: `<textarea bursitInput [disabled]="disabled" [required]="required" [rows]="rows" [placeholder]="placeholder">Textarea content</textarea>`,
+  template: `<textarea bursitInput [disabled]="disabled" [required]="required" [validationInteraction]="validationInteraction" [rows]="rows" [placeholder]="placeholder">Textarea content</textarea>`,
 });
 
 const FormFieldTemplate: Story['render'] = (args) => ({
@@ -98,7 +98,7 @@ const FormFieldTemplate: Story['render'] = (args) => ({
   template: `
     <bursit-form-field>
       <label bursitLabel>{{label || 'Label'}}</label>
-      <textarea bursitInput [formControl]="control" [required]="required" [floatingLabel]="floatingLabel" [rows]="rows" [placeholder]="placeholder"></textarea>
+      <textarea bursitInput [formControl]="control" [required]="required" [validationInteraction]="validationInteraction" [floatingLabel]="floatingLabel" [rows]="rows" [placeholder]="placeholder"></textarea>
     </bursit-form-field>
   `,
 });
@@ -114,7 +114,7 @@ const FormFieldRequiredTemplate: Story['render'] = (args) => ({
   template: `
     <bursit-form-field>
       <label bursitLabel>{{label || 'Label'}}</label>
-      <textarea bursitInput [formControl]="control" [required]="required" [floatingLabel]="floatingLabel" [rows]="rows" [placeholder]="placeholder"></textarea>
+      <textarea bursitInput [formControl]="control" [required]="required" [validationInteraction]="validationInteraction" [floatingLabel]="floatingLabel" [rows]="rows" [placeholder]="placeholder"></textarea>
     </bursit-form-field>
   `,
 });
@@ -183,7 +183,7 @@ export const ErrorState: Story = {
     template: `
       <bursit-form-field>
         <label bursitLabel>{{label || 'Feedback'}}</label>
-        <textarea bursitInput [formControl]="control" [required]="required" [rows]="rows" [placeholder]="placeholder"></textarea>
+        <textarea bursitInput [formControl]="control" [required]="required" [validationInteraction]="validationInteraction" [rows]="rows" [placeholder]="placeholder"></textarea>
         <span bursitError>Feedback must be at least 10 characters</span>
       </bursit-form-field>
     `,
@@ -193,6 +193,38 @@ export const ErrorState: Story = {
       description: {
         story:
           'Error state: FormControl with Validators.required + Validators.minLength(10), marked as touched and dirty.',
+      },
+    },
+  },
+};
+
+export const ValidationInteractionTouched: Story = {
+  args: {
+    label: 'Feedback',
+    placeholder: 'Your feedback is required',
+    rows: 4,
+    required: true,
+    validationInteraction: 'touched',
+    value: '',
+  },
+  render: (args) => ({
+    props: {
+      ...args,
+      control: new FormControl('', [Validators.required]),
+    },
+    template: `
+      <bursit-form-field>
+        <label bursitLabel>{{label || 'Feedback'}}</label>
+        <textarea bursitInput [formControl]="control" [required]="required" validationInteraction="touched" [rows]="rows" [placeholder]="placeholder"></textarea>
+        <span bursitError>This field is required</span>
+      </bursit-form-field>
+    `,
+  }),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'With validationInteraction=touched, the error is only shown after the user has interacted with the field. Focus and blur the textarea to see the state change.',
       },
     },
   },

@@ -1,0 +1,37 @@
+textarea.bursit-input {
+  background-color: var(--textarea-bg);
+  color: var(--textarea-color);
+  border-color: var(--textarea-border-color);
+  border-width: var(--textarea-border-width);
+  border-radius: var(--textarea-border-radius);
+  padding: var(--textarea-padding-y) var(--textarea-padding-x);
+  font-size: var(--textarea-font-size);
+  font-weight: var(--textarea-font-weight);
+  line-height: var(--textarea-line-height);
+  min-height: var(--textarea-min-height);
+  resize: var(--textarea-resize);
+  transition: var(--textarea-transition);
+
+  &::placeholder {
+    color: var(--textarea-placeholder-color);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: var(--textarea-disabled-bg);
+    color: var(--textarea-disabled-color);
+    border-color: var(--textarea-disabled-border-color);
+    opacity: var(--textarea-disabled-opacity);
+  }
+
+  &:focus-visible {
+    outline-color: var(--textarea-focus-border-color);
+  }
+
+}
+
+.bursit-form-field-error {
+  textarea.bursit-input {
+    border-color: var(--textarea-error-border-color);
+  }
+}

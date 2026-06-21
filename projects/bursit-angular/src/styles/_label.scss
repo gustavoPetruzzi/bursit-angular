@@ -8,6 +8,10 @@
   background-color: var(--input-label-bg);
 }
 
+.bursit-label:has(+ textarea.bursit-input) {
+  top: 1.25rem;
+}
+
 .bursit-form-field-floating-label {
   .bursit-label {
     position: absolute;
