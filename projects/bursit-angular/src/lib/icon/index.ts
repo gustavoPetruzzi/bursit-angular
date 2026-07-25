@@ -1,0 +1,1 @@
+export { BursitIconComponent } from './icon';
