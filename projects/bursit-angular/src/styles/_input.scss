@@ -1,7 +1,7 @@
 .bursit-input {
   background-color: var(--input-bg);
   color: var(--input-color);
-  border-style: solid;
+  border-style: var(--input-border-style);
   border-color: var(--input-border-color);
   border-width: var(--input-border-width);
   border-radius: var(--input-border-radius);
