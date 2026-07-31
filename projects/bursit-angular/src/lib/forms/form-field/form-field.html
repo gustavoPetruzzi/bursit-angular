@@ -3,6 +3,10 @@
 <ng-content></ng-content>
 
 @if (formFieldControl()?.invalid()) {
-  <ng-content select="[bursitError]"></ng-content>
+  <div [id]="fieldId + '-error'">
+    <ng-content select="[bursitError]"></ng-content>
+  </div>
 }
-<ng-content select="[bursitMessage]"></ng-content>
+<div [id]="fieldId + '-message'">
+  <ng-content select="[bursitMessage]"></ng-content>
+</div>
