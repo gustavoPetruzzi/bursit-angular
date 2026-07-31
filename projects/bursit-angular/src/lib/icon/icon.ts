@@ -1,9 +1,10 @@
 import { Component, computed, input } from '@angular/core';
-import { LucideChevronDown, LucideSearch, LucideX, LucideDynamicIcon } from '@lucide/angular';
+import { LucideChevronDown, LucideSearch, LucideX, LucideDynamicIcon, LucideChevronUp } from '@lucide/angular';
 import type { LucideIcon } from '@lucide/angular';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   'chevron-down': LucideChevronDown,
+  'chevron-up': LucideChevronUp,
   'search': LucideSearch,
   'x': LucideX,
 };
