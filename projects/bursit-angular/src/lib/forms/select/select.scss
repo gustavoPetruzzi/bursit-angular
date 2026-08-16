@@ -1,0 +1,107 @@
+:host {
+  display: inline-block;
+  min-width: var(--select-min-width);
+
+  &.bursit-select-disabled {
+    cursor: not-allowed;
+
+    .bursit-select-trigger {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.bursit-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+
+  background-color: var(--select-bg);
+  border-color: var(--select-border-color);
+  border-width: var(--select-border-width);
+  border-style: var(--select-border-style);
+  border-radius: var(--select-border-radius);
+  padding: var(--select-padding-y) var(--select-padding-end) var(--select-padding-y) var(--select-padding-x);
+  font-size: var(--select-font-size);
+  font-weight: var(--select-font-weight);
+  line-height: var(--select-line-height);
+  color: var(--select-color);
+  transition: var(--select-transition);
+
+  &:hover:not([aria-disabled='true']) {
+    background-color: var(--select-hover-bg);
+    border-color: var(--select-hover-border-color);
+  }
+
+  &:focus-visible {
+    outline-width: var(--select-focus-outline-width);
+    outline-color: var(--select-focus-outline-color);
+    outline-style: var(--select-focus-outline-style);
+    outline-offset: var(--select-focus-outline-offset);
+    border-color: var(--select-focus-border-color);
+    box-shadow: var(--select-focus-shadow);
+  }
+
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    background-color: var(--select-disabled-bg);
+    color: var(--select-disabled-color);
+    border-color: var(--select-disabled-border-color);
+    opacity: var(--select-disabled-opacity);
+  }
+}
+
+.bursit-select-value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bursit-select-placeholder {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--select-placeholder-color);
+}
+
+.bursit-select-trigger bursit-icon {
+  color: var(--select-icon-color);
+  transition: transform var(--select-transition);
+
+  [aria-expanded='true'] & {
+    transform: rotate(180deg);
+  }
+}
+
+.bursit-select-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--select-panel-bg);
+  border: var(--select-panel-border-width) var(--select-panel-border-style) var(--select-panel-border-color);
+  border-radius: var(--select-panel-border-radius);
+  box-shadow: var(--select-panel-shadow);
+  max-height: var(--select-panel-max-height);
+  overflow-y: auto;
+  width: 100%;
+}
+
+:host-context(.bursit-form-field-floating-label) {
+  .bursit-select-placeholder {
+    opacity: 0;
+  }
+}
+
+:host-context(.bursit-form-field-error) {
+  .bursit-select-trigger {
+    border-color: var(--input-error-border-color);
+  }
+}
+

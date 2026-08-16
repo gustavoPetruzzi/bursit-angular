@@ -1,0 +1,45 @@
+<div
+  #trigger
+  class="bursit-select-trigger"
+  [attr.tabindex]="disabled() ? -1 : tabIndex()"
+  role="combobox"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-disabled]="disabled() || null"
+  [attr.aria-required]="required() || null"
+  [attr.aria-invalid]="invalid() || null"
+  [attr.aria-expanded]="isOpen()"
+  (click)="toggle()"
+  (focus)="onFocus()"
+  (blur)="onBlur()"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+  (keydown.enter)="toggle()"
+  (keydown.space)="toggle()"
+>
+  @if (hasValue()) {
+    <span class="bursit-select-value">{{ value() }}</span>
+  }
+  @if (!hasValue() && hasPlaceholder) {
+    <span class="bursit-select-placeholder">{{ placeholder() }}</span>
+  }
+
+  <bursit-icon [name]="!isOpen() ? 'chevron-down' : 'chevron-up'"></bursit-icon>
+</div>
+
+<ng-template
+  cdk-connected-overlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  cdkConnectedOverlayHasBackdrop
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  [cdkConnectedOverlayDisableClose]="true"
+  [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
+  [cdkConnectedOverlayMatchWidth]="true"  
+  [cdkConnectedOverlayOpen]="isOpen()"
+  (detach)="onOverlayDetach()"
+  (backdropClick)="onOverlayDetach()"
+  [cdkConnectedOverlayPositions]="_positions"
+>
+  <div role="listbox" class="bursit-select-panel">
+    <ng-content></ng-content>
+  </div>
+</ng-template>

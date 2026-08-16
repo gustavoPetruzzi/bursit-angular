@@ -1,0 +1,37 @@
+:host {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--select-option-padding-y) var(--select-option-padding-x);
+  background-color: var(--select-option-bg);
+  color: var(--select-option-color);
+  font-size: var(--select-option-font-size);
+  cursor: pointer;
+  user-select: none;
+
+  &:hover:not(.bursit-option-disabled) {
+    background-color: var(--select-option-hover-bg);
+    color: var(--select-option-hover-color);
+  }
+
+  &:focus-visible {
+    outline-width: var(--select-option-focus-outline-width);
+    outline-style: var(--select-option-focus-outline-style);
+    outline-color: var(--select-option-focus-outline-color);
+    outline-offset: var(--select-option-focus-outline-offset);
+    background-color: var(--select-option-focus-bg);
+    color: var(--select-option-focus-color);
+  }
+
+  &.bursit-option-disabled {
+    cursor: not-allowed;
+    background-color: var(--select-option-disabled-bg);
+    color: var(--select-option-disabled-color);
+    opacity: var(--select-option-disabled-opacity);
+  }
+}
+
+.bursit-option-content {
+  flex: 1;
+}

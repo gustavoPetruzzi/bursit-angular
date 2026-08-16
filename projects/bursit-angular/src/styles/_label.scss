@@ -26,7 +26,7 @@
 }
 
 
-.bursit-form-field-floating-label.bursit-focus,
+.bursit-form-field-floating-label:not(.bursit-form-field-type-select).bursit-focus,
 .bursit-form-field-floating-label.bursit-form-field-has-value {
   .bursit-label {
     top: var(--space-xs);
@@ -35,7 +35,7 @@
 }
 
 
-.bursit-form-field-floating-label.bursit-focus {
+.bursit-form-field-floating-label:not(.bursit-form-field-type-select).bursit-focus {
   .bursit-label {
     color: var(--input-label-floating-color);
   }
