@@ -8,12 +8,12 @@
 | 400-line budget risk | **High** |
 | Chained PRs recommended | **Yes** |
 | Suggested split | PR 1 (195) → PR 2 (290) → PR 3 (325) |
-| Delivery strategy | ask-always |
-| Chain strategy | pending |
+| Delivery strategy | ask-on-risk (resolved: stacked chained PRs) |
+| Chain strategy | stacked-to-main |
 
-Decision needed before apply: Yes
+Decision needed before apply: No (resolved)
 Chained PRs recommended: Yes
-Chain strategy: pending
+Chain strategy: stacked-to-main
 400-line budget risk: High
 
 ### Suggested Work Units
@@ -28,18 +28,18 @@ Chain strategy: pending
 
 ## Phase 1: Foundation (PR 1)
 
-- [ ] 1.1 Add `SELECT = 'select'` to `FormFieldTypes` in `lib/forms/form-field/form-field-types.enum.ts`
-- [ ] 1.2 Create `styles/_select.scss` with `--select-*` token variables for trigger, chevron, panel, option, and state tokens
-- [ ] 1.3 Add `@forward 'select'` to `styles/_index.scss`
-- [ ] 1.4 Create `lib/forms/select/index.ts` barrel; add `export * from './select'` to `lib/forms/index.ts`
+- [x] 1.1 Add `SELECT = 'select'` to `FormFieldTypes` in `lib/forms/form-field/form-field-types.enum.ts`
+- [x] 1.2 Create `styles/_select.scss` with `--select-*` token variables for trigger, chevron, panel, option, and state tokens
+- [x] 1.3 Add `@forward 'select'` to `styles/_index.scss`
+- [x] 1.4 Create `lib/forms/select/index.ts` barrel; add `export * from './select'` to `lib/forms/index.ts`
 
 ## Phase 2: Select Component Core (PR 1)
 
-- [ ] 2.1 [RED] `select.component.spec.ts`: creation, placeholder, disabled, focused/hovered signal toggles
-- [ ] 2.2 [GREEN] `select.component.ts`: standalone, `placeholder`/`disabled`/`required`/`floatingLabel` inputs; `focused`/`hovered`/`hasValue`/`invalid` signals; wire `FormFieldControl` provider with `forwardRef`; inject `NgControl` @Self @Optional
-- [ ] 2.3 [GREEN] `select.component.html`: trigger with `.bursit-select-trigger`, placeholder text fallback, chevron via `<bursit-icon name="chevron-down">`
-- [ ] 2.4 [GREEN] `select.component.scss`: trigger border, padding, chevron, disabled/error state tokens
-- [ ] 2.5 [REFACTOR] Verify tests green after template + styles wired
+- [x] 2.1 [RED] `select.component.spec.ts`: creation, placeholder, disabled, focused/hovered signal toggles
+- [x] 2.2 [GREEN] `select.component.ts`: standalone, `placeholder`/`disabled`/`required`/`floatingLabel` inputs; `focused`/`hovered`/`hasValue`/`invalid` signals; wire `FormFieldControl` provider with `forwardRef`; inject `NgControl` @Self @Optional
+- [x] 2.3 [GREEN] `select.component.html`: trigger with `.bursit-select-trigger`, placeholder text fallback, chevron via `<bursit-icon name="chevron-down">`
+- [x] 2.4 [GREEN] `select.component.scss`: trigger border, padding, chevron, disabled/error state tokens
+- [x] 2.5 [REFACTOR] Verify tests green after template + styles wired
 
 ## Phase 3: Dropdown & Overlay (PR 2)
 
