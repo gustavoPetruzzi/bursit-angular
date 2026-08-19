@@ -13,7 +13,7 @@
 ## Configuración del entorno
 
 ```bash
-npm install          # Instala dependencias y configura husky (pre-commit hooks)
+npm install          # Instala dependencias
 npm run storybook    # Desarrollo visual en http://localhost:6006
 npm run test         # Tests con Jest
 npm run build        # Build de la librería + schematics

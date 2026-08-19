@@ -62,14 +62,6 @@ Examples:
 - Coverage threshold: 80% for lib files
 - Test files: `*.spec.ts` alongside the source file
 
-### Pre-commit hooks (husky + lint-staged)
-
-```bash
-npm run prepare          # Initializes husky (runs on npm install)
-```
-
-On commit: prettier formats staged files + tests run on staged spec files.
-
 ## Project Structure
 
 ```
