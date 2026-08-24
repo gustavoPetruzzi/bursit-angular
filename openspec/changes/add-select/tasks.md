@@ -9,11 +9,11 @@
 | Chained PRs recommended | **Yes** |
 | Suggested split | PR 1 (195) → PR 2 (290) → PR 3 (325) |
 | Delivery strategy | ask-always |
-| Chain strategy | pending |
+| Chain strategy | stacked-to-main (resolved: stacked chained PRs) |
 
-Decision needed before apply: Yes
+Decision needed before apply: No
 Chained PRs recommended: Yes
-Chain strategy: pending
+Chain strategy: stacked-to-main
 400-line budget risk: High
 
 ### Suggested Work Units
@@ -28,32 +28,32 @@ Chain strategy: pending
 
 ## Phase 1: Foundation (PR 1)
 
-- [ ] 1.1 Add `SELECT = 'select'` to `FormFieldTypes` in `lib/forms/form-field/form-field-types.enum.ts`
-- [ ] 1.2 Create `styles/_select.scss` with `--select-*` token variables for trigger, chevron, panel, option, and state tokens
-- [ ] 1.3 Add `@forward 'select'` to `styles/_index.scss`
-- [ ] 1.4 Create `lib/forms/select/index.ts` barrel; add `export * from './select'` to `lib/forms/index.ts`
+- [x] 1.1 Add `SELECT = 'select'` to `FormFieldTypes` in `lib/forms/form-field/form-field-types.enum.ts`
+- [x] 1.2 Create select styles consuming `--select-*` token variables for trigger, chevron, panel, option, and state tokens (component-scoped `select.scss` + `option.scss`)
+- [x] 1.3 Export select styles through the library build
+- [x] 1.4 Create `lib/forms/select/index.ts` barrel; add export to `lib/forms/index.ts`
 
 ## Phase 2: Select Component Core (PR 1)
 
-- [ ] 2.1 [RED] `select.component.spec.ts`: creation, placeholder, disabled, focused/hovered signal toggles
-- [ ] 2.2 [GREEN] `select.component.ts`: standalone, `placeholder`/`disabled`/`required`/`floatingLabel` inputs; `focused`/`hovered`/`hasValue`/`invalid` signals; wire `FormFieldControl` provider with `forwardRef`; inject `NgControl` @Self @Optional
-- [ ] 2.3 [GREEN] `select.component.html`: trigger with `.bursit-select-trigger`, placeholder text fallback, chevron via `<bursit-icon name="chevron-down">`
-- [ ] 2.4 [GREEN] `select.component.scss`: trigger border, padding, chevron, disabled/error state tokens
-- [ ] 2.5 [REFACTOR] Verify tests green after template + styles wired
+- [x] 2.1 [RED] `select.spec.ts`: creation, placeholder, disabled, focused/hovered signal toggles
+- [x] 2.2 [GREEN] `select.ts`: standalone, `placeholder`/`disabled`/`required`/`floatingLabel` inputs; `focused`/`hovered`/`hasValue`/`invalid` signals; wire `FormFieldControl` provider with `forwardRef`; inject `NgControl` @Self @Optional
+- [x] 2.3 [GREEN] `select.html`: trigger with `.bursit-select-trigger`, placeholder text fallback, chevron via `<bursit-icon>`
+- [x] 2.4 [GREEN] `select.scss`: trigger border, padding, chevron, disabled/error state tokens
+- [x] 2.5 [REFACTOR] Verify tests green after template + styles wired
 
 ## Phase 3: Dropdown & Overlay (PR 2)
 
-- [ ] 3.1 [RED] `select.component.spec.ts`: open on click/Enter/Space (not ArrowDown), close on Escape/outside click/selection, focus returns to trigger
-- [ ] 3.2 [GREEN] `select.component.ts`: inject `Overlay`; `FlexibleConnectedPositionStrategy` (bottom-start → top-start); `scrollStrategy.block()`; `hasBackdrop: true`; `_overlayRef` reuse across cycles; dispose on `ngOnDestroy`
-- [ ] 3.3 [GREEN] `select.component.html`: `<ng-template #panel>` Portal with `.bursit-select-panel` class
-- [ ] 3.4 [GREEN] `select.component.scss`: panel `min-width: 100%`, chevron rotation on open state
+- [x] 3.1 [RED] `select.spec.ts`: open on click/Enter/Space/ArrowDown/ArrowUp while closed (arrow keys open — maintainer decision 2026-08-24, reversing the earlier "not ArrowDown" wording), close on Escape/outside click/selection, focus returns to trigger
+- [x] 3.2 [GREEN] `select.ts`: declarative overlay driven by `isOpen()` signal; `toggle()` guards disabled + focuses trigger on open; `close()` no-op guard; `onOverlayDetach()` resets open state + fires touched
+- [x] 3.3 [GREEN] `select.html`: `<ng-template cdk-connected-overlay>` hosting `.bursit-select-panel` (`role="listbox"`, deterministic id); transparent backdrop closes via detach/backdropClick
+- [x] 3.4 [GREEN] overlay `matchWidth`; chevron rotates on open (`[aria-expanded='true'] bursit-icon`)
 
 ## Phase 4: Options & Keyboard (PR 2)
 
-- [ ] 4.1 Create `option.component.ts`: standalone, `value`/`disabled` inputs; `[cdkOption]="value()"`, `[cdkOptionDisabled]`; `<ng-content>` for icon/label
-- [ ] 4.2 [RED] `select.component.spec.ts`: ArrowUp/Down/Home/End navigation, Enter selects, no wrap past last option
-- [ ] 4.3 [GREEN] `select.component.ts`: `@ViewChild(CdkListbox)`; subscribe `valueChange` → store value; `writeValue` → `cdkListbox.selectValue()`; `@ContentChildren` options projected to listbox
-- [ ] 4.4 [GREEN] `select.component.html`: `[cdkListbox] useActiveDescendant=true`; `<ng-content select="bursit-option">`; attach `#panel` to overlay via `TemplatePortal`
+- [x] 4.1 Create `option.ts`: standalone, `value`/`disabled` inputs; registers via injected `BURSIT_SELECT` token; deterministic DOM id; `<ng-content>` for icon/label
+- [x] 4.2 [RED] `select.spec.ts`: ArrowUp/Down/Home/End navigation, Enter/Space select, no wrap past last option, skip disabled options
+- [x] 4.3 [GREEN] `select.ts`: options registry via `registerOption`/`unregisterOption`; `activeOption` signal drives activedescendant + `.bursit-option-active`; Arrow/Home/End navigate enabled options without wrapping; Enter/Space select the active option; Escape closes + refocuses trigger
+- [x] 4.4 [GREEN] `select.html` + option host bindings: projected `<bursit-option>`; trigger `aria-haspopup="listbox"`, `aria-controls` → panel id when open, `aria-activedescendant` mirrors active option id
 
 ## Phase 5: CVA & Forms (PR 3)
 
@@ -62,9 +62,9 @@ Chain strategy: pending
 
 ## Phase 6: ARIA & Accessibility (PR 3)
 
-- [ ] 6.1 [RED] `select.component.spec.ts`: `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-haspopup="listbox"`, `aria-activedescendant` mirror; listbox/option roles + `aria-selected`
-- [ ] 6.2 [GREEN] `select.component.ts`: static combobox attrs; dynamic `aria-expanded`/`aria-controls` via host binding; `aria-activedescendant` mirror via `effect()` + `Renderer2` copying from listbox; `aria-labelledby` on panel
-- [ ] 6.3 [GREEN] `select.component.scss`: `@media (prefers-reduced-motion: reduce)` → instant transitions
+- [x] 6.1 [RED] `select.spec.ts`: `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-haspopup="listbox"`, `aria-activedescendant` mirror; listbox/option roles + `aria-selected`
+- [x] 6.2 [GREEN] `select.ts`/`select.html`: static combobox attrs; dynamic `aria-expanded`/`aria-controls`/`aria-activedescendant` via template bindings from signals/computed state; deterministic panel + option ids
+- [ ] 6.3 [GREEN] `select.scss`: `@media (prefers-reduced-motion: reduce)` → instant transitions
 
 ## Phase 7: FormField Integration (PR 3)
 

@@ -10,7 +10,10 @@
   cursor: pointer;
   user-select: none;
 
-  &:hover:not(.bursit-option-disabled) {
+  // Hover and keyboard-active share identical visuals by design (PrimeNG-style):
+  // one rule, hover tokens only — no separate focus-token highlight.
+  &:hover:not(.bursit-option-disabled),
+  &.bursit-option-active:not(.bursit-option-disabled) {
     background-color: var(--select-option-hover-bg);
     color: var(--select-option-hover-color);
   }
