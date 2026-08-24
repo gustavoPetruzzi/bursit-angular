@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  computed,
   forwardRef,
   inject,
   input,
@@ -44,10 +45,15 @@ import type { Option } from '../option/option';
 export class Select
   implements FormFieldControl<any>, ControlValueAccessor, OnInit, AfterViewInit, OnDestroy
 {
+  private static _nextUid = 0;
+
   private readonly scrollStrategyOptions = inject(ScrollStrategyOptions);
   protected readonly scrollStrategy = this.scrollStrategyOptions.reposition();
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
   control = inject(NgControl, { self: true, optional: true });
+
+  readonly uid: string = this._fieldId ?? `bursit-select-${Select._nextUid++}`;
+  readonly panelId = `${this.uid}-listbox`;
 
   floatingLabel = input<boolean>(false);
   placeholder = input<string>('');
@@ -96,6 +102,17 @@ export class Select
   value = model<string | null>(null);
   readonly isOpen = signal(false);
   trigger = viewChild.required<ElementRef<HTMLElement>>('trigger');
+
+  protected readonly activeDescendantId = computed<string | null>(() => {
+    const active = this.activeOption();
+    return this.isOpen() && active ? active.optionId : null;
+  });
+
+  protected readonly displayLabel = computed<string | null>(() => {
+    const value = this.value();
+    if (value === null || value === '') return null;
+    return this.options().find((option) => option.value() === value)?.label ?? value;
+  });
 
   private _onChange: (val: string) => void = () => {};
   private _onTouched: () => void = () => {};
@@ -153,6 +170,10 @@ export class Select
     if (this.isOpen()) {
       this.focused.set(true);
       this.trigger().nativeElement.focus();
+      this.activeOption.set(this._initialActiveOption());
+      this._scrollActiveIntoView();
+    } else {
+      this.activeOption.set(null);
     }
   }
 
@@ -160,10 +181,8 @@ export class Select
     if (!this.isOpen()) return;
 
     this.isOpen.set(false);
-
-    if (document.activeElement !== this.trigger().nativeElement) {
-      this.focused.set(false);
-    }
+    this.activeOption.set(null);
+    this._unsetFocusedIfTriggerUnfocused();
   }
 
   selectOption(value: string): void {
@@ -176,10 +195,52 @@ export class Select
 
   onOverlayDetach(): void {
     this.isOpen.set(false);
+    this.activeOption.set(null);
     this._onTouched();
+    this._unsetFocusedIfTriggerUnfocused();
+  }
 
-    if (document.activeElement !== this.trigger().nativeElement) {
-      this.focused.set(false);
+  onKeydown(event: KeyboardEvent): void {
+    if (this.disabled()) return;
+
+    switch (event.key) {
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (this.isOpen()) {
+          this._selectActive();
+        } else {
+          this.toggle();
+        }
+        break;
+      case 'Escape':
+        if (this.isOpen()) {
+          event.preventDefault();
+          this.close();
+          this.trigger().nativeElement.focus();
+        }
+        break;
+      case 'Tab':
+        if (this.isOpen()) {
+          this.close();
+        }
+        break;
+      case 'ArrowDown':
+      case 'ArrowUp':
+        event.preventDefault();
+        if (this.isOpen()) {
+          this._navigate(event.key);
+        } else {
+          this.toggle();
+        }
+        break;
+      case 'Home':
+      case 'End':
+        if (this.isOpen()) {
+          event.preventDefault();
+          this._navigate(event.key);
+        }
+        break;
     }
   }
 
@@ -240,6 +301,78 @@ export class Select
         'aria-describedby',
         `${this._fieldId}-error ${this._fieldId}-message`,
       );
+    }
+  }
+
+  private _enabledOptions(): Option[] {
+    return this.options().filter((option) => !option.disabled());
+  }
+  private _unsetFocusedIfTriggerUnfocused(): void {
+    if (document.activeElement !== this.trigger().nativeElement) {
+      this.focused.set(false);
+    }
+  }
+
+  private _initialActiveOption(): Option | null {
+    const value = this.value();
+    if (value !== null && value !== '') {
+      const match = this.options().find((option) => option.value() === value);
+      if (match && !match.disabled()) return match;
+    }
+    return null;
+  }
+
+  private _navigate(key: string): void {
+    const enabled = this._enabledOptions();
+    if (!enabled.length) return;
+
+    const current = this.activeOption();
+    const currentIndex = current ? enabled.indexOf(current) : -1;
+
+    switch (key) {
+      case 'ArrowDown': {
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < enabled.length) {
+          this.activeOption.set(enabled[nextIndex]);
+        }
+        break;
+      }
+      case 'ArrowUp': {
+        if (currentIndex === -1) {
+          this.activeOption.set(enabled[enabled.length - 1]);
+          break;
+        }
+        const previousIndex = currentIndex - 1;
+        if (previousIndex >= 0) {
+          this.activeOption.set(enabled[previousIndex]);
+        }
+        break;
+      }
+      case 'Home':
+        this.activeOption.set(enabled[0]);
+        break;
+      case 'End':
+        this.activeOption.set(enabled[enabled.length - 1]);
+        break;
+    }
+
+    this._scrollActiveIntoView();
+  }
+
+  private _scrollActiveIntoView(): void {
+    const id = this.activeDescendantId();
+    if (!id) return;
+    document.getElementById(id)?.scrollIntoView?.({ block: 'nearest' });
+  }
+
+  private _selectActive(): void {
+    const active = this.activeOption();
+    if (!active) {
+      this.close();
+      return;
+    }
+    if (!active.disabled()) {
+      this.selectOption(active.value());
     }
   }
 

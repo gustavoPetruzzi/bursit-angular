@@ -3,7 +3,10 @@
   class="bursit-select-trigger"
   [attr.tabindex]="disabled() ? -1 : tabIndex()"
   role="combobox"
+  aria-haspopup="listbox"
   [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-controls]="isOpen() ? panelId : null"
+  [attr.aria-activedescendant]="activeDescendantId()"
   [attr.aria-disabled]="disabled() || null"
   [attr.aria-required]="required() || null"
   [attr.aria-invalid]="invalid() || null"
@@ -13,11 +16,10 @@
   (blur)="onBlur()"
   (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()"
-  (keydown.enter)="toggle()"
-  (keydown.space)="toggle()"
+  (keydown)="onKeydown($event)"
 >
   @if (hasValue()) {
-    <span class="bursit-select-value">{{ value() }}</span>
+    <span class="bursit-select-value">{{ displayLabel() }}</span>
   }
   @if (!hasValue() && hasPlaceholder) {
     <span class="bursit-select-placeholder">{{ placeholder() }}</span>
@@ -39,7 +41,7 @@
   (backdropClick)="onOverlayDetach()"
   [cdkConnectedOverlayPositions]="_positions"
 >
-  <div role="listbox" class="bursit-select-panel">
+  <div role="listbox" class="bursit-select-panel" [attr.id]="panelId">
     <ng-content></ng-content>
   </div>
 </ng-template>
