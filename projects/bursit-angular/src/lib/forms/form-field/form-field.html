@@ -1,12 +1,14 @@
-<ng-content select="[bursitLabel]"></ng-content>
+<div class="bursit-form-field-control-wrapper">
+  <ng-content select="[bursitLabel]"></ng-content>
 
-<ng-content></ng-content>
+  <ng-content></ng-content>
+</div>
 
 @if (formFieldControl()?.invalid()) {
-  <div [id]="fieldId + '-error'">
+  <div class="bursit-form-field-error-slot" [id]="fieldId + '-error'">
     <ng-content select="[bursitError]"></ng-content>
   </div>
 }
-<div [id]="fieldId + '-message'">
+<div class="bursit-form-field-message-slot" [id]="fieldId + '-message'">
   <ng-content select="[bursitMessage]"></ng-content>
 </div>

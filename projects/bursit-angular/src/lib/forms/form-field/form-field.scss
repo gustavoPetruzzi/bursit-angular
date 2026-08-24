@@ -1,6 +1,19 @@
 :host {
   display: inline-flex;
-  position: relative;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+// Positioning context for the floating label: it must anchor to the
+// input area only, never to the whole field (error/message would shift it).
+.bursit-form-field-control-wrapper {
+  position: relative;
+}
+
+// Empty slots must not contribute to the host's flex gap.
+.bursit-form-field-error-slot,
+.bursit-form-field-message-slot {
+  &:empty {
+    display: none;
+  }
 }
