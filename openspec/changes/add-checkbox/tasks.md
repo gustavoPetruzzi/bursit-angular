@@ -33,8 +33,8 @@ Chain strategy: stacked-to-main
 - [ ] 2.1 Create `src/lib/forms/checkbox/checkbox.ts`: component `bursit-checkbox`, inputs `checked`/`disabled` models, `indeterminate`/`required`/`validationInteraction` inputs, host classes `.bursit-checkbox -checked -indeterminate -disabled -focused`.
 - [ ] 2.2 Implement ControlValueAccessor in same file (`writeValue`, `registerOnChange`, `registerOnTouched`, `setDisabledState`).
 - [ ] 2.3 Create `src/lib/forms/checkbox/checkbox.html`: native `<input type="checkbox">` + `<ng-content>` label area with explicit id/for association.
-- [ ] 2.4 Sync DOM `.indeterminate` property from input via effect; no special-case click logic (native behavior clears + toggles).
-- [ ] 2.5 Create `src/styles/_checkbox.scss` consuming existing `--checkbox-*` tokens only; forward it in `src/styles/_index.scss`.
+- [ ] 2.4 Bind `[indeterminate]` directly as property binding on the input (DOM property, not attribute — no effect/viewChild needed); no special-case click logic (native behavior clears + toggles).
+- [ ] 2.5 Style `src/lib/forms/checkbox/checkbox.scss` (via existing styleUrl) consuming only `--checkbox-*` tokens — component-encapsulated, matching select/icon/modal convention. No global sheet needed.
 - [ ] 2.6 Export barrel in `src/lib/forms/index.ts`; make Phase 1 tests pass (`npm run test -- checkbox`).
 
 ## Phase 3: RED Tests — FormField Integration

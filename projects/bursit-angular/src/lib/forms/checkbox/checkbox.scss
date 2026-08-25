@@ -1,0 +1,136 @@
+// ---------------------------------------------------------------------------
+// School A layout: hidden-but-focusable native input over a drawn box.
+// The checkmark and dash are SVG paths — no pseudo-element geometry hacks.
+// ---------------------------------------------------------------------------
+
+.bursit-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+}
+
+// Visually hidden, still focusable and clickable. Never display:none.
+.bursit-checkbox-input {
+  appearance: none;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  margin: 0;
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+// The drawn visual layer.
+.bursit-checkbox-box {
+  display: inline-grid;
+  place-content: center;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border-width: var(--checkbox-border-width);
+  border-style: var(--checkbox-border-style, solid);
+  border-color: var(--checkbox-border-color);
+  border-radius: var(--checkbox-border-radius);
+  background-color: var(--checkbox-bg);
+  transition: var(--checkbox-transition);
+}
+
+// ---------------------------------------------------------------------------
+// Mark (SVG paths): hidden by default via stroke-dashoffset, drawn on state.
+// ---------------------------------------------------------------------------
+
+.bursit-checkbox-mark {
+  width: calc(var(--checkbox-size) * 0.66);
+  height: calc(var(--checkbox-size) * 0.66);
+
+  path {
+    fill: none;
+    stroke: var(--checkbox-checked-color);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .bursit-checkbox-mark-check {
+    stroke-dasharray: 12;
+    stroke-dashoffset: 12;
+    transition: stroke-dashoffset var(--duration-fast) var(--ease-out);
+  }
+
+  .bursit-checkbox-mark-dash {
+    stroke-dasharray: 6;
+    stroke-dashoffset: 6;
+    transition: stroke-dashoffset var(--duration-fast) var(--ease-in-out);
+  }
+}
+
+.bursit-checkbox-box-checked .bursit-checkbox-mark-check {
+  stroke-dashoffset: 0;
+}
+
+.bursit-checkbox-box-indeterminate {
+  background-color: var(--checkbox-indeterminate-bg);
+  border-color: var(--checkbox-indeterminate-border-color);
+
+  .bursit-checkbox-mark-dash {
+    stroke: var(--checkbox-indeterminate-color);
+    stroke-dashoffset: 0;
+  }
+}
+
+// Focus ring lands on the drawn box while the real input takes focus.
+.bursit-checkbox-input:focus-visible + .bursit-checkbox-box {
+  outline: none;
+  box-shadow: var(--checkbox-focus-shadow);
+}
+
+// ---------------------------------------------------------------------------
+// Hover (skipped while disabled)
+// ---------------------------------------------------------------------------
+
+.bursit-checkbox:not(:has(.bursit-checkbox-box-disabled)):hover .bursit-checkbox-box {
+  border-color: var(--checkbox-hover-border-color);
+
+  &.bursit-checkbox-box-checked {
+    border-color: var(--checkbox-hover-checked-border-color);
+    background-color: var(--checkbox-hover-checked-bg);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Disabled
+// ---------------------------------------------------------------------------
+
+.bursit-checkbox-box-disabled {
+  background-color: var(--checkbox-disabled-bg);
+  border-color: var(--checkbox-disabled-border-color);
+  cursor: not-allowed;
+
+  path {
+    opacity: var(--checkbox-disabled-opacity);
+  }
+
+  &.bursit-checkbox-box-checked .bursit-checkbox-mark-check {
+    background-color: transparent;
+    stroke: var(--checkbox-disabled-checked-color);
+    opacity: 1;
+  }
+}
+
+.bursit-checkbox:has(.bursit-checkbox-box-disabled),
+.bursit-checkbox-input:disabled {
+  cursor: not-allowed;
+}
+
+// ---------------------------------------------------------------------------
+// Label text
+// ---------------------------------------------------------------------------
+
+.bursit-checkbox-label {
+  color: var(--color-text-primary, inherit);
+}

@@ -13,11 +13,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       multi: true
     }
   ],
+  host: {
+    '[class.bursit-checkbox-checked]': "checked()",
+    '[class.bursit-checkbox-indeterminate]': 'indeterminate()',
+    '[class.bursit-checkbox-disabled]': 'disabled()',
+    '[class.bursit-checkbox-focused]': 'focused()',
+  }
 })
 export class Checkbox implements ControlValueAccessor {
 
   checked = model(false);
-  indeterminate = input(false);
+  indeterminate = model(false);
   required = input(false);
   disabled = model(false);
   validationInteraction = input<'default' | 'touched'>('default');
@@ -27,6 +33,7 @@ export class Checkbox implements ControlValueAccessor {
 
   writeValue(val: boolean): void {
     this.checked.set(val);
+    this.indeterminate.set(false);
   }
 
   registerOnChange(fn: any): void {
@@ -40,7 +47,8 @@ export class Checkbox implements ControlValueAccessor {
   handleChange(event: Event): void {
     const value = (event.target as HTMLInputElement).checked;
     this.checked.set(value);
-    this.onChange?.(value)
+    this.indeterminate.set(false);
+    this.onChange?.(value);
   }
 
   setDisabledState(isDisabled: boolean): void {

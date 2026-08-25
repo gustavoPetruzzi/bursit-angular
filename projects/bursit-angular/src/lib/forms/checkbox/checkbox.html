@@ -1,12 +1,26 @@
-<label>
+<label class="bursit-checkbox">
+  <!-- Native input: keeps semantics, keyboard and forms. Hidden but focusable. -->
   <input
     type="checkbox"
+    class="bursit-checkbox-input"
     [checked]="checked()"
-    (change)="handleChange($event)"
+    [indeterminate]="indeterminate()"
     [disabled]="disabled()"
+    (change)="handleChange($event)"
     (focus)="onFocus()"
     (blur)="onBlur()"
   >
+  <span
+    class="bursit-checkbox-box"
+    [class.bursit-checkbox-box-checked]="checked()"
+    [class.bursit-checkbox-box-indeterminate]="indeterminate()"
+    [class.bursit-checkbox-box-disabled]="disabled()"
+  >
+    <svg class="bursit-checkbox-mark" viewBox="0 0 12 12" aria-hidden="true">
+      <path class="bursit-checkbox-mark-check" d="M2.5 6.5l2.5 2.5L9.5 4" />
+      <path class="bursit-checkbox-mark-dash" d="M3 6h6" />
+    </svg>
+  </span>
   <span class="bursit-checkbox-label">
     <ng-content></ng-content>
   </span>

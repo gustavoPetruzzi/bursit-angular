@@ -14,7 +14,7 @@ New standalone signal-based component following the Select pattern (`forms/selec
 | 4 | Indeterminate as `input<boolean>` + effect syncing DOM `.indeterminate` property; cleared on user toggle; never written to form value | Custom three-state value type (`true/false/null`) | Spec defines indeterminate as view-state only; three-state values leak into FormControl and break validators |
 | 5 | Id strategy: use injected `FORM_FIELD_ID` when inside form-field, else locally generated id (`createFieldId()`-style) for label association | Always generate own id | Inside form-field, `${fieldId}-error/-message` describedby wiring depends on the input id matching fieldId — same contract InputDirective honors |
 | 6 | No new `FormFieldTypes.CHECKBOX` enum member | Add enum value | Floating-label layout is the only consumer of `type`; checkbox never floats its label |
-| 7 | Styles in shared `_checkbox.scss` keyed off host classes, not component-encapsulated styles | Encapsulation: none/emulated inline styles | Library convention: all visual styling lives in `src/styles/*.scss` consuming global tokens (see `_input.scss`, `_button.scss`) |
+| 7 | Component styles via `styleUrl` (`checkbox.scss`) consuming `--checkbox-*` tokens | Global sheet in `src/styles/` | Repo convention verified: every COMPONENT (select, modal, icon, avatar...) uses `styleUrl`; global sheets in `src/styles/` exist only for attribute DIRECTIVES (button/input/label) which cannot carry their own styles |
 
 ## Data Flow
 
@@ -34,8 +34,7 @@ New standalone signal-based component following the Select pattern (`forms/selec
 | `src/lib/forms/checkbox/checkbox.spec.ts` | Create | Unit tests per spec scenario (strict TDD: RED first) |
 | `src/lib/forms/checkbox/index.ts` | Create | Folder barrel |
 | `src/lib/forms/checkbox/checkbox.stories.ts` | Create | Stories mirroring input/select structure |
-| `src/styles/_checkbox.scss` | Create | Token-driven styles (`--checkbox-*`) |
-| `src/styles/_index.scss` | Modify | Forward `_checkbox.scss` |
+| `src/lib/forms/checkbox/checkbox.scss` | Modify | Token-driven component styles (`--checkbox-*`), encapsulated via existing styleUrl |
 | `src/lib/forms/index.ts` | Modify | Export checkbox barrel |
 
 ## Interfaces / Contracts
@@ -51,7 +50,7 @@ disabled = model(false);        // synced with NgControl status
 validationInteraction = input<'default' | 'touched'>('default');
 ```
 
-Host classes emitted for styling: `.bursit-checkbox`, `-checked`, `-indeterminate`, `-disabled`, `-error`, `-focused`. Class naming follows the `bursit-form-field-*` precedent so `_checkbox.scss` selectors stay flat.
+Visual strategy (School A, per Material/Radix): the native input stays in the template for semantics/keyboard/forms but is visually hidden (absolute, opacity 0 — never display:none); a sibling `<span>` box is the drawn visual layer, styled from tokens with state classes bound from signals (`checked()/indeterminate()/disabled()`). Focus ring renders on the box via `.bursit-checkbox-input:focus-visible + .bursit-checkbox-box`. The `focused()` signal stays — it feeds the `FormFieldControl` contract in PR 2.
 
 `FormFieldControl<T>` implementation covers: `invalid`, `disabled`, `required`, `focused`, `hovered`, `control` (NgControl). Intentionally unimplemented: `floatingLabel`, `hasPlaceholder`, `hasValue`, `type`.
 
