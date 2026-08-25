@@ -1,0 +1,13 @@
+<label>
+  <input
+    type="checkbox"
+    [checked]="checked()"
+    (change)="handleChange($event)"
+    [disabled]="disabled()"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+  >
+  <span class="bursit-checkbox-label">
+    <ng-content></ng-content>
+  </span>
+</label>
