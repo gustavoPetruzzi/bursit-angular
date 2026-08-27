@@ -1,54 +1,54 @@
 ---
-name: Reporte de bug
-about: Reporta un error o comportamiento inesperado en la librería
+name: Bug report
+about: Report an error or unexpected behavior in the library
 title: '[Bug]: '
 labels: ['bug']
 ---
 
-## Descripción del bug
+## Bug description
 
-<!-- Una descripción clara y concisa del problema. -->
+<!-- A clear and concise description of the problem. -->
 
-## Componente o directiva afectada
+## Affected component or directive
 
-<!-- Ej: ButtonDirective, FormField, BursitThemeService -->
+<!-- E.g.: ButtonDirective, FormField, BursitThemeService -->
 
-## Pasos para reproducir
+## Steps to reproduce
 
-1. Ir a '...'
-2. Hacer clic en '...'
-3. Ver el error
+1. Go to '...'
+2. Click on '...'
+3. See the error
 
-## Comportamiento esperado
+## Expected behavior
 
-<!-- Qué esperabas que sucediera. -->
+<!-- What you expected to happen. -->
 
-## Comportamiento actual
+## Actual behavior
 
-<!-- Qué sucede realmente. Incluye mensajes de error de la consola si los hay. -->
+<!-- What actually happens. Include console error messages if any. -->
 
-## Reproducción mínima
+## Minimal reproduction
 
-<!-- Un enlace a StackBlitz/CodeSandbox o un snippet mínimo que reproduzca el problema. -->
+<!-- A link to StackBlitz/CodeSandbox or a minimal snippet that reproduces the issue. -->
 
 ```html
-<!-- Pega aquí el código mínimo -->
+<!-- Paste the minimal code here -->
 ```
 
-## Entorno
+## Environment
 
-| Campo                 | Versión                                    |
+| Field                 | Version                                    |
 | --------------------- | ------------------------------------------ |
-| `bursit-angular`      | <!-- ej: 0.1.0 -->                         |
-| Angular               | <!-- ej: 21.0.0 -->                        |
-| Navegador             | <!-- ej: Chrome 126, Firefox 127 -->       |
-| Sistema operativo     | <!-- ej: Ubuntu 24.04, Windows 11 -->      |
-| Tema (si aplica)      | <!-- light / dark / system -->             |
+| `bursit-angular`      | <!-- e.g.: 0.1.0 -->                       |
+| Angular               | <!-- e.g.: 21.0.0 -->                      |
+| Browser               | <!-- e.g.: Chrome 126, Firefox 127 -->     |
+| Operating system      | <!-- e.g.: Ubuntu 24.04, Windows 11 -->    |
+| Theme (if applicable) | <!-- light / dark / system -->             |
 
-## Capturas de pantalla
+## Screenshots
 
-<!-- Si aplica, agrega capturas o GIFs del problema. -->
+<!-- If applicable, add screenshots or GIFs of the problem. -->
 
-## Contexto adicional
+## Additional context
 
-<!-- Cualquier otra información relevante: ¿sucede solo con SSR?, ¿solo en cierto tema?, ¿después de qué versión empezó? -->
+<!-- Any other relevant information: does it only happen with SSR?, only in a certain theme?, after which version did it start? -->

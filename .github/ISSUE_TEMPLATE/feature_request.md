@@ -1,48 +1,48 @@
 ---
-name: Propuesta de mejora
-about: Propone una funcionalidad nueva o una mejora de algo existente
+name: Feature request
+about: Propose a new feature or an improvement to something existing
 title: '[Enhancement]: '
 labels: ['enhancement']
 ---
 
-## Problema o necesidad
+## Problem or need
 
-<!-- Qué problema resuelve esta mejora. Ej: "Como consumidor de la librería necesito..." -->
+<!-- What problem this enhancement solves. E.g.: "As a library consumer I need..." -->
 
-## Propuesta
+## Proposal
 
-<!-- Describe la solución que te gustaría ver. -->
+<!-- Describe the solution you'd like to see. -->
 
-## API propuesta
+## Proposed API
 
-<!-- Para una librería de componentes, el diseño de la API es lo más importante.
-     Muestra cómo se usaría: selector, inputs, outputs, servicios, etc. -->
+<!-- For a component library, API design is the most important part.
+     Show how it would be used: selector, inputs, outputs, services, etc. -->
 
 ```html
-<!-- Ejemplo de uso imaginado -->
-<button bursitButton color="primary" [loading]="isSaving">Guardar</button>
+<!-- Imagined usage example -->
+<button bursitButton color="primary" [loading]="isSaving">Save</button>
 ```
 
-## Tipo de mejora
+## Type of improvement
 
-<!-- Marca con una x lo que aplique -->
+<!-- Mark with an x what applies -->
 
-- [ ] Nueva directiva o componente
-- [ ] Nuevo servicio o utilidad
-- [ ] Variante o extensión de algo existente
-- [ ] Mejora de accesibilidad (a11y)
-- [ ] Mejora de documentación
-- [ ] Otro: <!-- especifica -->
+- [ ] New directive or component
+- [ ] New service or utility
+- [ ] Variant or extension of something existing
+- [ ] Accessibility improvement (a11y)
+- [ ] Documentation improvement
+- [ ] Other: <!-- specify -->
 
-## Alternativas consideradas
+## Alternatives considered
 
-<!-- ¿Qué otras soluciones evaluaste? ¿Por qué esta es la mejor opción? -->
+<!-- What other solutions did you evaluate? Why is this the best option? -->
 
-## ¿Es un breaking change?
+## Is this a breaking change?
 
-- [ ] Sí — explica qué se rompe y cómo migrar
+- [ ] Yes — explain what breaks and how to migrate
 - [ ] No
 
-## Contexto adicional
+## Additional context
 
-<!-- Capturas, links a otros design systems con patrones similares, casos de uso, etc. -->
+<!-- Screenshots, links to other design systems with similar patterns, use cases, etc. -->

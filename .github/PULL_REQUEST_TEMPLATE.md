@@ -1,47 +1,47 @@
-## Descripción
+## Description
 
-<!-- Qué hace este PR y por qué. Dos o tres oraciones alcanzan. -->
+<!-- What this PR does and why. Two or three sentences are enough. -->
 
-## Issue relacionado
+## Related issue
 
-<!-- Todo PR nace de un issue. Usa una keyword de cierre para que se cierre automáticamente al mergear: -->
+<!-- Every PR comes from an issue. Use a closing keyword so it closes automatically when merged: -->
 
 Closes #
 
-## Tipo de cambio
+## Type of change
 
-- [ ] `feat` — Nueva funcionalidad
-- [ ] `fix` — Corrección de bug
-- [ ] `refactor` — Sin cambios de comportamiento
-- [ ] `perf` — Mejora de performance
-- [ ] `docs` — Solo documentación
-- [ ] `test` — Agrega o corrige tests
-- [ ] `chore` — Tooling, dependencias, configuración
+- [ ] `feat` — New feature
+- [ ] `fix` — Bug fix
+- [ ] `refactor` — No behavior change
+- [ ] `perf` — Performance improvement
+- [ ] `docs` — Documentation only
+- [ ] `test` — Adds or fixes tests
+- [ ] `chore` — Tooling, dependencies, configuration
 
-## ¿Qué revisar primero?
+## What to review first
 
-<!-- Guía al reviewer: qué archivo mirar primero y cuál es la decisión clave del PR. -->
+<!-- Guide the reviewer: which file to look at first and what is the key decision of the PR. -->
 
-## Fuera de scope
+## Out of scope
 
-<!-- Qué NO se toca en este PR aunque esté relacionado. Evita review creep. -->
+<!-- What is NOT touched in this PR even though it's related. Avoid review creep. -->
 
-## Capturas / Storybook
+## Screenshots / Storybook
 
-<!-- Si hay cambios visuales, agrega capturas o GIFs: antes/después, light/dark, estados (hover, focus, disabled, error). -->
+<!-- If there are visual changes, add screenshots or GIFs: before/after, light/dark, states (hover, focus, disabled, error). -->
 
 ## Checklist
 
-- [ ] La rama sigue la convención (`feat/...`, `fix/...`, etc.)
-- [ ] Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/)
-- [ ] `npm run test` pasa y el coverage no baja de 80%
-- [ ] `npm run build` pasa
-- [ ] Estilos solo con design tokens (`var(--*)`), sin valores hardcodeados
-- [ ] Componentes/directivas nuevos tienen stories en Storybook
-- [ ] Se actualizó la documentación si cambia la API pública
+- [ ] The branch follows the convention (`feat/...`, `fix/...`, etc.)
+- [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+- [ ] `npm run test` passes and coverage stays above 80%
+- [ ] `npm run build` passes
+- [ ] Styles use design tokens only (`var(--*)`), no hardcoded values
+- [ ] New components/directives have Storybook stories
+- [ ] Documentation updated if the public API changes
 
 ## Breaking changes
 
-- [ ] Este PR introduce breaking changes
+- [ ] This PR introduces breaking changes
 
-<!-- Si marcaste la casilla, describe qué se rompe y cómo migrar. -->
+<!-- If you checked the box, describe what breaks and how to migrate. -->
