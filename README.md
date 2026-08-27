@@ -1,24 +1,24 @@
 # Bursit Angular
 
-Librería de componentes UI para Angular 21, basada en **directivas** sobre elementos HTML nativos. Usa [bursit-ui-tokens](https://github.com/gustavoPetruzzi/bursit-ui-tokens) como sistema de diseño mediante CSS custom properties.
+UI component library for Angular 21, built on **directives** over native HTML elements. Uses [bursit-ui-tokens](https://github.com/gustavoPetruzzi/bursit-ui-tokens) as its design system via CSS custom properties.
 
-## Instalación
+## Installation
 
 ```bash
 ng add bursit-angular
 ```
 
-Esto agrega la librería y configura los tokens de diseño en `angular.json`.
+This installs the library and configures the design tokens in `angular.json`.
 
-## Componentes y Directivas
+## Components and Directives
 
-| Nombre               | Tipo       | Selector            | Descripción                                                            |
-| -------------------- | ---------- | ------------------- | ---------------------------------------------------------------------- |
-| `ButtonDirective`    | Directiva  | `[bursitButton]`    | Botones con variantes: primary, secondary, outline, link, danger       |
-| `InputDirective`     | Directiva  | `[bursitInput]`     | Input con estados reactivos (focus, error, disabled, floating label)   |
-| `LabelDirective`     | Directiva  | `[bursitLabel]`     | Label integrado con `FormField`                                        |
-| `FormField`          | Componente | `bursit-form-field` | Contenedor de formulario con slots para label, control, error y helper |
-| `BursitThemeService` | Servicio   | (root)              | Manejo de tema: light, dark, system. Persiste en localStorage          |
+| Name                 | Type        | Selector            | Description                                                              |
+| -------------------- | ----------- | ------------------- | ------------------------------------------------------------------------ |
+| `ButtonDirective`    | Directive   | `[bursitButton]`    | Buttons with variants: primary, secondary, outline, link, danger         |
+| `InputDirective`     | Directive   | `[bursitInput]`     | Input with reactive states (focus, error, disabled, floating label)      |
+| `LabelDirective`     | Directive   | `[bursitLabel]`     | Label integrated with `FormField`                                        |
+| `FormField`          | Component   | `bursit-form-field` | Form container with slots for label, control, error, and helper          |
+| `BursitThemeService` | Service     | (root)              | Theme handling: light, dark, system. Persists in localStorage            |
 
 ### Button
 
@@ -36,49 +36,49 @@ Esto agrega la librería y configura los tokens de diseño en `angular.json`.
 <bursit-form-field>
   <label bursitLabel>Email</label>
   <input bursitInput [formControl]="emailControl" required floatingLabel />
-  <span bursit-error>Email inválido</span>
-  <span bursit-message>Ingresá tu dirección de correo</span>
+  <span bursit-error>Invalid email</span>
+  <span bursit-message>Enter your email address</span>
 </bursit-form-field>
 ```
 
-### Tema
+### Theme
 
 ```typescript
 import { BursitThemeService } from 'bursit-angular';
 
 theme = inject(BursitThemeService);
 
-// Cambiar tema
+// Change theme
 theme.setTheme('dark'); // 'light' | 'dark' | 'system'
 
 // Toggle
 theme.toggle();
 
-// Señales reactivas
+// Reactive signals
 theme.mode; // Signal<ThemeMode>
 theme.effectiveTheme; // Signal<'light' | 'dark'>
 ```
 
-El tema se aplica automáticamente mediante el atributo `bursit-theme` en `<html>` y persiste en localStorage.
+The theme is applied automatically via the `bursit-theme` attribute on `<html>` and persists in localStorage.
 
-## Arquitectura
+## Architecture
 
-- **Directive-first**: Los primitivos son directivas sobre elementos nativos (`<button>`, `<input>`). Esto preserva accesibilidad y comportamiento nativo.
-- **Standalone**: Todos los componentes y directivas son standalone. No se requiere `NgModule`.
-- **Design tokens**: Todo el styling visual viene de `bursit-ui-tokens` vía `var()`. La librería solo provee CSS estructural (layout, estados).
-- **Content projection**: `FormField` usa slots de proyección para label, control, error y helper.
+- **Directive-first**: The primitives are directives over native elements (`<button>`, `<input>`). This preserves native accessibility and behavior.
+- **Standalone**: All components and directives are standalone. No `NgModule` required.
+- **Design tokens**: All visual styling comes from `bursit-ui-tokens` via `var()`. The library only provides structural CSS (layout, states).
+- **Content projection**: `FormField` uses projection slots for label, control, error, and helper.
 
 ## Development
 
 ```bash
 npm install
-npm run storybook      # Storybook en http://localhost:6006
-npm run test           # Tests con Jest
-npm run test:coverage  # Tests + coverage (umbral 80%)
-npm run build          # Build de la librería + schematics
+npm run storybook      # Storybook at http://localhost:6006
+npm run test           # Tests with Jest
+npm run test:coverage  # Tests + coverage (80% threshold)
+npm run build          # Library + schematics build
 ```
 
-## Estructura del proyecto
+## Project structure
 
 ```
 projects/bursit-angular/
@@ -87,8 +87,8 @@ projects/bursit-angular/
 │   │   ├── button/     # ButtonDirective
 │   │   ├── forms/      # FormField, InputDirective, LabelDirective
 │   │   └── theme/      # BursitThemeService
-│   ├── styles/         # SCSS estructural (_button.scss, etc.)
-│   └── public-api.ts   # API pública
+│   ├── styles/         # Structural SCSS (_button.scss, etc.)
+│   └── public-api.ts   # Public API
 ├── schematics/         # ng-add schematic
-└── .storybook/         # Configuración de Storybook
+└── .storybook/         # Storybook configuration
 ```
