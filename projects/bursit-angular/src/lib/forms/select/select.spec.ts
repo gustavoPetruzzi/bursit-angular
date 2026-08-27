@@ -79,11 +79,6 @@ function setup(overrides?: { required?: boolean; floatingLabel?: boolean }) {
   return { fixture, host, select, selectEl: selectDebug.nativeElement as HTMLElement };
 }
 
-const DEFAULT_OPTIONS: TestOptionConfig[] = [
-  { value: 'a', label: 'Alpha', disabled: false },
-  { value: 'b', label: 'Beta', disabled: true },
-  { value: 'c', label: 'Gamma', disabled: false },
-];
 
 function setupWithOptions(overrides?: {
   options?: TestOptionConfig[];

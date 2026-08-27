@@ -2,7 +2,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component } from '@angular/core';
 import {
   FormControl,
-  FormGroupDirective,
+  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -24,7 +24,7 @@ import { By } from '@angular/platform-browser';
 class TestHostComponent {
   validationInteraction: 'default' | 'touched' = 'touched';
   control = new FormControl('', [Validators.required]);
-  formGroupDirective = new FormGroupDirective([], []);
+  formGroupDirective = new FormGroup({ test: this.control });
 }
 
 describe('InputDirective — validationInteraction=touched + required', () => {
