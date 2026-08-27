@@ -50,7 +50,7 @@ disabled = model(false);        // synced with NgControl status
 validationInteraction = input<'default' | 'touched'>('default');
 ```
 
-Visual strategy (School A, per Material/Radix): the native input stays in the template for semantics/keyboard/forms but is visually hidden (absolute, opacity 0 — never display:none); a sibling `<span>` box is the drawn visual layer, styled from tokens with state classes bound from signals (`checked()/indeterminate()/disabled()`). Focus ring renders on the box via `.bursit-checkbox-input:focus-visible + .bursit-checkbox-box`. The `focused()` signal stays — it feeds the `FormFieldControl` contract in PR 2.
+Visual strategy (revised): the native `<input type="checkbox">` stays visible in the template and is styled directly with `appearance: none`; the box (border, background, focus ring) and the checkmark/indeterminate glyph are drawn on the input itself via `::after`. No sibling `<span>` visual layer and no hidden/opacity-0 input. State-driven visuals bind from the signals (`checked()/indeterminate()/disabled()`) and host classes; the `focused()` signal stays — it feeds the `FormFieldControl` contract in PR 2. Native keyboard/focus semantics remain provided by the real input.
 
 `FormFieldControl<T>` implementation covers: `invalid`, `disabled`, `required`, `focused`, `hovered`, `control` (NgControl). Intentionally unimplemented: `floatingLabel`, `hasPlaceholder`, `hasValue`, `type`.
 

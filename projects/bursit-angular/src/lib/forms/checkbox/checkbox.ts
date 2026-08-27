@@ -28,6 +28,7 @@ export class Checkbox implements ControlValueAccessor {
   disabled = model(false);
   validationInteraction = input<'default' | 'touched'>('default');
   readonly focused = signal(false);
+  readonly hovered = signal(false);
   private onChange?: (value: boolean) => void;
   private onTouched?: () => void;
 
@@ -62,5 +63,13 @@ export class Checkbox implements ControlValueAccessor {
   onBlur() {
     this.focused.set(false);
     this.onTouched?.();
+  }
+  
+  onMouseEnter(): void {
+    this.hovered.set(true);
+  }
+
+  onMouseLeave(): void {
+    this.hovered.set(false);
   }
 }
