@@ -57,22 +57,22 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: CVA & Forms (PR 3)
 
-- [ ] 5.1 [RED] `select.component.spec.ts`: `writeValue` updates trigger; `registerOnChange` fires on select; `registerOnTouched` fires on close; `setDisabledState` blocks open
-- [ ] 5.2 [GREEN] `select.component.ts`: `ControlValueAccessor` — `writeValue(v)` sets `_value`, calls `cdkListbox.selectValue(v)` if open; `registerOnChange`/`registerOnTouched` store callbacks; `_onChange` fires on `cdkListbox.valueChange` + close; `setDisabledState` sets `disabled` model signal
+- [x] 5.1 [RED] `select.component.spec.ts`: `writeValue` updates trigger; `registerOnChange` fires on select; `registerOnTouched` fires on close; `setDisabledState` blocks open
+- [x] 5.2 [GREEN] `select.component.ts`: `ControlValueAccessor` — `writeValue(v)` sets `_value`, calls `cdkListbox.selectValue(v)` if open; `registerOnChange`/`registerOnTouched` store callbacks; `_onChange` fires on `cdkListbox.valueChange` + close; `setDisabledState` sets `disabled` model signal
 
 ## Phase 6: ARIA & Accessibility (PR 3)
 
 - [x] 6.1 [RED] `select.spec.ts`: `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-haspopup="listbox"`, `aria-activedescendant` mirror; listbox/option roles + `aria-selected`
 - [x] 6.2 [GREEN] `select.ts`/`select.html`: static combobox attrs; dynamic `aria-expanded`/`aria-controls`/`aria-activedescendant` via template bindings from signals/computed state; deterministic panel + option ids
-- [ ] 6.3 [GREEN] `select.scss`: `@media (prefers-reduced-motion: reduce)` → instant transitions
+- [x] 6.3 [GREEN] `select.scss`: `@media (prefers-reduced-motion: reduce)` → instant transitions
 
 ## Phase 7: FormField Integration (PR 3)
 
-- [ ] 7.1 [RED] `select.component.spec.ts`: nest in `<bursit-form-field>`; verify `.bursit-form-field-error` on invalid, `.bursit-form-field-floating-label` on value, `.bursit-focus` on focus
-- [ ] 7.2 [GREEN] `select.component.ts`: inject `FORM_FIELD_ID`; wire trigger `id` + `aria-describedby`; `type = FormFieldTypes.SELECT`
+- [x] 7.1 [RED] `select.component.spec.ts`: nest in `<bursit-form-field>`; verify `.bursit-form-field-error` on invalid, `.bursit-form-field-floating-label` on value, `.bursit-focus` on focus
+- [x] 7.2 [GREEN] `select.component.ts`: inject `FORM_FIELD_ID`; wire trigger `id` + `aria-describedby`; `type = FormFieldTypes.SELECT`
 
 ## Phase 8: Edge Cases & Polish (PR 3)
 
-- [ ] 8.1 [RED] `select.component.spec.ts`: empty options, single option, long text truncation, rapid open/close, destroy-while-open, `writeValue` while open
-- [ ] 8.2 [GREEN] `select.component.stories.ts`: default, with form-field, disabled, required/error, long text, zero options, one option, keyboard nav demo
-- [ ] 8.3 [GREEN] Run `npm run build` to confirm zero errors
+- [x] 8.1 [RED] `select.component.spec.ts`: empty options, single option, long text truncation, rapid open/close, destroy-while-open, `writeValue` while open
+- [x] 8.2 [GREEN] `select.component.stories.ts`: default, with form-field, disabled, required/error, long text, zero options, one option, keyboard nav demo
+- [x] 8.3 [GREEN] Run `npm run build` to confirm zero errors
