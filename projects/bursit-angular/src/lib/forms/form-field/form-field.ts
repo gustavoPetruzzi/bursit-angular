@@ -19,11 +19,11 @@ import { createFieldId, FORM_FIELD_ID } from './form-field-id.token';
     '[class.bursit-placeholder]': 'formFieldControl()?.hasPlaceholder',
     '[class.bursit-hover]': 'formFieldControl()?.hovered()',
     '[class.bursit-form-field-error]': 'formFieldControl()?.invalid()',
-    '[class.bursit-form-field-floating-label]': 'formFieldControl()?.floatingLabel()',
+    '[class.bursit-form-field-floating-label]': 'formFieldControl()?.floatingLabel?.()',
     '[class.bursit-form-field-type-select]': 'formFieldControl()?.type === formFieldTypes.SELECT',
     '[class.bursit-form-field-required]': 'formFieldControl()?.required()',
     '[class.bursit-form-field-has-value]':
-      'formFieldControl()?.hasValue() ?? !!formFieldControl()?.control?.value',
+      'formFieldControl()?.hasValue?.() ?? !!formFieldControl()?.control?.value',
     '[class.bursit-form-field-no-label]': '!label()',
     '[attr.role]': '"group"'
   },

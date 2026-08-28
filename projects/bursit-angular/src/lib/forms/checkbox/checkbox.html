@@ -1,15 +1,18 @@
-<label class="bursit-checkbox">
+<label class="bursit-checkbox"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
   <input
+    #input
     type="checkbox"
     class="bursit-checkbox-input"
     [checked]="checked()"
     [indeterminate]="indeterminate()"
     [disabled]="disabled()"
+    [attr.aria-invalid]="invalid() ? 'true' : null"
     (change)="handleChange($event)"
     (focus)="onFocus()"
     (blur)="onBlur()"
-    (mouseenter)="onMouseEnter()"
-    (mouseleave)="onMouseLeave()"
   >
   <span class="bursit-checkbox-label">
     <ng-content></ng-content>
