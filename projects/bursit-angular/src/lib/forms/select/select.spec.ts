@@ -26,6 +26,7 @@ interface TestOptionConfig {
       [required]="required()"
       [floatingLabel]="floatingLabel()"
       [validationInteraction]="validationInteraction()"
+      [tabIndex]="tabIndex()"
     />
   `,
   imports: [ReactiveFormsModule, Select],
@@ -36,6 +37,7 @@ class TestHostComponent {
   required = signal(false);
   floatingLabel = signal(false);
   validationInteraction = signal<'default' | 'touched'>('default');
+  tabIndex = signal(0);
 }
 
 @Component({
@@ -1014,6 +1016,77 @@ describe('Select — validationInteraction', () => {
 
     expect(host.control.touched).toBe(true);
     expect(select.invalid()).toBe(false);
+  });
+
+  it('should re-evaluate invalid when validationInteraction changes to default without touch', () => {
+    const { fixture, select, host } = setup({ validationInteraction: 'touched' });
+    host.control.setValidators(Validators.required);
+    host.control.setValue(null);
+
+    expect(host.control.invalid).toBe(true);
+    expect(host.control.touched).toBe(false);
+    expect(select.invalid()).toBe(false);
+
+    host.validationInteraction.set('default');
+    fixture.detectChanges();
+
+    expect(host.control.touched).toBe(false);
+    expect(select.invalid()).toBe(true);
+  });
+
+  it('should safely re-evaluate when the required input is toggled', () => {
+    const { fixture, select, host } = setup();
+    host.control.setValidators(Validators.required);
+    host.control.setValue(null);
+    fixture.detectChanges();
+
+    expect(host.control.invalid).toBe(true);
+    expect(select.invalid()).toBe(true);
+
+    host.required.set(true);
+    fixture.detectChanges();
+    expect(select.invalid()).toBe(true);
+
+    host.control.setValue('a');
+    fixture.detectChanges();
+    expect(host.control.invalid).toBe(false);
+    expect(select.invalid()).toBe(false);
+
+    host.required.set(false);
+    fixture.detectChanges();
+    expect(select.invalid()).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — PR 3: tabIndex
+// ---------------------------------------------------------------------------
+
+describe('Select — tabIndex', () => {
+  it('should default the trigger tabindex to 0', () => {
+    const { selectEl } = setup();
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    expect(trigger.getAttribute('tabindex')).toBe('0');
+  });
+
+  it('should reflect a custom tabIndex input on the trigger', () => {
+    const { fixture, host, selectEl } = setup();
+    host.tabIndex.set(3);
+    fixture.detectChanges();
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    expect(trigger.getAttribute('tabindex')).toBe('3');
+  });
+
+  it('should force tabindex to -1 when disabled even with a custom tabIndex', () => {
+    const { fixture, host, selectEl } = setup();
+    host.tabIndex.set(3);
+    host.control.disable();
+    fixture.detectChanges();
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    expect(trigger.getAttribute('tabindex')).toBe('-1');
   });
 });
 

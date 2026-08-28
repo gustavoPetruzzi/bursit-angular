@@ -18,6 +18,7 @@ type SelectStoryArgs = {
   required: boolean;
   validationInteraction: 'default' | 'touched';
   disabled: boolean;
+  tabIndex: number;
   ariaLabel: string;
 };
 
@@ -30,6 +31,23 @@ const SHARED_IMPORTS = [
   MessageComponent,
   ReactiveFormsModule,
 ];
+
+const standaloneControl = new FormControl<string | null>(null);
+const formFieldControl = new FormControl<string | null>(null);
+const preSelectedControl = new FormControl<string | null>('banana');
+const insideFormFieldControl = new FormControl<string | null>(null, Validators.required);
+const disabledOptionsControl = new FormControl<string | null>(null);
+const longListControl = new FormControl<string | null>(null);
+const zeroOptionsControl = new FormControl<string | null>(null);
+const oneOptionControl = new FormControl<string | null>(null);
+
+function syncDisabled(control: FormControl, disabled: boolean): void {
+  if (disabled) {
+    control.disable();
+  } else if (control.disabled) {
+    control.enable();
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Meta
@@ -66,6 +84,10 @@ const meta: Meta<SelectStoryArgs> = {
       control: 'boolean',
       description: 'Whether the select is disabled',
     },
+    tabIndex: {
+      control: 'number',
+      description: 'Tab index of the trigger element (forced to -1 when disabled)',
+    },
     ariaLabel: {
       control: 'text',
       description: 'Accessible name for the trigger when used without a form-field label',
@@ -93,16 +115,22 @@ type Story = StoryObj<SelectStoryArgs>;
 /**
  * Standalone select with four hardcoded options.
  */
-const StandaloneTemplate: Story['render'] = (args) => ({
-  props: {
-    ...args,
-    control: new FormControl({ value: null, disabled: args.disabled }),
-  },
-  template: `
+const StandaloneTemplate: Story['render'] = (args) => {
+  syncDisabled(standaloneControl, args.disabled);
+  return {
+    props: {
+      ...args,
+      control: standaloneControl,
+    },
+    template: `
     <bursit-select
       [formControl]="control"
       [placeholder]="placeholder"
       [ariaLabel]="ariaLabel"
+      [required]="required"
+      [validationInteraction]="validationInteraction"
+      [disabled]="disabled"
+      [tabIndex]="tabIndex"
     >
       <bursit-option value="apple">Apple</bursit-option>
       <bursit-option value="banana">Banana</bursit-option>
@@ -110,23 +138,30 @@ const StandaloneTemplate: Story['render'] = (args) => ({
       <bursit-option value="date">Date</bursit-option>
     </bursit-select>
   `,
-});
+  };
+};
 
 /**
  * Select wrapped in bursit-form-field with a label and options.
  */
-const FormFieldTemplate: Story['render'] = (args) => ({
-  props: {
-    ...args,
-    control: new FormControl({ value: null, disabled: args.disabled }),
-  },
-  template: `
+const FormFieldTemplate: Story['render'] = (args) => {
+  syncDisabled(formFieldControl, args.disabled);
+  return {
+    props: {
+      ...args,
+      control: formFieldControl,
+    },
+    template: `
     <bursit-form-field>
       <label bursitLabel>{{ label }}</label>
       <bursit-select
         [formControl]="control"
         [placeholder]="placeholder"
         [floatingLabel]="floatingLabel"
+        [required]="required"
+        [validationInteraction]="validationInteraction"
+        [disabled]="disabled"
+        [tabIndex]="tabIndex"
       >
         <bursit-option value="apple">Apple</bursit-option>
         <bursit-option value="banana">Banana</bursit-option>
@@ -135,23 +170,30 @@ const FormFieldTemplate: Story['render'] = (args) => ({
       </bursit-select>
     </bursit-form-field>
   `,
-});
+  };
+};
 
 /**
  * Select with one option pre-selected on mount.
  */
-const PreSelectedTemplate: Story['render'] = (args) => ({
-  props: {
-    ...args,
-    control: new FormControl({ value: 'banana', disabled: args.disabled }),
-  },
-  template: `
+const PreSelectedTemplate: Story['render'] = (args) => {
+  syncDisabled(preSelectedControl, args.disabled);
+  return {
+    props: {
+      ...args,
+      control: preSelectedControl,
+    },
+    template: `
     <bursit-form-field>
       <label bursitLabel>{{ label }}</label>
       <bursit-select
         [formControl]="control"
         [placeholder]="placeholder"
         [floatingLabel]="floatingLabel"
+        [required]="required"
+        [validationInteraction]="validationInteraction"
+        [disabled]="disabled"
+        [tabIndex]="tabIndex"
       >
         <bursit-option value="apple">Apple</bursit-option>
         <bursit-option value="banana">Banana</bursit-option>
@@ -160,27 +202,32 @@ const PreSelectedTemplate: Story['render'] = (args) => ({
       </bursit-select>
     </bursit-form-field>
   `,
-});
+  };
+};
 
 /**
  * Required select inside a form-field. The control is invalid until a value is
  * chosen; validationInteraction decides whether the error appears immediately
  * (default) or only after the user has interacted with the field (touched).
  */
-const InsideFormFieldTemplate: Story['render'] = (args) => ({
-  props: {
-    ...args,
-    control: new FormControl(null, Validators.required),
-  },
-  template: `
+const InsideFormFieldTemplate: Story['render'] = (args) => {
+  syncDisabled(insideFormFieldControl, args.disabled);
+  return {
+    props: {
+      ...args,
+      control: insideFormFieldControl,
+    },
+    template: `
     <bursit-form-field>
       <label bursitLabel>{{ label }}</label>
       <bursit-select
         [formControl]="control"
         [placeholder]="placeholder"
-        [required]="true"
+        [required]="required"
         [validationInteraction]="validationInteraction"
         [floatingLabel]="floatingLabel"
+        [disabled]="disabled"
+        [tabIndex]="tabIndex"
       >
         <bursit-option value="apple">Apple</bursit-option>
         <bursit-option value="banana">Banana</bursit-option>
@@ -189,7 +236,8 @@ const InsideFormFieldTemplate: Story['render'] = (args) => ({
       </bursit-select>
     </bursit-form-field>
   `,
-});
+  };
+};
 
 // ---------------------------------------------------------------------------
 // ArgType helpers
@@ -224,6 +272,9 @@ export const Default: Story = {
     disabled: false,
     label: '',
     floatingLabel: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
     ariaLabel: 'Pick a fruit',
   },
   render: StandaloneTemplate,
@@ -239,6 +290,9 @@ export const Disabled: Story = {
     disabled: true,
     label: '',
     floatingLabel: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
     ariaLabel: 'Disabled select',
   },
   render: StandaloneTemplate,
@@ -259,6 +313,7 @@ export const InsideFormField: Story = {
     validationInteraction: 'touched',
     floatingLabel: false,
     disabled: false,
+    tabIndex: 0,
   },
   render: InsideFormFieldTemplate,
 };
@@ -273,6 +328,9 @@ export const PreSelected: Story = {
     placeholder: 'Pick a fruit',
     floatingLabel: false,
     disabled: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
   },
   render: PreSelectedTemplate,
   argTypes: WITHOUT_REQUIRED_INTERACTION,
@@ -288,6 +346,9 @@ export const FloatingLabel: Story = {
     placeholder: 'Pick a fruit',
     floatingLabel: true,
     disabled: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
   },
   render: FormFieldTemplate,
   argTypes: WITHOUT_REQUIRED_INTERACTION,
@@ -303,18 +364,27 @@ export const WithDisabledOptions: Story = {
     placeholder: 'Choose a plan',
     floatingLabel: false,
     disabled: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
   },
-  render: (args) => ({
-    props: {
-      ...args,
-      control: new FormControl(null),
-    },
-    template: `
+  render: (args) => {
+    syncDisabled(disabledOptionsControl, args.disabled);
+    return {
+      props: {
+        ...args,
+        control: disabledOptionsControl,
+      },
+      template: `
       <bursit-form-field>
         <label bursitLabel>{{ label }}</label>
         <bursit-select
           [formControl]="control"
           [placeholder]="placeholder"
+          [required]="required"
+          [validationInteraction]="validationInteraction"
+          [disabled]="disabled"
+          [tabIndex]="tabIndex"
         >
           <bursit-option value="free">Free</bursit-option>
           <bursit-option value="pro">Pro</bursit-option>
@@ -322,7 +392,8 @@ export const WithDisabledOptions: Story = {
         </bursit-select>
       </bursit-form-field>
     `,
-  }),
+    };
+  },
   argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
 
@@ -336,18 +407,27 @@ export const LongList: Story = {
     placeholder: 'Select timezone',
     floatingLabel: false,
     disabled: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
   },
-  render: (args) => ({
-    props: {
-      ...args,
-      control: new FormControl(null),
-    },
-    template: `
+  render: (args) => {
+    syncDisabled(longListControl, args.disabled);
+    return {
+      props: {
+        ...args,
+        control: longListControl,
+      },
+      template: `
       <bursit-form-field>
         <label bursitLabel>{{ label }}</label>
         <bursit-select
           [formControl]="control"
           [placeholder]="placeholder"
+          [required]="required"
+          [validationInteraction]="validationInteraction"
+          [disabled]="disabled"
+          [tabIndex]="tabIndex"
         >
           <bursit-option value="Pacific/Midway">Pacific/Midway (UTC-11)</bursit-option>
           <bursit-option value="Pacific/Honolulu">Pacific/Honolulu (UTC-10)</bursit-option>
@@ -368,7 +448,8 @@ export const LongList: Story = {
         </bursit-select>
       </bursit-form-field>
     `,
-  }),
+    };
+  },
   argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
 
@@ -383,21 +464,32 @@ export const ZeroOptions: Story = {
     disabled: false,
     label: '',
     floatingLabel: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
     ariaLabel: 'No options available',
   },
-  render: () => ({
-    props: {
-      control: new FormControl(null),
-    },
-    template: `
+  render: (args) => {
+    syncDisabled(zeroOptionsControl, args.disabled);
+    return {
+      props: {
+        ...args,
+        control: zeroOptionsControl,
+      },
+      template: `
       <bursit-select
         [formControl]="control"
-        placeholder="No options available"
-        ariaLabel="No options available"
+        [placeholder]="placeholder"
+        [ariaLabel]="ariaLabel"
+        [required]="required"
+        [validationInteraction]="validationInteraction"
+        [disabled]="disabled"
+        [tabIndex]="tabIndex"
       >
       </bursit-select>
     `,
-  }),
+    };
+  },
   argTypes: WITHOUT_LABEL_AND_REQUIRED_INTERACTION,
 };
 
@@ -412,22 +504,33 @@ export const OneOption: Story = {
     disabled: false,
     label: '',
     floatingLabel: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
     ariaLabel: 'Pick a fruit',
   },
-  render: () => ({
-    props: {
-      control: new FormControl(null),
-    },
-    template: `
+  render: (args) => {
+    syncDisabled(oneOptionControl, args.disabled);
+    return {
+      props: {
+        ...args,
+        control: oneOptionControl,
+      },
+      template: `
       <bursit-select
         [formControl]="control"
-        placeholder="Pick a fruit"
-        ariaLabel="Pick a fruit"
+        [placeholder]="placeholder"
+        [ariaLabel]="ariaLabel"
+        [required]="required"
+        [validationInteraction]="validationInteraction"
+        [disabled]="disabled"
+        [tabIndex]="tabIndex"
       >
         <bursit-option value="apple">Apple</bursit-option>
       </bursit-select>
     `,
-  }),
+    };
+  },
   argTypes: WITHOUT_LABEL_AND_REQUIRED_INTERACTION,
 };
 
@@ -441,6 +544,9 @@ export const Playground: Story = {
     placeholder: 'Select an option...',
     disabled: false,
     floatingLabel: false,
+    required: false,
+    validationInteraction: 'default',
+    tabIndex: 0,
   },
   render: FormFieldTemplate,
   argTypes: WITHOUT_REQUIRED_INTERACTION,
