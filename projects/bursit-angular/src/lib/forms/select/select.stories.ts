@@ -17,6 +17,7 @@ type SelectStoryArgs = {
   floatingLabel: boolean;
   required: boolean;
   disabled: boolean;
+  ariaLabel: string;
 };
 
 const SHARED_IMPORTS = [
@@ -58,6 +59,10 @@ const meta: Meta<SelectStoryArgs> = {
       control: 'boolean',
       description: 'Whether the select is disabled',
     },
+    ariaLabel: {
+      control: 'text',
+      description: 'Accessible name for the trigger when used without a form-field label',
+    },
   },
   parameters: {
     docs: {
@@ -91,6 +96,7 @@ const StandaloneTemplate: Story['render'] = (args) => ({
       [formControl]="control"
       [placeholder]="placeholder"
       [required]="required"
+      [ariaLabel]="ariaLabel"
     >
       <bursit-option value="apple">Apple</bursit-option>
       <bursit-option value="banana">Banana</bursit-option>
@@ -176,6 +182,7 @@ export const Default: Story = {
     required: false,
     label: '',
     floatingLabel: false,
+    ariaLabel: 'Pick a fruit',
   },
   render: StandaloneTemplate,
   argTypes: WITHOUT_LABEL,
@@ -191,6 +198,7 @@ export const Disabled: Story = {
     required: false,
     label: '',
     floatingLabel: false,
+    ariaLabel: 'Disabled select',
   },
   render: StandaloneTemplate,
   argTypes: WITHOUT_LABEL,
@@ -362,6 +370,7 @@ export const ZeroOptions: Story = {
     required: false,
     label: '',
     floatingLabel: false,
+    ariaLabel: 'No options available',
   },
   render: () => ({
     props: {
@@ -371,6 +380,7 @@ export const ZeroOptions: Story = {
       <bursit-select
         [formControl]="control"
         placeholder="No options available"
+        ariaLabel="No options available"
       >
       </bursit-select>
     `,
@@ -390,6 +400,7 @@ export const OneOption: Story = {
     required: false,
     label: '',
     floatingLabel: false,
+    ariaLabel: 'Pick a fruit',
   },
   render: () => ({
     props: {
@@ -399,6 +410,7 @@ export const OneOption: Story = {
       <bursit-select
         [formControl]="control"
         placeholder="Pick a fruit"
+        ariaLabel="Pick a fruit"
       >
         <bursit-option value="apple">Apple</bursit-option>
       </bursit-select>
