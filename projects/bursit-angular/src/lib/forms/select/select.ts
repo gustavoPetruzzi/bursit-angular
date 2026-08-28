@@ -58,6 +58,7 @@ export class Select
   floatingLabel = input<boolean>(false);
   placeholder = input<string>('');
   required = input<boolean>(false);
+  validationInteraction = input<'default' | 'touched'>('default');
   disabled = model<boolean>(false);
   tabIndex = input<number>(0);
   ariaLabel = input<string>('');
@@ -389,7 +390,10 @@ export class Select
 
   private _isInvalid(): boolean {
     if (!this.control) return false;
-    return !!this.control.invalid && !!this.control.touched;
+    return (
+      !!this.control.invalid &&
+      (this.validationInteraction() === 'touched' ? !!this.control.touched : true)
+    );
   }
 
   private _syncFromControl(): void {

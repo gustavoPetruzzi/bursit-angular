@@ -25,6 +25,7 @@ interface TestOptionConfig {
       [placeholder]="placeholder()"
       [required]="required()"
       [floatingLabel]="floatingLabel()"
+      [validationInteraction]="validationInteraction()"
     />
   `,
   imports: [ReactiveFormsModule, Select],
@@ -34,6 +35,7 @@ class TestHostComponent {
   placeholder = signal('Choose an option');
   required = signal(false);
   floatingLabel = signal(false);
+  validationInteraction = signal<'default' | 'touched'>('default');
 }
 
 @Component({
@@ -61,7 +63,11 @@ class OptionsTestHostComponent {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function setup(overrides?: { required?: boolean; floatingLabel?: boolean }) {
+function setup(overrides?: {
+  required?: boolean;
+  floatingLabel?: boolean;
+  validationInteraction?: 'default' | 'touched';
+}) {
   TestBed.configureTestingModule({
     imports: [TestHostComponent],
   });
@@ -71,6 +77,8 @@ function setup(overrides?: { required?: boolean; floatingLabel?: boolean }) {
 
   if (overrides?.required) host.required.set(true);
   if (overrides?.floatingLabel) host.floatingLabel.set(true);
+  if (overrides?.validationInteraction)
+    host.validationInteraction.set(overrides.validationInteraction);
 
   fixture.detectChanges();
 
@@ -80,10 +88,7 @@ function setup(overrides?: { required?: boolean; floatingLabel?: boolean }) {
   return { fixture, host, select, selectEl: selectDebug.nativeElement as HTMLElement };
 }
 
-
-function setupWithOptions(overrides?: {
-  options?: TestOptionConfig[];
-}) {
+function setupWithOptions(overrides?: { options?: TestOptionConfig[] }) {
   TestBed.configureTestingModule({
     imports: [OptionsTestHostComponent],
   });
@@ -107,7 +112,10 @@ function pressKey(trigger: HTMLElement, key: string): void {
   trigger.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
 }
 
-function openDropdown(fixture: ComponentFixture<OptionsTestHostComponent>, trigger: HTMLElement): void {
+function openDropdown(
+  fixture: ComponentFixture<OptionsTestHostComponent>,
+  trigger: HTMLElement,
+): void {
   trigger.click();
   fixture.detectChanges();
   fixture.detectChanges();
@@ -867,6 +875,7 @@ describe('Select — FormField integration', () => {
   function createFormFieldHost(
     control: FormControl<string | null>,
     floatingLabel = false,
+    validationInteraction: 'default' | 'touched' = 'default',
   ) {
     @Component({
       template: `
@@ -875,6 +884,7 @@ describe('Select — FormField integration', () => {
             [formControl]="control"
             placeholder="Choose"
             [floatingLabel]="floatingLabel"
+            [validationInteraction]="validationInteraction"
           >
             <bursit-option value="a">Alpha</bursit-option>
             <bursit-option value="b">Beta</bursit-option>
@@ -886,6 +896,7 @@ describe('Select — FormField integration', () => {
     class WrapperComponent {
       control = control;
       floatingLabel = floatingLabel;
+      validationInteraction = validationInteraction;
     }
 
     const fixture = TestBed.createComponent(WrapperComponent);
@@ -893,8 +904,7 @@ describe('Select — FormField integration', () => {
     const selectDebug = fixture.debugElement.query(By.directive(Select));
     const select = selectDebug.componentInstance as Select;
     const selectEl = selectDebug.nativeElement as HTMLElement;
-    const formFieldEl = fixture.debugElement
-      .query(By.directive(FormField))
+    const formFieldEl = fixture.debugElement.query(By.directive(FormField))
       .nativeElement as HTMLElement;
 
     return { fixture, control, select, selectEl, formFieldEl };
@@ -902,7 +912,7 @@ describe('Select — FormField integration', () => {
 
   it('should apply the error class when the control is invalid and touched', () => {
     const control = new FormControl<string | null>(null, [Validators.required]);
-    const { fixture, selectEl, formFieldEl } = createFormFieldHost(control);
+    const { fixture, selectEl, formFieldEl } = createFormFieldHost(control, false, 'touched');
 
     const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
     trigger.dispatchEvent(new Event('focus'));
@@ -916,7 +926,7 @@ describe('Select — FormField integration', () => {
 
   it('should NOT apply the error class before the control is touched', () => {
     const control = new FormControl<string | null>(null, [Validators.required]);
-    const { formFieldEl } = createFormFieldHost(control);
+    const { formFieldEl } = createFormFieldHost(control, false, 'touched');
 
     expect(control.invalid).toBe(true);
     expect(control.touched).toBe(false);
@@ -945,6 +955,65 @@ describe('Select — FormField integration', () => {
 
     expect(selectEl.querySelector('.bursit-select-trigger')).toBe(trigger);
     expect(formFieldEl.classList.contains('bursit-focus')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — PR 3: validationInteraction
+// ---------------------------------------------------------------------------
+
+describe('Select — validationInteraction', () => {
+  it('should NOT be invalid before touch when validationInteraction=touched and the control is invalid', () => {
+    const { select, host } = setup({ validationInteraction: 'touched' });
+    host.control.setValidators(Validators.required);
+    host.control.setValue(null);
+
+    expect(host.control.invalid).toBe(true);
+    expect(host.control.touched).toBe(false);
+    expect(select.invalid()).toBe(false);
+  });
+
+  it('should become invalid after touch when validationInteraction=touched and the control is invalid', () => {
+    const { fixture, select, host, selectEl } = setup({ validationInteraction: 'touched' });
+    host.control.setValidators(Validators.required);
+    host.control.setValue(null);
+
+    expect(select.invalid()).toBe(false);
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    trigger.dispatchEvent(new Event('focus'));
+    trigger.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(host.control.touched).toBe(true);
+    expect(select.invalid()).toBe(true);
+  });
+
+  it('should be invalid immediately when validationInteraction=default and the control is invalid, even untouched', () => {
+    const { select, host } = setup({ validationInteraction: 'default' });
+    host.control.setValidators(Validators.required);
+    host.control.setValue(null);
+
+    expect(host.control.invalid).toBe(true);
+    expect(host.control.touched).toBe(false);
+    expect(select.invalid()).toBe(true);
+  });
+
+  it('should stay valid after touch when validationInteraction=touched and the control is valid', () => {
+    const { fixture, select, host, selectEl } = setup({ validationInteraction: 'touched' });
+    host.control.setValidators(Validators.required);
+    host.control.setValue('a');
+
+    expect(host.control.valid).toBe(true);
+    expect(select.invalid()).toBe(false);
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    trigger.dispatchEvent(new Event('focus'));
+    trigger.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(host.control.touched).toBe(true);
+    expect(select.invalid()).toBe(false);
   });
 });
 
@@ -1043,9 +1112,7 @@ describe('Select — Edge cases', () => {
   });
 });
 
-function selectIsOpen(
-  fixture: ComponentFixture<OptionsTestHostComponent>,
-): boolean {
+function selectIsOpen(fixture: ComponentFixture<OptionsTestHostComponent>): boolean {
   const selectDebug = fixture.debugElement.query(By.directive(Select));
   return (selectDebug.componentInstance as Select).isOpen();
 }

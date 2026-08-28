@@ -16,6 +16,7 @@ type SelectStoryArgs = {
   label: string;
   floatingLabel: boolean;
   required: boolean;
+  validationInteraction: 'default' | 'touched';
   disabled: boolean;
   ariaLabel: string;
 };
@@ -54,6 +55,12 @@ const meta: Meta<SelectStoryArgs> = {
     required: {
       control: 'boolean',
       description: 'Whether the select is required',
+    },
+    validationInteraction: {
+      control: 'select',
+      options: ['default', 'touched'],
+      description:
+        'When to show validation errors (default immediately, touched only after user interaction)',
     },
     disabled: {
       control: 'boolean',
@@ -95,7 +102,6 @@ const StandaloneTemplate: Story['render'] = (args) => ({
     <bursit-select
       [formControl]="control"
       [placeholder]="placeholder"
-      [required]="required"
       [ariaLabel]="ariaLabel"
     >
       <bursit-option value="apple">Apple</bursit-option>
@@ -120,7 +126,6 @@ const FormFieldTemplate: Story['render'] = (args) => ({
       <bursit-select
         [formControl]="control"
         [placeholder]="placeholder"
-        [required]="required"
         [floatingLabel]="floatingLabel"
       >
         <bursit-option value="apple">Apple</bursit-option>
@@ -146,7 +151,35 @@ const PreSelectedTemplate: Story['render'] = (args) => ({
       <bursit-select
         [formControl]="control"
         [placeholder]="placeholder"
-        [required]="required"
+        [floatingLabel]="floatingLabel"
+      >
+        <bursit-option value="apple">Apple</bursit-option>
+        <bursit-option value="banana">Banana</bursit-option>
+        <bursit-option value="cherry">Cherry</bursit-option>
+        <bursit-option value="date">Date</bursit-option>
+      </bursit-select>
+    </bursit-form-field>
+  `,
+});
+
+/**
+ * Required select inside a form-field. The control is invalid until a value is
+ * chosen; validationInteraction decides whether the error appears immediately
+ * (default) or only after the user has interacted with the field (touched).
+ */
+const InsideFormFieldTemplate: Story['render'] = (args) => ({
+  props: {
+    ...args,
+    control: new FormControl(null, Validators.required),
+  },
+  template: `
+    <bursit-form-field>
+      <label bursitLabel>{{ label }}</label>
+      <bursit-select
+        [formControl]="control"
+        [placeholder]="placeholder"
+        [required]="true"
+        [validationInteraction]="validationInteraction"
         [floatingLabel]="floatingLabel"
       >
         <bursit-option value="apple">Apple</bursit-option>
@@ -167,6 +200,16 @@ const WITHOUT_LABEL = {
   label: { control: { disable: true }, table: { disable: true } },
 };
 
+const WITHOUT_REQUIRED_INTERACTION = {
+  required: { control: { disable: true }, table: { disable: true } },
+  validationInteraction: { control: { disable: true }, table: { disable: true } },
+};
+
+const WITHOUT_LABEL_AND_REQUIRED_INTERACTION = {
+  ...WITHOUT_LABEL,
+  ...WITHOUT_REQUIRED_INTERACTION,
+};
+
 // ---------------------------------------------------------------------------
 // Stories
 // ---------------------------------------------------------------------------
@@ -179,13 +222,12 @@ export const Default: Story = {
   args: {
     placeholder: 'Pick a fruit',
     disabled: false,
-    required: false,
     label: '',
     floatingLabel: false,
     ariaLabel: 'Pick a fruit',
   },
   render: StandaloneTemplate,
-  argTypes: WITHOUT_LABEL,
+  argTypes: WITHOUT_LABEL_AND_REQUIRED_INTERACTION,
 };
 
 /**
@@ -195,28 +237,30 @@ export const Disabled: Story = {
   args: {
     placeholder: 'Disabled select',
     disabled: true,
-    required: false,
     label: '',
     floatingLabel: false,
     ariaLabel: 'Disabled select',
   },
   render: StandaloneTemplate,
-  argTypes: WITHOUT_LABEL,
+  argTypes: WITHOUT_LABEL_AND_REQUIRED_INTERACTION,
 };
 
 /**
- * Select inside a form-field with a label.
+ * Required select inside a form-field with a label.
  * The label stays above the trigger in the default (non-floating) layout.
+ * Switch validationInteraction between 'touched' (error after interaction)
+ * and 'default' (error immediately) to see the state change.
  */
 export const InsideFormField: Story = {
   args: {
     label: 'Country',
     placeholder: 'Select your country',
-    required: false,
+    required: true,
+    validationInteraction: 'touched',
     floatingLabel: false,
     disabled: false,
   },
-  render: FormFieldTemplate,
+  render: InsideFormFieldTemplate,
 };
 
 /**
@@ -227,41 +271,11 @@ export const PreSelected: Story = {
   args: {
     label: 'Fruit',
     placeholder: 'Pick a fruit',
-    required: false,
     floatingLabel: false,
     disabled: false,
   },
   render: PreSelectedTemplate,
-};
-
-/**
- * Required select inside a form-field.
- * Validates on blur — shows error state when empty and touched.
- */
-export const Required: Story = {
-  render: () => ({
-    props: {
-      control: new FormControl(null, Validators.required),
-    },
-    moduleMetadata: { imports: SHARED_IMPORTS },
-    template: `
-      <bursit-form-field>
-        <label bursitLabel>Email</label>
-        <bursit-select
-          [formControl]="control"
-          placeholder="Select your email"
-          [required]="true"
-        >
-          <bursit-option value="primary">primary&#64;example.com</bursit-option>
-          <bursit-option value="work">work&#64;example.com</bursit-option>
-          <bursit-option value="personal">personal&#64;example.com</bursit-option>
-        </bursit-select>
-        @if (control.invalid && control.touched) {
-          <span bursitError>This field is required</span>
-        }
-      </bursit-form-field>
-    `,
-  }),
+  argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
 
 /**
@@ -273,10 +287,10 @@ export const FloatingLabel: Story = {
     label: 'Fruit',
     placeholder: 'Pick a fruit',
     floatingLabel: true,
-    required: false,
     disabled: false,
   },
   render: FormFieldTemplate,
+  argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
 
 /**
@@ -287,7 +301,6 @@ export const WithDisabledOptions: Story = {
   args: {
     label: 'Plan',
     placeholder: 'Choose a plan',
-    required: false,
     floatingLabel: false,
     disabled: false,
   },
@@ -310,6 +323,7 @@ export const WithDisabledOptions: Story = {
       </bursit-form-field>
     `,
   }),
+  argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
 
 /**
@@ -320,7 +334,6 @@ export const LongList: Story = {
   args: {
     label: 'Timezone',
     placeholder: 'Select timezone',
-    required: false,
     floatingLabel: false,
     disabled: false,
   },
@@ -356,6 +369,7 @@ export const LongList: Story = {
       </bursit-form-field>
     `,
   }),
+  argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
 
 /**
@@ -367,7 +381,6 @@ export const ZeroOptions: Story = {
   args: {
     placeholder: 'No options available',
     disabled: false,
-    required: false,
     label: '',
     floatingLabel: false,
     ariaLabel: 'No options available',
@@ -385,7 +398,7 @@ export const ZeroOptions: Story = {
       </bursit-select>
     `,
   }),
-  argTypes: WITHOUT_LABEL,
+  argTypes: WITHOUT_LABEL_AND_REQUIRED_INTERACTION,
 };
 
 /**
@@ -397,7 +410,6 @@ export const OneOption: Story = {
   args: {
     placeholder: 'Pick a fruit',
     disabled: false,
-    required: false,
     label: '',
     floatingLabel: false,
     ariaLabel: 'Pick a fruit',
@@ -416,59 +428,20 @@ export const OneOption: Story = {
       </bursit-select>
     `,
   }),
-  argTypes: WITHOUT_LABEL,
-};
-
-/**
- * Keyboard navigation demonstration with a full option list.
- * Open with click, Focus, or ArrowDown/ArrowUp while closed, then use
- * ArrowUp/ArrowDown to move, Home/End to jump, and Enter/Space to select.
- */
-export const KeyboardNav: Story = {
-  args: {
-    label: 'Country',
-    placeholder: 'Select your country',
-    disabled: false,
-    required: false,
-    floatingLabel: false,
-  },
-  render: (args) => ({
-    props: {
-      ...args,
-      control: new FormControl(null),
-    },
-    template: `
-      <bursit-form-field>
-        <label bursitLabel>{{ label }}</label>
-        <bursit-select
-          [formControl]="control"
-          [placeholder]="placeholder"
-        >
-          <bursit-option value="us">United States</bursit-option>
-          <bursit-option value="uk">United Kingdom</bursit-option>
-          <bursit-option value="fr">France</bursit-option>
-          <bursit-option value="de">Germany</bursit-option>
-          <bursit-option value="es">Spain</bursit-option>
-          <bursit-option value="it">Italy</bursit-option>
-          <bursit-option value="br">Brazil</bursit-option>
-          <bursit-option value="ar">Argentina</bursit-option>
-        </bursit-select>
-      </bursit-form-field>
-    `,
-  }),
+  argTypes: WITHOUT_LABEL_AND_REQUIRED_INTERACTION,
 };
 
 /**
  * Interactive playground with all controls exposed.
- * Toggle disabled, required, floatingLabel, and the label text.
+ * Toggle disabled, floatingLabel, and the label text.
  */
 export const Playground: Story = {
   args: {
     label: 'Label',
     placeholder: 'Select an option...',
-    required: false,
     disabled: false,
     floatingLabel: false,
   },
   render: FormFieldTemplate,
+  argTypes: WITHOUT_REQUIRED_INTERACTION,
 };
