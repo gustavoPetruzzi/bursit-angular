@@ -249,7 +249,7 @@ export const Required: Story = {
           <bursit-option value="personal">personal&#64;example.com</bursit-option>
         </bursit-select>
         @if (control.invalid && control.touched) {
-          <bursit-error>This field is required</bursit-error>
+          <span bursitError>This field is required</span>
         }
       </bursit-form-field>
     `,
