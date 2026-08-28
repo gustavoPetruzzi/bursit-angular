@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   computed,
+  effect,
   forwardRef,
   inject,
   input,
@@ -38,8 +39,8 @@ import type { Option } from '../option/option';
     },
     {
       provide: BURSIT_SELECT,
-      useExisting: forwardRef(() => Select)
-    }
+      useExisting: forwardRef(() => Select),
+    },
   ],
 })
 export class Select
@@ -58,24 +59,25 @@ export class Select
   floatingLabel = input<boolean>(false);
   placeholder = input<string>('');
   required = input<boolean>(false);
+  validationInteraction = input<'default' | 'touched'>('default');
   disabled = model<boolean>(false);
   tabIndex = input<number>(0);
   ariaLabel = input<string>('');
 
-  _positions: ConnectedPosition[] =  [
+  _positions: ConnectedPosition[] = [
     {
       originX: 'start',
       originY: 'bottom',
       overlayX: 'start',
       overlayY: 'top',
-      offsetY: 8
+      offsetY: 8,
     },
     {
       originX: 'start',
       originY: 'top',
       overlayX: 'start',
       overlayY: 'bottom',
-      offsetY: -8
+      offsetY: -8,
     },
     {
       originX: 'end',
@@ -89,7 +91,7 @@ export class Select
       originY: 'center',
       overlayX: 'end',
       overlayY: 'center',
-      offsetX: -8
+      offsetX: -8,
     },
   ];
   readonly type = FormFieldTypes.SELECT;
@@ -114,6 +116,8 @@ export class Select
     return this.options().find((option) => option.value() === value)?.label ?? value;
   });
 
+  readonly hasOptions = computed(() => this.options().length > 0);
+
   private _onChange: (val: string) => void = () => {};
   private _onTouched: () => void = () => {};
   private readonly _subscriptions: Subscription[] = [];
@@ -126,22 +130,24 @@ export class Select
     if (this.control) {
       this.control.valueAccessor = this;
     }
+
+    effect(() => {
+      this.validationInteraction();
+      this.required();
+      this.invalid.set(this._isInvalid());
+    });
   }
 
   registerOption(option: Option): void {
-    this.options.update(options => [...options, option]);
+    this.options.update((options) => [...options, option]);
   }
 
   ngOnInit(): void {
     this._syncFromControl();
 
     if (this.control) {
-      const valueSub = this.control.valueChanges?.subscribe(() =>
-        this._syncFromControl(),
-      );
-      const statusSub = this.control.statusChanges?.subscribe(() =>
-        this._syncFromControl(),
-      );
+      const valueSub = this.control.valueChanges?.subscribe(() => this._syncFromControl());
+      const statusSub = this.control.statusChanges?.subscribe(() => this._syncFromControl());
       if (valueSub) this._subscriptions.push(valueSub);
       if (statusSub) this._subscriptions.push(statusSub);
     }
@@ -158,9 +164,8 @@ export class Select
   }
 
   unregisterOption(option: Option): void {
-    this.options.update(options => options.filter(o => o !== option));
+    this.options.update((options) => options.filter((o) => o !== option));
   }
-
 
   toggle(): void {
     if (this.disabled()) return;
@@ -276,6 +281,10 @@ export class Select
     this._onTouched = fn;
   }
 
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
+  }
+
   private _wireAriaLabelledBy(): void {
     const el = this.trigger().nativeElement;
     const hasAriaLabel = el.getAttribute('aria-label');
@@ -297,10 +306,7 @@ export class Select
     const el = this.trigger().nativeElement;
     const userSet = el.getAttribute('aria-describedby');
     if (!userSet && this._fieldId) {
-      el.setAttribute(
-        'aria-describedby',
-        `${this._fieldId}-error ${this._fieldId}-message`,
-      );
+      el.setAttribute('aria-describedby', `${this._fieldId}-error ${this._fieldId}-message`);
     }
   }
 
@@ -383,7 +389,10 @@ export class Select
 
   private _isInvalid(): boolean {
     if (!this.control) return false;
-    return !!this.control.invalid && !!this.control.touched;
+    return (
+      !!this.control.invalid &&
+      (this.validationInteraction() === 'touched' ? !!this.control.touched : true)
+    );
   }
 
   private _syncFromControl(): void {

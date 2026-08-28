@@ -93,6 +93,13 @@
   width: 100%;
 }
 
+.bursit-select-empty {
+  padding: var(--select-padding-y) var(--select-padding-x);
+  color: var(--select-placeholder-color);
+  font-size: var(--select-font-size);
+  line-height: var(--select-line-height);
+}
+
 :host-context(.bursit-form-field-floating-label) {
   .bursit-select-placeholder {
     opacity: 0;
@@ -102,6 +109,17 @@
 :host-context(.bursit-form-field-error) {
   .bursit-select-trigger {
     border-color: var(--input-error-border-color);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Accessibility: reduced motion
+// ---------------------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .bursit-select-trigger,
+  .bursit-select-trigger bursit-icon {
+    transition: none;
   }
 }
 
