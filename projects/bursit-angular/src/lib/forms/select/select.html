@@ -43,5 +43,8 @@
 >
   <div role="listbox" class="bursit-select-panel" [attr.id]="panelId">
     <ng-content></ng-content>
+    @if (isOpen() && !hasOptions()) {
+      <div class="bursit-select-empty">No options available</div>
+    }
   </div>
 </ng-template>

@@ -114,6 +114,8 @@ export class Select
     return this.options().find((option) => option.value() === value)?.label ?? value;
   });
 
+  readonly hasOptions = computed(() => this.options().length > 0);
+
   private _onChange: (val: string) => void = () => {};
   private _onTouched: () => void = () => {};
   private readonly _subscriptions: Subscription[] = [];

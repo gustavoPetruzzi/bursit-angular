@@ -1021,6 +1021,26 @@ describe('Select — Edge cases', () => {
     expect(select.value()).toBe('c');
     expect(select.isOpen()).toBe(true);
   });
+
+  it('should render the empty-state message when the dropdown is open with no options', () => {
+    const { fixture, select, trigger } = setupWithOptions({ options: [] });
+
+    expect(select.hasOptions()).toBe(false);
+    expect(select.isOpen()).toBe(false);
+
+    openDropdown(fixture, trigger);
+
+    const emptyEl = document.querySelector('.bursit-select-empty') as HTMLElement | null;
+    expect(emptyEl).toBeTruthy();
+    expect(emptyEl?.textContent?.trim()).toBe('No options available');
+  });
+
+  it('should NOT render the empty-state when the dropdown is closed', () => {
+    const { fixture } = setupWithOptions({ options: [] });
+
+    const emptyEl = document.querySelector('.bursit-select-empty') as HTMLElement | null;
+    expect(emptyEl).toBeNull();
+  });
 });
 
 function selectIsOpen(
