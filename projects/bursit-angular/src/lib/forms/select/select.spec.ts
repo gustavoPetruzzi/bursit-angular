@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 
 import { Select } from './select';
 import { Option } from '../option/option';
+import { FormField } from '../form-field/form-field';
 import { FormFieldTypes } from '../form-field/form-field-types.enum';
 
 interface TestOptionConfig {
@@ -776,3 +777,255 @@ describe('Select — active option scroll into view', () => {
     expect(scrollSpy).not.toHaveBeenCalled();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Tests — PR 3: ControlValueAccessor (task 5.1)
+// ---------------------------------------------------------------------------
+
+describe('Select — ControlValueAccessor', () => {
+  it('should update the component internal value on writeValue', () => {
+    const { select } = setupWithOptions();
+
+    select.writeValue('c');
+
+    expect(select.value()).toBe('c');
+  });
+
+  it('should render the value in the trigger DOM via the form-driven path', () => {
+    const { fixture, host, trigger } = setupWithOptions();
+
+    host.control.setValue('c');
+    fixture.detectChanges();
+
+    const valueEl = trigger.querySelector('.bursit-select-value') as HTMLElement;
+    expect(valueEl.textContent?.trim()).toBe('Gamma');
+  });
+
+  it('should fire registerOnChange with the option value when an option is selected', () => {
+    const { fixture, select, trigger } = setupWithOptions();
+
+    const onChange = jest.fn();
+    select.registerOnChange(onChange);
+
+    openDropdown(fixture, trigger);
+    select.selectOption('c');
+    fixture.detectChanges();
+
+    expect(onChange).toHaveBeenCalledWith('c');
+  });
+
+  it('should fire registerOnTouched when the dropdown closes', () => {
+    const { fixture, select, trigger } = setupWithOptions();
+
+    const onTouched = jest.fn();
+    select.registerOnTouched(onTouched);
+
+    openDropdown(fixture, trigger);
+    select.onOverlayDetach();
+
+    expect(onTouched).toHaveBeenCalled();
+  });
+
+  it('should NOT open when disabled via setDisabledState(true)', () => {
+    const { fixture, select, trigger } = setupWithOptions();
+
+    select.setDisabledState(true);
+    fixture.detectChanges();
+
+    trigger.click();
+    fixture.detectChanges();
+
+    expect(select.disabled()).toBe(true);
+    expect(select.isOpen()).toBe(false);
+  });
+
+  it('should re-enable and allow opening after setDisabledState(false)', () => {
+    const { fixture, select, trigger } = setupWithOptions();
+
+    select.setDisabledState(true);
+    fixture.detectChanges();
+    trigger.click();
+    fixture.detectChanges();
+    expect(select.isOpen()).toBe(false);
+
+    select.setDisabledState(false);
+    fixture.detectChanges();
+
+    trigger.click();
+    fixture.detectChanges();
+
+    expect(select.disabled()).toBe(false);
+    expect(select.isOpen()).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — PR 3: FormField integration (task 7.1)
+// ---------------------------------------------------------------------------
+
+describe('Select — FormField integration', () => {
+  function createFormFieldHost(
+    control: FormControl<string | null>,
+    floatingLabel = false,
+  ) {
+    @Component({
+      template: `
+        <bursit-form-field>
+          <bursit-select
+            [formControl]="control"
+            placeholder="Choose"
+            [floatingLabel]="floatingLabel"
+          >
+            <bursit-option value="a">Alpha</bursit-option>
+            <bursit-option value="b">Beta</bursit-option>
+          </bursit-select>
+        </bursit-form-field>
+      `,
+      imports: [ReactiveFormsModule, FormField, Select, Option],
+    })
+    class WrapperComponent {
+      control = control;
+      floatingLabel = floatingLabel;
+    }
+
+    const fixture = TestBed.createComponent(WrapperComponent);
+    fixture.detectChanges();
+    const selectDebug = fixture.debugElement.query(By.directive(Select));
+    const select = selectDebug.componentInstance as Select;
+    const selectEl = selectDebug.nativeElement as HTMLElement;
+    const formFieldEl = fixture.debugElement
+      .query(By.directive(FormField))
+      .nativeElement as HTMLElement;
+
+    return { fixture, control, select, selectEl, formFieldEl };
+  }
+
+  it('should apply the error class when the control is invalid and touched', () => {
+    const control = new FormControl<string | null>(null, [Validators.required]);
+    const { fixture, selectEl, formFieldEl } = createFormFieldHost(control);
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    trigger.dispatchEvent(new Event('focus'));
+    trigger.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(control.invalid).toBe(true);
+    expect(control.touched).toBe(true);
+    expect(formFieldEl.classList.contains('bursit-form-field-error')).toBe(true);
+  });
+
+  it('should NOT apply the error class before the control is touched', () => {
+    const control = new FormControl<string | null>(null, [Validators.required]);
+    const { formFieldEl } = createFormFieldHost(control);
+
+    expect(control.invalid).toBe(true);
+    expect(control.touched).toBe(false);
+    expect(formFieldEl.classList.contains('bursit-form-field-error')).toBe(false);
+  });
+
+  it('should apply the floating label class when a value is set', () => {
+    const control = new FormControl<string | null>(null);
+    const { fixture, formFieldEl } = createFormFieldHost(control, true);
+
+    expect(control.touched).toBe(false);
+    expect(formFieldEl.classList.contains('bursit-form-field-floating-label')).toBe(true);
+
+    control.setValue('a');
+    fixture.detectChanges();
+    expect(formFieldEl.classList.contains('bursit-form-field-floating-label')).toBe(true);
+  });
+
+  it('should apply the focus class when the trigger is focused', () => {
+    const control = new FormControl<string | null>(null);
+    const { fixture, selectEl, formFieldEl } = createFormFieldHost(control);
+
+    const trigger = selectEl.querySelector('.bursit-select-trigger') as HTMLElement;
+    trigger.dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+
+    expect(selectEl.querySelector('.bursit-select-trigger')).toBe(trigger);
+    expect(formFieldEl.classList.contains('bursit-focus')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — PR 3: Edge cases (task 8.1)
+// ---------------------------------------------------------------------------
+
+describe('Select — Edge cases', () => {
+  it('should select and close normally with a single option', () => {
+    const { fixture, host, select, trigger } = setupWithOptions({
+      options: [{ value: 'only', label: 'Solo', disabled: false }],
+    });
+
+    openDropdown(fixture, trigger);
+    expect(select.options().length).toBe(1);
+
+    pressKey(trigger, 'ArrowDown');
+    pressKey(trigger, 'Enter');
+    fixture.detectChanges();
+
+    expect(host.control.value).toBe('only');
+    expect(select.isOpen()).toBe(false);
+  });
+
+  it('should bind long selected text into the trigger value element', () => {
+    const longLabel = 'x'.repeat(200);
+    const { fixture, host, trigger } = setupWithOptions({
+      options: [{ value: 'long', label: longLabel, disabled: false }],
+    });
+
+    host.control.setValue('long');
+    fixture.detectChanges();
+
+    const valueEl = trigger.querySelector('.bursit-select-value') as HTMLElement;
+    expect(valueEl).toBeTruthy();
+    expect(valueEl.textContent).toBe(longLabel);
+  });
+
+  it('should remain consistent across rapid open/close toggling', () => {
+    const { fixture, select, trigger } = setupWithOptions();
+
+    trigger.click();
+    fixture.detectChanges();
+    trigger.click();
+    fixture.detectChanges();
+    trigger.click();
+    fixture.detectChanges();
+
+    expect(select.isOpen()).toBe(true);
+    expect(select.activeOption()).toBeNull();
+
+    trigger.click();
+    fixture.detectChanges();
+    expect(select.isOpen()).toBe(false);
+  });
+
+  it('should not throw when destroyed while the dropdown is open', () => {
+    const { fixture, trigger } = setupWithOptions();
+
+    openDropdown(fixture, trigger);
+    expect(selectIsOpen(fixture)).toBe(true);
+
+    expect(() => fixture.destroy()).not.toThrow();
+  });
+
+  it('should update the value without crashing when writeValue is called while open', () => {
+    const { fixture, select, trigger } = setupWithOptions();
+
+    openDropdown(fixture, trigger);
+
+    select.writeValue('c');
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(select.value()).toBe('c');
+    expect(select.isOpen()).toBe(true);
+  });
+});
+
+function selectIsOpen(
+  fixture: ComponentFixture<OptionsTestHostComponent>,
+): boolean {
+  const selectDebug = fixture.debugElement.query(By.directive(Select));
+  return (selectDebug.componentInstance as Select).isOpen();
+}

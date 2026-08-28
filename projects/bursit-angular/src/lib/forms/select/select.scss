@@ -105,3 +105,14 @@
   }
 }
 
+// ---------------------------------------------------------------------------
+// Accessibility: reduced motion
+// ---------------------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .bursit-select-trigger,
+  .bursit-select-trigger bursit-icon {
+    transition: none;
+  }
+}
+

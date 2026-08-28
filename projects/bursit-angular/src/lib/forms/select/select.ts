@@ -276,6 +276,10 @@ export class Select
     this._onTouched = fn;
   }
 
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
+  }
+
   private _wireAriaLabelledBy(): void {
     const el = this.trigger().nativeElement;
     const hasAriaLabel = el.getAttribute('aria-label');

@@ -351,6 +351,102 @@ export const LongList: Story = {
 };
 
 /**
+ * Select with no options rendered.
+ * The trigger renders and can be opened, but the empty listbox shows nothing
+ * and keyboard navigation is a safe no-op.
+ */
+export const ZeroOptions: Story = {
+  args: {
+    placeholder: 'No options available',
+    disabled: false,
+    required: false,
+    label: '',
+    floatingLabel: false,
+  },
+  render: () => ({
+    props: {
+      control: new FormControl(null),
+    },
+    template: `
+      <bursit-select
+        [formControl]="control"
+        placeholder="No options available"
+      >
+      </bursit-select>
+    `,
+  }),
+  argTypes: WITHOUT_LABEL,
+};
+
+/**
+ * Select with exactly one option.
+ * Useful for validating that keyboard navigation does not loop or error
+ * when there is a single list item.
+ */
+export const OneOption: Story = {
+  args: {
+    placeholder: 'Pick a fruit',
+    disabled: false,
+    required: false,
+    label: '',
+    floatingLabel: false,
+  },
+  render: () => ({
+    props: {
+      control: new FormControl(null),
+    },
+    template: `
+      <bursit-select
+        [formControl]="control"
+        placeholder="Pick a fruit"
+      >
+        <bursit-option value="apple">Apple</bursit-option>
+      </bursit-select>
+    `,
+  }),
+  argTypes: WITHOUT_LABEL,
+};
+
+/**
+ * Keyboard navigation demonstration with a full option list.
+ * Open with click, Focus, or ArrowDown/ArrowUp while closed, then use
+ * ArrowUp/ArrowDown to move, Home/End to jump, and Enter/Space to select.
+ */
+export const KeyboardNav: Story = {
+  args: {
+    label: 'Country',
+    placeholder: 'Select your country',
+    disabled: false,
+    required: false,
+    floatingLabel: false,
+  },
+  render: (args) => ({
+    props: {
+      ...args,
+      control: new FormControl(null),
+    },
+    template: `
+      <bursit-form-field>
+        <label bursitLabel>{{ label }}</label>
+        <bursit-select
+          [formControl]="control"
+          [placeholder]="placeholder"
+        >
+          <bursit-option value="us">United States</bursit-option>
+          <bursit-option value="uk">United Kingdom</bursit-option>
+          <bursit-option value="fr">France</bursit-option>
+          <bursit-option value="de">Germany</bursit-option>
+          <bursit-option value="es">Spain</bursit-option>
+          <bursit-option value="it">Italy</bursit-option>
+          <bursit-option value="br">Brazil</bursit-option>
+          <bursit-option value="ar">Argentina</bursit-option>
+        </bursit-select>
+      </bursit-form-field>
+    `,
+  }),
+};
+
+/**
  * Interactive playground with all controls exposed.
  * Toggle disabled, required, floatingLabel, and the label text.
  */
