@@ -4,3 +4,4 @@ export * from './forms';
 export * from './icon';
 export * from './modal';
 export * from './theme';
+export * from './tooltip';

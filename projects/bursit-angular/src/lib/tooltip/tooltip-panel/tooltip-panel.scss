@@ -1,0 +1,57 @@
+:host {
+  display: inline-block;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-color);
+  font-size: var(--tooltip-font-size);
+  line-height: var(--tooltip-line-height);
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+  border-radius: var(--tooltip-border-radius);
+  max-width: var(--tooltip-max-width);
+  box-shadow: var(--tooltip-shadow);
+  transition: var(--tooltip-transition);
+  z-index: var(--tooltip-z-index);
+  pointer-events: none;
+  position: relative;
+}
+
+:host::after {
+  content: '';
+  position: absolute;
+  background-color: var(--tooltip-arrow-color);
+  width: var(--tooltip-arrow-size);
+  height: var(--tooltip-arrow-size);
+}
+
+:host(.bursit-tooltip-top)::after {
+  bottom: calc(var(--tooltip-arrow-size) / -2);
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+:host(.bursit-tooltip-bottom)::after {
+  top: calc(var(--tooltip-arrow-size) / -2);
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+:host(.bursit-tooltip-left)::after {
+  right: calc(var(--tooltip-arrow-size) / -2);
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+:host(.bursit-tooltip-right)::after {
+  left: calc(var(--tooltip-arrow-size) / -2);
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+:host(.bursit-tooltip-no-arrow)::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    transition: none;
+  }
+}

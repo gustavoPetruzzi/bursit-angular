@@ -1,0 +1,5 @@
+@if (isString()) {
+  {{ content() }}
+} @else {
+  <ng-container [ngTemplateOutlet]="$any(content())"></ng-container>
+}
