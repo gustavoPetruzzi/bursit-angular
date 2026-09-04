@@ -6,9 +6,10 @@ import { NgTemplateOutlet } from '@angular/common';
   selector: 'bursit-tooltip-panel',
   imports: [NgTemplateOutlet],
   templateUrl: './tooltip-panel.html',
+  styleUrl: './tooltip-panel.scss',
   host: {
     role: 'tooltip',
-    '[id]': 'panelId',
+    '[id]': 'panelId()',
     '[class]': 'hostClasses()'
   },
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -19,7 +20,7 @@ export class TooltipPanel {
   
   position = input<TooltipPosition>('top');
   arrow = input(true);
-  panelId = input.required<string>();
+  panelId = input('');
 
   hostClasses = computed(() =>
     `bursit-tooltip bursit-tooltip-${this.position()}${this.arrow() ? '' : ' bursit-tooltip-no-arrow'}`

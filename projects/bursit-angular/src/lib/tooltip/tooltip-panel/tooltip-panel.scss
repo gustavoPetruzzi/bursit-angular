@@ -1,4 +1,5 @@
-.bursit-tooltip {
+:host {
+  display: inline-block;
   background-color: var(--tooltip-bg);
   color: var(--tooltip-color);
   font-size: var(--tooltip-font-size);
@@ -13,7 +14,7 @@
   position: relative;
 }
 
-.bursit-tooltip::after {
+:host::after {
   content: '';
   position: absolute;
   background-color: var(--tooltip-arrow-color);
@@ -21,36 +22,36 @@
   height: var(--tooltip-arrow-size);
 }
 
-.bursit-tooltip-top::after {
+:host(.bursit-tooltip-top)::after {
   bottom: calc(var(--tooltip-arrow-size) / -2);
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
 }
 
-.bursit-tooltip-bottom::after {
+:host(.bursit-tooltip-bottom)::after {
   top: calc(var(--tooltip-arrow-size) / -2);
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
 }
 
-.bursit-tooltip-left::after {
+:host(.bursit-tooltip-left)::after {
   right: calc(var(--tooltip-arrow-size) / -2);
   top: 50%;
   transform: translateY(-50%) rotate(45deg);
 }
 
-.bursit-tooltip-right::after {
+:host(.bursit-tooltip-right)::after {
   left: calc(var(--tooltip-arrow-size) / -2);
   top: 50%;
   transform: translateY(-50%) rotate(45deg);
 }
 
-.bursit-tooltip-no-arrow::after {
+:host(.bursit-tooltip-no-arrow)::after {
   display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bursit-tooltip {
+  :host {
     transition: none;
   }
 }
