@@ -15,6 +15,7 @@ module.exports = {
   collectCoverageFrom: [
     'projects/bursit-angular/src/lib/**/*.ts',
     '!projects/bursit-angular/src/lib/**/*.spec.ts',
+    '!projects/bursit-angular/src/lib/**/*.stories.ts',
     '!projects/bursit-angular/src/lib/**/index.ts',
     '!projects/bursit-angular/src/lib/**/public-api.ts',
   ],

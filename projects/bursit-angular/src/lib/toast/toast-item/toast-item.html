@@ -1,0 +1,6 @@
+{{ message() }}
+@if (showCloseButton()) {
+  <button type="button" class="bursit-toast__close" aria-label="Close notification" (click)="close.emit()">
+    <bursit-icon name="x" [size]="16"></bursit-icon>
+  </button>
+}
