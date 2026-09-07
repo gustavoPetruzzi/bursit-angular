@@ -14,6 +14,25 @@
   font-weight: bold;
 }
 
+// Enter motion — component-scoped. The transition needs an actual state change
+// to run, so `@starting-style` provides the initial frame on mount (opacity 0,
+// slight slide) and the browser animates into the resting state above. Without
+// a starting state a bare `transition` declaration is inert.
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    transition:
+      opacity var(--toast-enter-duration, 200ms) var(--toast-enter-ease, ease),
+      transform var(--toast-enter-duration, 200ms) var(--toast-enter-ease, ease);
+  }
+}
+
+@starting-style {
+  :host {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
 :host(.bursit-toast--success) {
   background-color: var(--toast-success-bg);
   border-color: var(--toast-success-border-color);

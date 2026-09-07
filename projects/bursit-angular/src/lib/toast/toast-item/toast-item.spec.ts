@@ -69,7 +69,7 @@ describe('ToastItemComponent', () => {
       const button = fixture.nativeElement.querySelector(
         '.bursit-toast__close',
       ) as HTMLButtonElement;
-      expect(button.getAttribute('aria-label')).toBe('Close');
+      expect(button.getAttribute('aria-label')).toBe('Close notification');
     });
 
     it('should not render a close button when showCloseButton is false', () => {
@@ -87,6 +87,22 @@ describe('ToastItemComponent', () => {
       ) as HTMLButtonElement;
       button.click();
 
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('hover events', () => {
+    it('should emit pause on mouseenter', () => {
+      const spy = jest.fn();
+      component.pause.subscribe(spy);
+      fixture.nativeElement.dispatchEvent(new MouseEvent('mouseenter'));
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should emit resume on mouseleave', () => {
+      const spy = jest.fn();
+      component.resume.subscribe(spy);
+      fixture.nativeElement.dispatchEvent(new MouseEvent('mouseleave'));
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
