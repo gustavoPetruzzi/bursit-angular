@@ -1,0 +1,68 @@
+:host {
+  background-color: var(--toast-bg);
+  box-shadow: var(--toast-shadow);
+  border-radius: var(--toast-border-radius);
+  border-width: var(--toast-border-width);
+  border-style: var(--toast-border-style);
+  border-color: var(--toast-border-color);
+  padding: var(--toast-padding);
+  min-width: var(--toast-min-width);
+  max-width: var(--toast-max-width);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+:host(.bursit-toast--success) {
+  background-color: var(--toast-success-bg);
+  border-color: var(--toast-success-border-color);
+  color: var(--toast-success-color);
+}
+
+:host(.bursit-toast--info) {
+  background-color: var(--toast-info-bg);
+  border-color: var(--toast-info-border-color);
+  color: var(--toast-info-color);
+}
+
+:host(.bursit-toast--warning) {
+  background-color: var(--toast-warning-bg);
+  border-color: var(--toast-warning-border-color);
+  color: var(--toast-warning-color);
+}
+
+:host(.bursit-toast--error) {
+  background-color: var(--toast-error-bg);
+  border-color: var(--toast-error-border-color);
+  color: var(--toast-error-color);
+}
+
+.bursit-toast__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--space-xl);
+  height: var(--space-xl);
+  margin-left: var(--space-md);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  line-height: 0;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast) ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--toast-info-color);
+    outline-offset: 2px;
+  }
+}

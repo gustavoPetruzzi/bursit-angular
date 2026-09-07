@@ -1,0 +1,10 @@
+<div class="bursit-toast-container">
+  @for (toast of toasts(); track toast) {
+    <bursit-toast-item
+      [message]="toast.message"
+      [type]="toast.options.type"
+      [showCloseButton]="toast.options.showCloseButton ?? true"
+      (close)="toast.dismiss()"
+    ></bursit-toast-item>
+  }
+</div>
