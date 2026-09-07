@@ -5,9 +5,11 @@ export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-
 export interface ToastOptions {
   type?: ToastType;
   message: string;
-  duration?: number; // in milliseconds
+  duration?: number; // in milliseconds; 0 = manual dismiss only
   position?: ToastPosition;
   showCloseButton?: boolean;
+  pauseOnHover?: boolean;
+  maxVisible?: number;
   onClose?: () => void;
 }
 
@@ -16,6 +18,8 @@ export const TOAST_DEFAULTS: ToastOptions = {
   duration: 5000,
   position: 'bottom-right',
   showCloseButton: true,
+  pauseOnHover: true,
+  maxVisible: 5,
   onClose: undefined,
   message: ''
 }

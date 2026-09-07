@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { PLATFORM_ID } from '@angular/core';
 import { ToastService } from './toast.service';
 import { ToastRef } from './toast-ref';
 import { TOAST_DEFAULTS } from './toast.types';
@@ -234,6 +235,159 @@ describe('ToastService', () => {
       const wrapper = document.querySelector('.cdk-global-overlay-wrapper') as HTMLElement;
       expect(wrapper.style.justifyContent).toBe('flex-start');
       expect(wrapper.style.alignItems).toBe('flex-start');
+    });
+  });
+
+  describe('maxVisible', () => {
+    it('should allow up to maxVisible toasts at a single position', () => {
+      const first = service.show({
+        message: 'One',
+        duration: 0,
+        position: 'bottom-right',
+        maxVisible: 3,
+      });
+      const second = service.show({
+        message: 'Two',
+        duration: 0,
+        position: 'bottom-right',
+        maxVisible: 3,
+      });
+      const third = service.show({
+        message: 'Three',
+        duration: 0,
+        position: 'bottom-right',
+        maxVisible: 3,
+      });
+
+      expect(first.closed).toBe(false);
+      expect(second.closed).toBe(false);
+      expect(third.closed).toBe(false);
+      expect(service.toastsForPosition('bottom-right').length).toBe(3);
+    });
+
+    it('should dismiss the oldest toast when maxVisible is exceeded', () => {
+      const first = service.show({
+        message: 'Oldest',
+        duration: 0,
+        position: 'bottom-right',
+        maxVisible: 2,
+      });
+      const second = service.show({
+        message: 'Middle',
+        duration: 0,
+        position: 'bottom-right',
+        maxVisible: 2,
+      });
+      expect(first.closed).toBe(false);
+
+      const third = service.show({
+        message: 'Newest',
+        duration: 0,
+        position: 'bottom-right',
+        maxVisible: 2,
+      });
+
+      expect(first.closed).toBe(true);
+      expect(second.closed).toBe(false);
+      expect(third.closed).toBe(false);
+      expect(service.toastsForPosition('bottom-right').length).toBe(2);
+    });
+  });
+
+  describe('pause/resume on hover', () => {
+    it('should keep the toast open while paused and dismiss on resume', () => {
+      const ref = service.show({ message: 'Hover', duration: 1000 });
+      const spy = jest.fn();
+      ref.afterClosed().subscribe(spy);
+
+      jest.advanceTimersByTime(400);
+      service.pauseToast(ref);
+
+      // Advance well past the original end while paused.
+      jest.advanceTimersByTime(2000);
+      expect(ref.closed).toBe(false);
+
+      // Resume leaves ~600ms remaining.
+      service.resumeToast(ref);
+      jest.advanceTimersByTime(599);
+      expect(ref.closed).toBe(false);
+      jest.advanceTimersByTime(1);
+      expect(ref.closed).toBe(true);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should ignore pause/resume for a toast with no running timer', () => {
+      const ref = service.show({ message: 'Manual', duration: 0 });
+      service.pauseToast(ref);
+      jest.advanceTimersByTime(5000);
+      expect(ref.closed).toBe(false);
+      service.resumeToast(ref);
+      jest.advanceTimersByTime(5000);
+      expect(ref.closed).toBe(false);
+      service.closeAll();
+    });
+  });
+
+  describe('full lifecycle (integration)', () => {
+    it('show → pause on hover → resume on leave → auto-dismiss → afterClosed emits', () => {
+      overlayContainer = TestBed.inject(OverlayContainer);
+      const spy = jest.fn();
+      const ref = service.show({ message: 'Lifecycle', duration: 1000 });
+      ref.afterClosed().subscribe(spy);
+
+      // Rendered in the overlay.
+      jest.advanceTimersByTime(0);
+      expect(document.body.textContent).toContain('Lifecycle');
+
+      // Hover pauses the timer.
+      service.pauseToast(ref);
+      jest.advanceTimersByTime(2000);
+      expect(ref.closed).toBe(false);
+
+      // Leave resumes at the remaining ~1000ms (no time had elapsed before pause).
+      service.resumeToast(ref);
+      jest.advanceTimersByTime(999);
+      expect(ref.closed).toBe(false);
+      jest.advanceTimersByTime(1);
+
+      // Auto-dismiss fired: closed, afterClosed emitted, removed from DOM.
+      expect(ref.closed).toBe(true);
+      expect(spy).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(0);
+      expect(document.body.textContent).not.toContain('Lifecycle');
+    });
+  });
+
+  describe('SSR guard', () => {
+    let serverService: ToastService;
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [TestHostComponent],
+        providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+      });
+      serverService = TestBed.inject(ToastService);
+    });
+
+    afterEach(() => {
+      TestBed.resetTestingModule();
+    });
+
+    it('should return a ref without touching the DOM on a non-browser platform', () => {
+      const ref = serverService.show({ message: 'SSR', type: 'success' });
+      expect(ref).toBeInstanceOf(ToastRef);
+      expect(ref.closed).toBe(false);
+      expect(document.querySelectorAll('.cdk-overlay-container').length).toBe(0);
+    });
+
+    it('should still allow manual dismissal on a non-browser platform', () => {
+      const ref = serverService.show({ message: 'SSR manual', type: 'info' });
+      const spy = jest.fn();
+      ref.afterClosed().subscribe(spy);
+      ref.dismiss();
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(ref.closed).toBe(true);
     });
   });
 });

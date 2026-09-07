@@ -1,9 +1,16 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, PLATFORM_ID, signal } from "@angular/core";
+import { isPlatformBrowser } from "@angular/common";
 import { ToastRef } from "./toast-ref";
 import { Overlay, OverlayRef, GlobalPositionStrategy } from "@angular/cdk/overlay";
 import { ToastOptions, ToastPosition, TOAST_DEFAULTS } from "./toast.types";
 import { ComponentPortal } from "@angular/cdk/portal";
 import { ToastContainerComponent } from "./toast-container/toast-container";
+
+interface TimerState {
+  timerId: ReturnType<typeof setTimeout>;
+  remaining: number;
+  start: number | null;
+}
 
 @Injectable({
   providedIn: "root",
@@ -18,6 +25,8 @@ export class ToastService {
     'top-center': [],
     'bottom-center': [],
   });
+  private readonly _timers = new Map<ToastRef, TimerState>();
+  private _isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private _overlay = inject(Overlay);
 
   toastsForPosition(position: ToastPosition): ToastRef[] {
@@ -27,6 +36,12 @@ export class ToastService {
   show(options: ToastOptions): ToastRef {
     const toastRef = new ToastRef("", options);
     const position = (toastRef.options.position ?? TOAST_DEFAULTS.position) as ToastPosition;
+
+    if (!this._isBrowser) {
+      // SSR guard: no DOM access. Return a ref that reports closure without an overlay.
+      toastRef.afterClosed().subscribe(() => {});
+      return toastRef;
+    }
 
     let state = this._positions.get(position);
     if (!state) {
@@ -47,13 +62,48 @@ export class ToastService {
       this._removeToast(toastRef, position);
     });
 
+    const maxVisible = toastRef.options.maxVisible ?? TOAST_DEFAULTS.maxVisible ?? 5;
+    if (state.toasts.length > maxVisible) {
+      const oldest = state.toasts[0];
+      oldest.dismiss();
+    }
+
     if (toastRef.options.duration && toastRef.options.duration > 0) {
-      setTimeout(() => {
-        toastRef.dismiss();
-      }, toastRef.options.duration);
+      this._startTimer(toastRef);
     }
 
     return toastRef;
+  }
+
+  pauseToast(toastRef: ToastRef) {
+    const timer = this._timers.get(toastRef);
+    if (!timer || timer.start === null) return;
+    const elapsed = Date.now() - timer.start;
+    timer.remaining -= elapsed;
+    clearTimeout(timer.timerId);
+    timer.start = null;
+  }
+
+  resumeToast(toastRef: ToastRef) {
+    const timer = this._timers.get(toastRef);
+    if (!timer || timer.start !== null) return;
+    if (timer.remaining <= 0) {
+      toastRef.dismiss();
+      return;
+    }
+    timer.start = Date.now();
+    timer.timerId = setTimeout(() => toastRef.dismiss(), timer.remaining);
+  }
+
+  private _startTimer(toastRef: ToastRef) {
+    const duration = toastRef.options.duration ?? TOAST_DEFAULTS.duration ?? 5000;
+    const timer: TimerState = {
+      timerId: undefined as unknown as ReturnType<typeof setTimeout>,
+      remaining: duration,
+      start: Date.now(),
+    };
+    timer.timerId = setTimeout(() => toastRef.dismiss(), duration);
+    this._timers.set(toastRef, timer);
   }
 
 
@@ -80,6 +130,7 @@ export class ToastService {
   }
 
   private _removeToast(toastRef: ToastRef, position: ToastPosition) {
+    this._clearTimer(toastRef);
     const state = this._positions.get(position);
     if (!state) return;
 
@@ -93,6 +144,13 @@ export class ToastService {
       state.overlayRef.dispose();
       this._positions.delete(position);
     }
+  }
+
+  private _clearTimer(toastRef: ToastRef) {
+    const timer = this._timers.get(toastRef);
+    if (!timer) return;
+    clearTimeout(timer.timerId);
+    this._timers.delete(toastRef);
   }
 
   private _positionStrategy(position: ToastPosition): GlobalPositionStrategy {

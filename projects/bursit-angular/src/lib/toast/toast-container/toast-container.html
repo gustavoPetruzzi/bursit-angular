@@ -2,9 +2,11 @@
   @for (toast of toasts(); track toast) {
     <bursit-toast-item
       [message]="toast.message"
-      [type]="toast.options.type"
+      [type]="toast.options.type!"
       [showCloseButton]="toast.options.showCloseButton ?? true"
-      (close)="toast.dismiss()"
+      (close)="dismiss(toast)"
+      (pause)="pause(toast)"
+      (resume)="resume(toast)"
     ></bursit-toast-item>
   }
 </div>
