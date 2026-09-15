@@ -1,0 +1,233 @@
+---
+// Full inventory of the public API. Selectors are copied verbatim from the
+// library source so this grid can be used as a reference, not just a teaser.
+type ComponentKind = 'Directive' | 'Component' | 'Service';
+
+interface InventoryItem {
+  name: string;
+  kind: ComponentKind;
+  selectors: string[];
+  description: string;
+}
+
+const inventory: InventoryItem[] = [
+  // --- Directives ---------------------------------------------------------
+  {
+    name: 'ButtonDirective',
+    kind: 'Directive',
+    selectors: ['[bursitButton]'],
+    description:
+      'Applies button styling to native elements. The color input selects primary, secondary, outline, link or danger.',
+  },
+  {
+    name: 'InputDirective',
+    kind: 'Directive',
+    selectors: ['[bursitInput]'],
+    description:
+      'Reactive states for input and textarea — focus, hover, invalid, disabled and an optional floating label, driven by NgControl.',
+  },
+  {
+    name: 'LabelDirective',
+    kind: 'Directive',
+    selectors: ['[bursitLabel]'],
+    description: 'Label that binds its for attribute to the field id published by FormField.',
+  },
+  {
+    name: 'TooltipDirective',
+    kind: 'Directive',
+    selectors: ['[bursitTooltip]'],
+    description:
+      'Overlay tooltip bound to focus and hover, with configurable position, show and hide delays, and an optional arrow.',
+  },
+  {
+    name: 'Error',
+    kind: 'Directive',
+    selectors: ['[bursitError]'],
+    description:
+      'Error slot for a field. Renders with role="alert" and takes part in the control’s described-by chain.',
+  },
+  {
+    name: 'Modal slots',
+    kind: 'Directive',
+    selectors: ['[bursitModalHeader]', '[bursitModalBody]', '[bursitModalFooter]'],
+    description: 'Named content slots projected into the modal chrome.',
+  },
+
+  // --- Components ---------------------------------------------------------
+  {
+    name: 'FormField',
+    kind: 'Component',
+    selectors: ['<bursit-form-field>'],
+    description:
+      'Groups label, control, error and helper text. Generates the field id and exposes group semantics.',
+  },
+  {
+    name: 'Select',
+    kind: 'Component',
+    selectors: ['<bursit-select>'],
+    description:
+      'Select built on CDK Overlay with full keyboard support and a ControlValueAccessor.',
+  },
+  {
+    name: 'Option',
+    kind: 'Component',
+    selectors: ['<bursit-option>'],
+    description: 'A single option inside bursit-select. Its label is read from the projected text.',
+  },
+  {
+    name: 'Checkbox',
+    kind: 'Component',
+    selectors: ['<bursit-checkbox>'],
+    description: 'Checked, indeterminate and disabled states, wired into Angular forms.',
+  },
+  {
+    name: 'Message',
+    kind: 'Component',
+    selectors: ['<bursit-message>'],
+    description: 'Helper text slot, linked to the control it describes.',
+  },
+  {
+    name: 'Avatar',
+    kind: 'Component',
+    selectors: ['<bursit-avatar>'],
+    description:
+      'Image avatar that falls back to initials computed from userName, in six sizes from xs to 2xl.',
+  },
+  {
+    name: 'Icon',
+    kind: 'Component',
+    selectors: ['<bursit-icon>'],
+    description:
+      'Lucide-backed icon with name, size, color and strokeWidth inputs. Inherits currentColor by default.',
+  },
+  {
+    name: 'Modal',
+    kind: 'Component',
+    selectors: ['<bursit-modal>'],
+    description:
+      'Dialog chrome with a focus trap and three named slots. Opened through ModalService.',
+  },
+  {
+    name: 'Toast',
+    kind: 'Component',
+    selectors: ['<bursit-toast-container>', '<bursit-toast-item>'],
+    description:
+      'Toast overlay and a single toast item, with success, info, warning and error variants.',
+  },
+
+  // --- Services -----------------------------------------------------------
+  {
+    name: 'BursitThemeService',
+    kind: 'Service',
+    selectors: ['inject(BursitThemeService)'],
+    description:
+      'Light, dark and system themes. Applies the bursit-theme attribute to <html> and persists the choice.',
+  },
+  {
+    name: 'ToastService',
+    kind: 'Service',
+    selectors: ['inject(ToastService)'],
+    description:
+      'Imperative toasts. show(options) returns a ToastRef with dismiss() and an afterClosed() stream.',
+  },
+  {
+    name: 'ModalService',
+    kind: 'Service',
+    selectors: ['inject(ModalService)'],
+    description:
+      'Opens a component in a CDK overlay and returns a ModalRef with close(), dismiss() and afterClosed().',
+  },
+];
+
+const chipClass: Record<ComponentKind, string> = {
+  Directive: 'chip--accent',
+  Component: 'chip--neutral',
+  Service: 'chip--cool',
+};
+---
+
+<section class="section section--divided" id="components" aria-labelledby="components-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow">
+        <span class="eyebrow__index">03</span>
+        <span>Components</span>
+        <span class="eyebrow__rule"></span>
+      </p>
+      <h2 class="section-title" id="components-title">The complete public surface</h2>
+      <p class="section-lead">
+        Six directives, nine components and three services. Everything is standalone, everything is
+        tree-shakeable, and the selector on each card is exactly what you write in your template.
+      </p>
+    </header>
+
+    <ul class="grid grid--cards components">
+      {
+        inventory.map((item) => (
+          <li class="card card--interactive component">
+            <div class="component__head">
+              <h3 class="component__name">{item.name}</h3>
+              <span class={`chip ${chipClass[item.kind]}`}>{item.kind}</span>
+            </div>
+            <p class="component__description">{item.description}</p>
+            <ul class="component__selectors">
+              {item.selectors.map((selector) => (
+                <li>
+                  <code>{selector}</code>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="components__cta">
+      <a class="btn btn--outline" href="/storybook/">See every primitive live in the Storybook</a>
+    </p>
+  </div>
+</section>
+
+<style lang="scss">
+  // `auto 1fr auto` pins the selector row to the bottom of every card so the
+  // grid reads as aligned rows even when descriptions differ in length.
+  .component {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-sm);
+    padding: var(--card-padding);
+  }
+
+  .component__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    justify-content: space-between;
+  }
+
+  .component__name {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .component__description {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // A hairline separates the prose from the copyable selector.
+  .component__selectors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    align-self: end;
+    padding-top: var(--space-sm);
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+  }
+
+  .components__cta {
+    margin-top: var(--space-2xl);
+  }
+</style>

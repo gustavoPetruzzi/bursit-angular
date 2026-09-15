@@ -1,0 +1,123 @@
+---
+const githubUrl = 'https://github.com/gustavoPetruzzi/bursit-angular';
+const npmUrl = 'https://www.npmjs.com/package/bursit-angular';
+
+const links = [
+  { label: 'GitHub', href: githubUrl, external: true },
+  { label: 'npm', href: npmUrl, external: true },
+  { label: 'Storybook', href: '/storybook/', external: false },
+];
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="wordmark" href="#top">
+        <span class="wordmark__mark" aria-hidden="true"></span>
+        <span>Bursit Angular</span>
+      </a>
+      <p class="site-footer__text">
+        Directive-first UI components for Angular 21, styled entirely by the
+        <code>bursit-ui-tokens</code> design system.
+      </p>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Footer">
+      <ul class="site-footer__links">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} rel={link.external ? 'noopener' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container site-footer__base">
+    <p>Released under the MIT license.</p>
+    <p class="site-footer__meta">Built with Astro. Every visual value is a token.</p>
+  </div>
+</footer>
+
+<style lang="scss">
+  .site-footer {
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    align-items: flex-start;
+    justify-content: space-between;
+    padding-block: var(--space-2xl);
+  }
+
+  .site-footer__brand {
+    display: grid;
+    gap: var(--space-sm);
+    max-inline-size: var(--layout-measure);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-tight);
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  .wordmark__mark {
+    inline-size: var(--space-md);
+    block-size: var(--space-md);
+    border-radius: var(--radius-sm);
+    background-image: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  }
+
+  .site-footer__text {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+  }
+
+  .site-footer__nav a {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  .site-footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+    justify-content: space-between;
+    padding-block: var(--space-md);
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  .site-footer__meta {
+    font-family: var(--font-family-mono);
+  }
+</style>
