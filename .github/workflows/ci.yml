@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   library:
-    name: Library: test and build
+    name: 'Library: test and build'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
         run: npm run build
 
   landing:
-    name: Landing: build
+    name: 'Landing: build'
     runs-on: ubuntu-latest
     defaults:
       run:
