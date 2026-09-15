@@ -14,7 +14,7 @@ This installs the library and configures the design tokens in `angular.json`.
 
 | Name                 | Type        | Selector            | Description                                                              |
 | -------------------- | ----------- | ------------------- | ------------------------------------------------------------------------ |
-| `ButtonDirective`    | Directive   | `[bursitButton]`    | Buttons with variants: primary, secondary, outline, link, danger         |
+| `ButtonDirective`    | Directive   | `[bursitButton]`    | Buttons with variants: primary, secondary, outline, link, danger, ghost, icon |
 | `InputDirective`     | Directive   | `[bursitInput]`     | Input with reactive states (focus, error, disabled, floating label)      |
 | `LabelDirective`     | Directive   | `[bursitLabel]`     | Label integrated with `FormField`                                        |
 | `FormField`          | Component   | `bursit-form-field` | Form container with slots for label, control, error, and helper          |
@@ -28,6 +28,8 @@ This installs the library and configures the design tokens in `angular.json`.
 <button bursitButton color="outline">Outline</button>
 <button bursitButton color="link">Link</button>
 <button bursitButton color="danger">Danger</button>
+<button bursitButton color="ghost">Ghost</button>
+<button bursitButton color="icon" aria-label="Close">×</button>
 ```
 
 ### Form Field
@@ -36,8 +38,8 @@ This installs the library and configures the design tokens in `angular.json`.
 <bursit-form-field>
   <label bursitLabel>Email</label>
   <input bursitInput [formControl]="emailControl" required floatingLabel />
-  <span bursit-error>Invalid email</span>
-  <span bursit-message>Enter your email address</span>
+  <span bursitError>Invalid email</span>
+  <span bursitMessage>Enter your email address</span>
 </bursit-form-field>
 ```
 
