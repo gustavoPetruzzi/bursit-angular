@@ -2,11 +2,12 @@ import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
 
 @Component({
-  selector: '<bursit-message>',
+  selector: '[bursitMessage], [bursit-message]',
   template: `
     <ng-content></ng-content>
   `,
   styleUrl: './message.component.scss',
+  host: { class: 'bursit-message' },
 })
 export class MessageComponent implements OnInit {
   private readonly _el = inject(ElementRef);
