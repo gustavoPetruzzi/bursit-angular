@@ -54,5 +54,13 @@
   },
   "overrides": {
     "yargs": "18.0.0"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "lmdb@3.5.1": true,
+    "msgpackr-extract@3.0.3": true,
+    "unrs-resolver@1.11.1": true,
+    "@compodoc/compodoc@1.2.1": true,
+    "@parcel/watcher": true
   }
 }

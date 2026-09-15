@@ -56,6 +56,22 @@ describe('ButtonDirective', () => {
     fixture.destroy();
   });
 
+  it('should apply bursit-button-ghost class when color is ghost', () => {
+    const fixture = createTestFixture('ghost');
+    fixture.detectChanges();
+    const button: HTMLElement = fixture.nativeElement.querySelector('button');
+    expect(button.classList).toContain('bursit-button-ghost');
+    fixture.destroy();
+  });
+
+  it('should apply bursit-button-icon class when color is icon', () => {
+    const fixture = createTestFixture('icon');
+    fixture.detectChanges();
+    const button: HTMLElement = fixture.nativeElement.querySelector('button');
+    expect(button.classList).toContain('bursit-button-icon');
+    fixture.destroy();
+  });
+
   it('should not apply other color classes when set to primary', () => {
     const fixture = createTestFixture('primary');
     fixture.detectChanges();
@@ -64,11 +80,13 @@ describe('ButtonDirective', () => {
     expect(button.classList).not.toContain('bursit-button-outline');
     expect(button.classList).not.toContain('bursit-button-link');
     expect(button.classList).not.toContain('bursit-button-danger');
+    expect(button.classList).not.toContain('bursit-button-ghost');
+    expect(button.classList).not.toContain('bursit-button-icon');
     fixture.destroy();
   });
 });
 
-type ButtonColor = 'primary' | 'secondary' | 'outline' | 'link' | 'danger';
+type ButtonColor = 'primary' | 'secondary' | 'outline' | 'link' | 'danger' | 'ghost' | 'icon';
 
 @Component({
   template: `<button bursitButton [color]="color">Test</button>`,

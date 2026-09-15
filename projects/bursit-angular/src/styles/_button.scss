@@ -86,6 +86,23 @@
     }
   }
 
+  &.bursit-button-icon {
+    @include setVariantValues('icon');
+    width: var(--btn-icon-size-md);
+    height: var(--btn-icon-size-md);
+    padding: 0;
+
+    &[size='small'] {
+      width: var(--btn-icon-size-sm);
+      height: var(--btn-icon-size-sm);
+    }
+
+    &[size='large'] {
+      width: var(--btn-icon-size-lg);
+      height: var(--btn-icon-size-lg);
+    }
+  }
+
   &.bursit-button-danger {
     @include setVariantValues('danger');
   }
