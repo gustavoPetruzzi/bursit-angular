@@ -1,0 +1,110 @@
+---
+// The three constraints the library is built on. `body` is authored HTML and is
+// injected with `set:html` so inline `<code>` chips survive.
+interface Pillar {
+  index: string;
+  title: string;
+  body: string;
+  tag: string;
+}
+
+const pillars: Pillar[] = [
+  {
+    index: '01',
+    title: 'Directive-first',
+    body: 'The primitives are directives over native elements. <code>&lt;button bursitButton&gt;</code> stays a real button and <code>&lt;input bursitInput&gt;</code> stays a real input, so native accessibility, keyboard behaviour and form participation are preserved instead of reimplemented.',
+    tag: '<button bursitButton>',
+  },
+  {
+    index: '02',
+    title: 'Tokens own the visuals',
+    body: 'Every color, space, radius and shadow resolves to a <code>var()</code> from <code>bursit-ui-tokens</code>. The library ships structure only, which is why the same components can be re-skinned without touching a line of component code.',
+    tag: 'var(--color-primary)',
+  },
+  {
+    index: '03',
+    title: 'Standalone by default',
+    body: 'There is no <code>NgModule</code> anywhere in the package. Add the primitive you need to your component imports array and use it — nothing else registers itself in your application.',
+    tag: 'imports: [FormField, InputDirective]',
+  },
+];
+---
+
+<section class="section" id="philosophy" aria-labelledby="philosophy-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow">
+        <span class="eyebrow__index">01</span>
+        <span>Philosophy</span>
+        <span class="eyebrow__rule"></span>
+      </p>
+      <h2 class="section-title" id="philosophy-title">Three decisions that shape every component</h2>
+      <p class="section-lead">
+        Bursit Angular does very little on its own. Everything it does follows from three
+        constraints that are enforced across the whole API.
+      </p>
+    </header>
+
+    <ol class="pillars">
+      {
+        pillars.map((pillar) => (
+          <li class="pillar">
+            <p class="pillar__index">{pillar.index}</p>
+            <h3 class="pillar__title">{pillar.title}</h3>
+            <p class="pillar__body" set:html={pillar.body} />
+            <p class="pillar__tag">{pillar.tag}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style lang="scss">
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--layout-track-min), 100%), 1fr));
+    gap: var(--space-xl);
+  }
+
+  .pillar {
+    display: grid;
+    gap: var(--space-sm);
+    align-content: start;
+    padding-top: var(--space-lg);
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+    transition: border-color var(--duration-normal) var(--ease-in-out);
+
+    &:hover {
+      border-top-color: var(--color-primary);
+    }
+  }
+
+  .pillar__index {
+    color: var(--color-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--letter-spacing-widest);
+  }
+
+  .pillar__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .pillar__body {
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // The concrete API touch for each pillar. Kept as a monospace footnote so the
+  // prose stays readable and the selector stays copyable.
+  .pillar__tag {
+    margin-top: var(--space-xs);
+    padding-top: var(--space-sm);
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+  }
+</style>

@@ -1,0 +1,329 @@
+---
+// Hero copy plus a "spec rail": a full-bleed technical band that previews the
+// three token families (color, space, radius) the DesignTokens section expands
+// in full. The rail cells are labelled in text; the sample strips themselves are
+// presentational only and are hidden from assistive tech.
+const badgeLabels = ['Angular 21', 'Standalone', 'MIT', 'Zero NgModules'];
+
+const githubUrl = 'https://github.com/gustavoPetruzzi/bursit-angular';
+---
+
+<section class="hero" id="top">
+  <div class="hero__atmosphere" aria-hidden="true"></div>
+
+  <div class="container hero__inner">
+    <p class="hero__badges">
+      {
+        badgeLabels.map((label) => (
+          <span class="chip chip--neutral">{label}</span>
+        ))
+      }
+    </p>
+
+    <h1 class="hero__title">
+      Directives over native elements.
+      <span class="hero__title-line">Tokens over hardcoded styles.</span>
+    </h1>
+
+    <p class="hero__lead">
+      Bursit Angular is an Angular 21 library of standalone directives that extend
+      <code>&lt;button&gt;</code>, <code>&lt;input&gt;</code> and their siblings. Native semantics
+      stay intact, and every visual value still resolves through one token layer.
+    </p>
+
+    <div class="hero__actions">
+      <a class="btn btn--primary btn--lg" href="/storybook/">Browse Storybook</a>
+      <a class="btn btn--outline btn--lg" href={githubUrl} rel="noopener">View on GitHub</a>
+    </div>
+  </div>
+
+  <div class="hero__rail">
+    <div class="container hero__rail-inner">
+      <div class="spec">
+        <p class="spec__label">palette</p>
+        <div class="spec__swatches" aria-hidden="true">
+          <span class="spec__swatch spec__swatch--primary"></span>
+          <span class="spec__swatch spec__swatch--secondary"></span>
+          <span class="spec__swatch spec__swatch--success"></span>
+          <span class="spec__swatch spec__swatch--warning"></span>
+          <span class="spec__swatch spec__swatch--error"></span>
+        </div>
+        <p class="spec__note">--color-*</p>
+      </div>
+
+      <div class="spec">
+        <p class="spec__label">space</p>
+        <div class="spec__bars" aria-hidden="true">
+          <span class="spec__bar spec__bar--sm"></span>
+          <span class="spec__bar spec__bar--md"></span>
+          <span class="spec__bar spec__bar--lg"></span>
+          <span class="spec__bar spec__bar--xl"></span>
+          <span class="spec__bar spec__bar--2xl"></span>
+        </div>
+        <p class="spec__note">--space-*</p>
+      </div>
+
+      <div class="spec">
+        <p class="spec__label">radius</p>
+        <div class="spec__radii" aria-hidden="true">
+          <span class="spec__radius spec__radius--xs"></span>
+          <span class="spec__radius spec__radius--sm"></span>
+          <span class="spec__radius spec__radius--md"></span>
+          <span class="spec__radius spec__radius--full"></span>
+        </div>
+        <p class="spec__note">--radius-*</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(var(--space-2xl), 10vw, var(--space-4xl)) var(--space-0);
+  }
+
+  // Atmospheric depth: two soft glows over a hairline grid, dissolved into the
+  // page background at the bottom so the band has no hard edge.
+  .hero__atmosphere {
+    position: absolute;
+    inset: var(--space-0);
+    z-index: var(--z-index-below);
+    background-image:
+      radial-gradient(ellipse 55% 55% at 10% 0%, var(--color-primary-alpha-15), transparent 70%),
+      radial-gradient(ellipse 45% 45% at 92% 4%, var(--color-secondary-alpha-8), transparent 70%),
+      linear-gradient(to right, var(--color-border) var(--space-px), transparent var(--space-px)),
+      linear-gradient(to bottom, var(--color-border) var(--space-px), transparent var(--space-px));
+    background-size:
+      100% 100%,
+      100% 100%,
+      var(--space-2xl) var(--space-2xl),
+      var(--space-2xl) var(--space-2xl);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: var(--space-0);
+      background-image: linear-gradient(to bottom, transparent, var(--color-bg));
+    }
+  }
+
+  .hero__inner {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-lg);
+    padding-bottom: clamp(var(--space-2xl), 8vw, var(--space-4xl));
+  }
+
+  .hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .hero__title {
+    max-inline-size: var(--layout-title-measure);
+    font-size: clamp(var(--font-size-4xl), 5vw, var(--font-size-5xl));
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .hero__title-line {
+    display: block;
+    color: var(--color-text-muted);
+  }
+
+  .hero__lead {
+    max-inline-size: var(--layout-measure);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Spec rail
+  // ---------------------------------------------------------------------------
+
+  // Full-bleed band; the grid inside stays on the same 75rem / 1.5rem rhythm as
+  // the rest of the page so its first cell lines up with the hero copy above.
+  .hero__rail {
+    position: relative;
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+    background-color: var(--color-bg-elevated);
+  }
+
+  // Hairline dividers come from the hairline gap showing the element's own
+  // background through. The column count is fixed rather than `auto-fit` so a
+  // partially filled row can never expose that background as a solid block.
+  .hero__rail-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-px);
+    width: 100%;
+    max-width: var(--layout-container);
+    margin-inline: auto;
+    background-color: var(--color-border);
+  }
+
+  @media (min-width: 48em) {
+    .hero__rail-inner {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .spec {
+    display: grid;
+    gap: var(--space-sm);
+    align-content: start;
+    padding: var(--space-lg);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .spec__label {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--letter-spacing-widest);
+    text-transform: uppercase;
+  }
+
+  .spec__note {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+  }
+
+  .spec__swatches {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .spec__swatch {
+    inline-size: var(--space-xl);
+    block-size: var(--space-xl);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .spec__swatch--primary {
+    background-color: var(--color-primary);
+  }
+
+  .spec__swatch--secondary {
+    background-color: var(--color-secondary);
+  }
+
+  .spec__swatch--success {
+    background-color: var(--color-success);
+  }
+
+  .spec__swatch--warning {
+    background-color: var(--color-warning);
+  }
+
+  .spec__swatch--error {
+    background-color: var(--color-error);
+  }
+
+  .spec__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-xs);
+    block-size: var(--space-xl);
+  }
+
+  .spec__bar {
+    block-size: var(--space-sm);
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary);
+  }
+
+  .spec__bar--sm {
+    inline-size: var(--space-sm);
+  }
+
+  .spec__bar--md {
+    inline-size: var(--space-md);
+  }
+
+  .spec__bar--lg {
+    inline-size: var(--space-lg);
+  }
+
+  .spec__bar--xl {
+    inline-size: var(--space-xl);
+  }
+
+  .spec__bar--2xl {
+    inline-size: var(--space-2xl);
+  }
+
+  .spec__radii {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .spec__radius {
+    inline-size: var(--space-lg);
+    block-size: var(--space-lg);
+    border: var(--border-width-medium) var(--border-style) var(--color-primary);
+  }
+
+  .spec__radius--xs {
+    border-radius: var(--radius-xs);
+  }
+
+  .spec__radius--sm {
+    border-radius: var(--radius-sm);
+  }
+
+  .spec__radius--md {
+    border-radius: var(--radius-md);
+  }
+
+  .spec__radius--full {
+    border-radius: var(--radius-full);
+  }
+
+  // One orchestrated entrance. Guarded behind `no-preference` so the content is
+  // never left at `opacity: 0` when the user asks for reduced motion.
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__inner > * {
+      animation: hero-rise var(--duration-slower) var(--ease-out) both;
+    }
+
+    .hero__inner > *:nth-child(2) {
+      animation-delay: var(--duration-fast);
+    }
+
+    .hero__inner > *:nth-child(3) {
+      animation-delay: var(--duration-normal);
+    }
+
+    .hero__inner > *:nth-child(4) {
+      animation-delay: var(--duration-slow);
+    }
+  }
+
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--space-sm));
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(var(--space-0));
+    }
+  }
+</style>

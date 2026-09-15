@@ -1,0 +1,166 @@
+---
+// Steps are authored as source lines rather than raw markup so braces and
+// backticks inside the snippet can never be parsed as template syntax.
+function toLines(source: string[]) {
+  return source.map((raw) => {
+    const trimmed = raw.trimStart();
+    return {
+      text: trimmed,
+      indent: Math.floor((raw.length - trimmed.length) / 2),
+      blank: trimmed.length === 0,
+    };
+  });
+}
+
+const usageLines = toLines([
+  "import { Component } from '@angular/core';",
+  "import { FormControl, ReactiveFormsModule } from '@angular/forms';",
+  "import { ErrorComponent, FormField, InputDirective, LabelDirective } from 'bursit-angular';",
+  '',
+  '@Component({',
+  "  selector: 'app-account',",
+  '  imports: [ReactiveFormsModule, FormField, InputDirective, LabelDirective, ErrorComponent],',
+  '  template: `',
+  '    <bursit-form-field>',
+  '      <label bursitLabel>Work email</label>',
+  '      <input bursitInput type="email" [formControl]="email" required />',
+  '      <span bursitError>Enter a valid work email address</span>',
+  '    </bursit-form-field>',
+  '  `,',
+  '})',
+  'export class AccountComponent {',
+  "  readonly email = new FormControl('', { nonNullable: true });",
+  '}',
+]);
+---
+
+<section class="section section--divided" id="getting-started" aria-labelledby="start-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow">
+        <span class="eyebrow__index">04</span>
+        <span>Getting started</span>
+        <span class="eyebrow__rule"></span>
+      </p>
+      <h2 class="section-title" id="start-title">From install to a working field</h2>
+      <p class="section-lead">
+        No providers to register, no module to configure. The schematic wires the token layer into
+        your workspace and the primitives are imported like any other standalone declaration.
+      </p>
+    </header>
+
+    <ol class="steps">
+      <li class="step">
+        <p class="step__marker">01</p>
+        <div class="step__body">
+          <h3 class="step__title">Install and wire the tokens</h3>
+          <p class="step__text">
+            The schematic installs the package and appends the <code>bursit-ui-tokens</code>
+            stylesheet to the <code>styles</code> array of every project in <code>angular.json</code
+            >.
+          </p>
+          <div class="code-block">
+            <div class="code-block__bar">
+              <span class="code-block__mark" aria-hidden="true"></span>
+              <span>terminal</span>
+              <span class="code-block__bar-text">bash</span>
+            </div>
+            <pre class="code"><code><span class="code__line"><span class="code__prompt" aria-hidden="true">$</span> ng add bursit-angular</span></code></pre>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__marker">02</p>
+        <div class="step__body">
+          <h3 class="step__title">Import the primitives you use</h3>
+          <p class="step__text">
+            A field is a container, a label, a control and an error slot. Native elements keep their
+            own semantics — the directives only add state and styling.
+          </p>
+          <div class="code-block">
+            <div class="code-block__bar">
+              <span class="code-block__mark" aria-hidden="true"></span>
+              <span>account.component.ts</span>
+              <span class="code-block__bar-text">typescript</span>
+            </div>
+            <pre class="code"><code>{
+              usageLines.map((line) => (
+                <span
+                  class={`code__line code__indent${line.blank ? ' code__line--blank' : ''}`}
+                  style={`--indent: ${line.indent}`}
+                >
+                  {line.text}
+                </span>
+              ))
+            }</code></pre>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__marker">03</p>
+        <div class="step__body">
+          <h3 class="step__title">Check it against the live examples</h3>
+          <p class="step__text">
+            Every primitive has a story with its full input surface, states and edge cases. That is
+            also where the theme switching is easiest to see.
+          </p>
+          <p class="step__action">
+            <a class="btn btn--primary" href="/storybook/">Open the Storybook</a>
+          </p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<style lang="scss">
+  .steps {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+    padding-top: var(--space-lg);
+    border-top: var(--border-width-thin) var(--border-style) var(--color-border);
+  }
+
+  .step__marker {
+    color: var(--color-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--letter-spacing-wide);
+  }
+
+  .step__body {
+    display: grid;
+    gap: var(--space-md);
+    min-inline-size: var(--space-0);
+  }
+
+  .step__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .step__text {
+    max-inline-size: var(--layout-measure);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .step__action {
+    margin-top: var(--space-xs);
+  }
+
+  @media (max-width: 40em) {
+    .step {
+      grid-template-columns: 1fr;
+      gap: var(--space-sm);
+    }
+  }
+</style>

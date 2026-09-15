@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Philosophy from '../components/Philosophy.astro';
+import DesignTokens from '../components/DesignTokens.astro';
+import ComponentsGrid from '../components/ComponentsGrid.astro';
+import GettingStarted from '../components/GettingStarted.astro';
+import ThemeSection from '../components/ThemeSection.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Bursit Angular — Directive-first UI components for Angular 21';
+const description =
+  'An Angular 21 component library built on directives over native HTML elements, with every color, space, radius and shadow owned by the bursit-ui-tokens design system. Standalone, accessible and MIT licensed.';
+---
+
+<BaseLayout title={title} description={description}>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <Nav />
+
+  <main id="main">
+    <Hero />
+    <Philosophy />
+    <DesignTokens />
+    <ComponentsGrid />
+    <GettingStarted />
+    <ThemeSection />
+  </main>
+
+  <Footer />
+</BaseLayout>
