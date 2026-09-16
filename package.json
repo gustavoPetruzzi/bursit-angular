@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "storybook": "ng run bursit-angular:storybook",
-    "build-storybook": "ng run bursit-angular:build-storybook"
+    "build-storybook": "ng run bursit-angular:build-storybook",
+    "check:contrast": "node scripts/check-contrast.mjs"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
