@@ -121,12 +121,12 @@ the evidence that justifies it, and where it landed.
 
 ## Phase 2: Adoption (blocked on X6)
 
-- [ ] 2.1 Confirm `npm view bursit-ui-tokens@2.0.0` (read-only) resolves, else stop → TC-01.
-- [ ] 2.2 `package.json:26` → `^2.0.0` → TC-02.
-- [ ] 2.3 `landing/package.json:21` → `^2.0.0` → ranges identical.
-- [ ] 2.4 Regenerate `package-lock.json` → registry URL at 2.0.0, no `file:`.
-- [ ] 2.5 Regenerate `landing/package-lock.json` → same.
-- [ ] 2.6 `npm run check:contrast` → 22/22 both modes → 44 PASS lines.
+- [x] 2.1 Confirm `npm view bursit-ui-tokens@2.0.0` (read-only) resolves, else stop → TC-01. **Measured: `npm view bursit-ui-tokens@2.0.0 version` → `2.0.0`; gate OPEN.**
+- [x] 2.2 `package.json:26` → `^2.0.0` → TC-02.
+- [x] 2.3 `landing/package.json:21` → `^2.0.0` → ranges identical. **A third manifest not named by the plan was also bumped: `projects/bursit-angular/package.json:11` (see `apply-progress.md`, Phase 2 deviation D-2.1). All three declare `^2.0.0`.**
+- [x] 2.4 Regenerate `package-lock.json` → registry URL at 2.0.0, no `file:`. **Measured: `changed 1 package`; resolved `https://registry.npmjs.org/bursit-ui-tokens/-/bursit-ui-tokens-2.0.0.tgz`; `file:` = 0.**
+- [x] 2.5 Regenerate `landing/package-lock.json` → same. **Measured: `changed 1 package`; same registry URL at 2.0.0; `file:` = 0.**
+- [x] 2.6 `npm run check:contrast` → 22/22 both modes → 44 PASS lines. **MEASURED AND CONFIRMED: Group A `PASS 44 | FAIL 0 | MISSING 0`, `pairs failing in every mode 0`; Group B `PASS 25 | FAIL 0`; `Result: PASS`; exit code 0. The predicted 44 PASS holds (against 1.2.0 the same harness measured 27 FAIL / 17 PASS).**
 
 ## Phase 3: Chrome + Checkbox Outline
 
