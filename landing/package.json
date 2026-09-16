@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "og-image": "node scripts/generate-og-image.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -19,6 +20,9 @@
     "astro": "^7.3.2",
     "bursit-ui-tokens": "^1.2.0",
     "sass": "^1.104.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.4"
   },
   "allowScripts": {
     "esbuild": true,

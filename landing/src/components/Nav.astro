@@ -1,4 +1,6 @@
 ---
+import { STORYBOOK_URL } from '../consts';
+
 // Sticky site header. Purely static: no scroll listeners, no hydration.
 // The "solid when scrolled" feel comes from an always-on hairline plus a
 // translucent background derived from `--color-bg` with `color-mix`.
@@ -54,7 +56,7 @@ const githubUrl = 'https://github.com/gustavoPetruzzi/bursit-angular';
         <span class="site-nav__github-text">GitHub</span>
       </a>
 
-      <a class="btn btn--primary btn--sm" href="/storybook/">Storybook</a>
+      <a class="btn btn--primary btn--sm" href={STORYBOOK_URL} rel="noopener">Storybook</a>
     </div>
   </nav>
 </header>

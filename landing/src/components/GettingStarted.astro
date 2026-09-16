@@ -1,4 +1,6 @@
 ---
+import { STORYBOOK_URL } from '../consts';
+
 // Steps are authored as source lines rather than raw markup so braces and
 // backticks inside the snippet can never be parsed as template syntax.
 function toLines(source: string[]) {
@@ -107,7 +109,7 @@ const usageLines = toLines([
             also where the theme switching is easiest to see.
           </p>
           <p class="step__action">
-            <a class="btn btn--primary" href="/storybook/">Open the Storybook</a>
+            <a class="btn btn--primary" href={STORYBOOK_URL}>Open the Storybook</a>
           </p>
         </div>
       </li>
