@@ -1,4 +1,6 @@
 ---
+import { STORYBOOK_URL } from '../consts';
+
 // Full inventory of the public API. Selectors are copied verbatim from the
 // library source so this grid can be used as a reference, not just a teaser.
 type ComponentKind = 'Directive' | 'Component' | 'Service';
@@ -17,7 +19,7 @@ const inventory: InventoryItem[] = [
     kind: 'Directive',
     selectors: ['[bursitButton]'],
     description:
-      'Applies button styling to native elements. The color input selects primary, secondary, outline, link or danger.',
+      'Applies button styling to native elements. The color input selects primary, secondary, outline, link, danger, ghost or icon.',
   },
   {
     name: 'InputDirective',
@@ -83,7 +85,7 @@ const inventory: InventoryItem[] = [
   {
     name: 'Message',
     kind: 'Component',
-    selectors: ['<bursit-message>'],
+    selectors: ['[bursitMessage]'],
     description: 'Helper text slot, linked to the control it describes.',
   },
   {
@@ -183,7 +185,7 @@ const chipClass: Record<ComponentKind, string> = {
     </ul>
 
     <p class="components__cta">
-      <a class="btn btn--outline" href="/storybook/">See every primitive live in the Storybook</a>
+      <a class="btn btn--outline" href={STORYBOOK_URL}>See every primitive live in the Storybook</a>
     </p>
   </div>
 </section>

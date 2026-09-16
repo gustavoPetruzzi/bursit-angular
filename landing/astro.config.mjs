@@ -3,13 +3,14 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 /**
- * Canonical production URL.
+ * Canonical production origin.
  *
- * This is a placeholder until the final domain is registered. It feeds the
- * canonical tags, the sitemap and the Open Graph URLs, so it must be a single
- * source of truth — update it here and nowhere else.
+ * This is the current canonical origin: the landing is deployed to Cloudflare
+ * Pages at this host. It feeds the canonical tags, the sitemap and the Open
+ * Graph URLs, so it must be a single source of truth — update it here and
+ * nowhere else when a custom domain is attached.
  */
-const SITE = 'https://bursit.dev';
+const SITE = 'https://bursit-landing.pages.dev';
 
 // https://astro.build/config
 export default defineConfig({

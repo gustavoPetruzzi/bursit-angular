@@ -47,4 +47,4 @@ Target: **Cloudflare Pages**, as a separate project pointing at this repository 
 | Build command | `npm run build` |
 | Output dir    | `dist`          |
 
-The canonical URL lives in `astro.config.mjs` as the `site` constant. It feeds the canonical tags and the generated sitemap, so it is the single place to update once the domain is attached.
+The canonical origin lives in `astro.config.mjs` as the `site` constant. It is the deployed Cloudflare Pages origin (`https://bursit-landing.pages.dev`), and it feeds the canonical tags, the generated sitemap and the Open Graph URLs, so it is the single place to update when a custom domain is attached.

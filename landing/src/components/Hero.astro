@@ -1,4 +1,6 @@
 ---
+import { STORYBOOK_URL } from '../consts';
+
 // Hero copy plus a "spec rail": a full-bleed technical band that previews the
 // three token families (color, space, radius) the DesignTokens section expands
 // in full. The rail cells are labelled in text; the sample strips themselves are
@@ -32,7 +34,7 @@ const githubUrl = 'https://github.com/gustavoPetruzzi/bursit-angular';
     </p>
 
     <div class="hero__actions">
-      <a class="btn btn--primary btn--lg" href="/storybook/">Browse Storybook</a>
+      <a class="btn btn--primary btn--lg" href={STORYBOOK_URL} rel="noopener">Browse Storybook</a>
       <a class="btn btn--outline btn--lg" href={githubUrl} rel="noopener">View on GitHub</a>
     </div>
   </div>
