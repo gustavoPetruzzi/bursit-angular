@@ -19,13 +19,14 @@
  * 1.3-1.5 accept.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const REPO_ROOT = process.cwd();
 const HARNESS = join(REPO_ROOT, 'scripts', 'check-contrast.mjs');
 const INSTALLED_TOKENS = join(REPO_ROOT, 'node_modules', 'bursit-ui-tokens', 'index.css');
+const CI_WORKFLOW = join(REPO_ROOT, '.github', 'workflows', 'ci.yml');
 
 if (!existsSync(HARNESS)) {
   throw new Error(`contrast harness not found at ${HARNESS} - run Jest from the repository root`);
@@ -157,5 +158,45 @@ describe('contrast harness CLI contract', () => {
     // is the naming, not a particular prefix, that the format guarantees.
     expect(missing.every((line) => /\(missing --[\w-]+(, --[\w-]+)*\)$/.test(line))).toBe(true);
     expect(run.status).toBe(1);
+  });
+});
+
+/**
+ * Task 5.6 wires the harness into CI as a real gate. That wiring is an artifact the suite can
+ * assert: it is readable, it can be removed by accident, and this repository has already
+ * shipped a workflow that failed in 0 seconds because an unquoted `name:` value contained
+ * ": " and was re-parsed as a nested mapping. The assertions below are deliberately free of
+ * a YAML dependency (the parser in node_modules is transitive, not declared).
+ */
+describe('contrast gate wiring', () => {
+  const workflowText = () => readFileSync(CI_WORKFLOW, 'utf8');
+
+  /** Unquoted mapping values containing ": " — the exact defect this repository shipped once. */
+  const unquotedNameWithColon = (text) =>
+    text
+      .split(/\r?\n/)
+      .filter((line) => /^\s*name:\s/.test(line))
+      .map((line) => line.replace(/^\s*name:\s*/, ''))
+      .filter((value) => !/^'.*'$/.test(value) && !/^".*"$/.test(value) && value.includes(': '));
+
+  it('runs the harness as a gate', () => {
+    const workflow = workflowText();
+
+    expect(workflow).toMatch(/^\s{2}contrast:\s*$/m);
+    expect(workflow).toMatch(/^\s*run:\s*npm run check:contrast\s*$/m);
+  });
+
+  it('leaves the existing jobs intact', () => {
+    const workflow = workflowText();
+
+    expect(workflow).toMatch(/^\s{2}library:\s*$/m);
+    expect(workflow).toMatch(/^\s{2}landing:\s*$/m);
+    expect(workflow).toMatch(/^\s*run:\s*npm run test\s*$/m);
+    expect(workflow).toMatch(/^\s*name: 'Library: test and build'\s*$/m);
+    expect(workflow).toMatch(/^\s*name: 'Landing: build'\s*$/m);
+  });
+
+  it('quotes every name value that contains a colon', () => {
+    expect(unquotedNameWithColon(workflowText())).toEqual([]);
   });
 });
