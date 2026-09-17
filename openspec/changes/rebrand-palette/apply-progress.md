@@ -1,8 +1,8 @@
 # Apply Progress: rebrand-palette — Phase 1 (contrast harness) + Phase 2 (adoption)
 
 **Change**: `rebrand-palette`
-**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1) **and Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2)
-**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 reported a declared deviation from it (see "Strict TDD deviation" below). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)".
+**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3) **and Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 originally reported a declared deviation from it; that deviation is **CLOSED by task 1.7** (see the "Task 1.7" section at the end). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)".
 **Artifact Store**: openspec (repo-local)
 **Date**: Phase 1 2026-09-15 · Phase 2 2026-09-16
 **Branch**: Phase 1 `feat/rebrand-palette-harness`; Phase 2 `feat/rebrand-palette-adopt-2` (both target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
@@ -45,6 +45,8 @@ Phases 3–5 were **not** started (Phase 3 is the next work unit).
 | `openspec/changes/rebrand-palette/contrast-baseline-1.2.0.txt` | Created | Retained 1.2.0 RED baseline: 22 provenance lines + the 83-line raw stdout |
 | `openspec/changes/rebrand-palette/tasks.md` | Modified | Phase 1 tasks marked `[x]`; task 1.6 annotated with the measured counts |
 | `openspec/changes/rebrand-palette/apply-progress.md` | Created | This artifact |
+| `scripts/check-contrast.spec.mjs` | Created | Task 1.7: the harness's behavioural contract test (5 tests, 161 lines) |
+| `jest.config.js` | Modified | Task 1.7: `testMatch` restates the Angular builder's pattern and adds the harness spec (+6 lines) |
 
 No product source outside the harness and the `package.json` scripts block was touched.
 `node_modules/bursit-ui-tokens` and the sibling `bursit-ui-tokens` repository were read
@@ -76,6 +78,11 @@ Compensation instead of a silent fallback: the harness ships an executable
 same evidence is recorded above and in the return summary. **If the orchestrator wants
 true RED-first for this slice, the scope must be widened to permit a spec file** — say so
 and this is a small, in-file change.
+
+**CLOSED by task 1.7 (2026-09-16).** The scope was widened, the spec file now exists
+(`scripts/check-contrast.spec.mjs`), the default suite collects it, and the cycle evidence
+is recorded in the "Task 1.7" section at the end of this file. This section is retained as
+the Phase 1 record and is no longer the current state of the change.
 
 ## Deviations from Design
 
@@ -308,17 +315,196 @@ is quoted verbatim from the run above.
 
 ## Status
 
-**Phase 1: 6/6 complete** (task 1.7 open, non-blocking). **Phase 2: 6/6 complete and verified.**
+**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44).
 Phases 3–5: not started.
 
-Phase 2's open follow-ups are both pre-existing and outside its scope: the Phase 1 task 1.7 spec gap
-and the CP-13 spec correction (Phase 1, Issue 2). Phase 1's 485-line review overage still needs the
-decision recorded in the Phase 1 section above.
+Phase 2's open follow-ups are both pre-existing and outside its scope: the CP-13 spec correction
+(Phase 1, Issue 2) and Phase 1's 485-line review overage, which still needs the decision recorded in
+the Phase 1 section above.
 
 **Next recommended**: `sdd-verify` for independent verification of Phase 2 (and re-verification of the
-unchanged Phase 1 evidence).
+unchanged Phase 1 and task 1.7 evidence).
 
 ---
 
 Note: the Phase 1 sections above are preserved verbatim; only the title, the phase metadata block and
 this tail were amended for the merge.
+
+---
+
+# Task 1.7 — Strict TDD remediation: the harness's behavioural contract test
+
+**Date**: 2026-09-16
+**Branch**: `fix/rebrand-palette-harness-spec` (branched off the tracker branch `feat/rebrand-palette`)
+**Mode**: Strict TDD (spec written first; RED observed, then GREEN — table below)
+**Purpose**: close CRITICAL 2 in `verify-report.md` — *"Strict TDD was not followed and no TDD evidence was reported"*
+**Working tree**: changes are left **uncommitted** for review and verification.
+
+## Summary
+
+Task 1.7 is complete. The harness's user-facing contract is now covered by 5 tests in
+`scripts/check-contrast.spec.mjs`, and the default suite collects and runs them:
+`npm run test` reports **27 suites / 319 passed / 2 skipped, exit 0** (was 26 / 314). The
+harness itself is **unchanged**: its LF-normalised SHA-256 is still
+`bd2de718410927d5551d61b01d26000f32e12fcde8586b3139101571cdd7fef2` (the revision
+`verify-report.md` verified), its stdout is line-for-line identical to the retained 1.2.0
+baseline (83 lines, 44 Group A, 0 differences), and `contrast-baseline-1.2.0.txt` is
+untouched (`git diff` empty).
+
+## Completed Tasks (task 1.7)
+
+- [x] 1.7 `scripts/check-contrast.spec.mjs` added, collected by `npm run test`, and `jest.config.js`'s `testMatch` widened as the remediation required. The tests assert only behaviour that survives the 1.2.0 -> 2.0.0 transition: exactly 44 Group A lines, the documented line shape, the 22 declared IDs reported once per mode, all 44 lines emitted before the verdict, the exit-code contract, and MISSING isolation. No fixed exit code and no fixed PASS/FAIL count is asserted.
+
+## Files Changed (task 1.7)
+
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `scripts/check-contrast.spec.mjs` | Created | 5 behavioural tests over the harness CLI, spawned as a child process (161 lines) |
+| `jest.config.js` | Modified | `testMatch` restates the Angular builder's project pattern and adds `**/scripts/**/*.spec.mjs` (+6 lines) |
+| `openspec/changes/rebrand-palette/tasks.md` | Modified | Task 1.7 marked `[x]`, annotated with the measured outcome and the two refuted premises |
+| `openspec/changes/rebrand-palette/apply-progress.md` | Modified | This merged section |
+
+## TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 1.7 (a) 44-line report, line shape, one line per declared ID per mode | `scripts/check-contrast.spec.mjs` | Integration (child process against the real installed package) | `npm run test` = 26 suites / 314 passed / 2 skipped, exit 0, before any edit | **Written first and it failed:** `npx jest scripts/check-contrast.spec.mjs` -> `Tests: 1 failed, 4 passed, 5 total`, exit 1; `expect(received).toBe(expected) // Object.is equality` `Expected: true` `Received: false` at the MISSING-note assertion, and the received note was `(missing --input-border-color, --input-bg, --color-bg)` | `npx jest scripts/check-contrast.spec.mjs` -> **5 passed, 5 total**, exit 0 (1.5 s); `npm run test` -> **27 suites / 319 passed / 2 skipped**, exit 0 | 3 inputs, 3 code paths: the installed 1.2.0 package, a fixture declaring **no** tokens, a fixture declaring only `--color-bg` + `--color-text-subtle` | Clean — one `runHarness()` helper, regexes hoisted to named constants; the focused command re-run after each step |
+| 1.7 (b) collection by the default suite | same | Configuration (Jest) | n/a (config change, no existing behaviour touched) | **Real RED:** with the spec on disk, `npm run test` collected **26** suites and never ran it; `grep` of `node_modules/@angular-builders/jest` proved the builder injects its own `testMatch` (`<projectRoot>/**/*(*.)@(spec|test).[tj]s?(x)`) | After adding `testMatch`: `npx jest --listTests` = **27** files including the spec; `npm run test` = **27 suites / 319 passed**, exit 0 | Single (one config path — recorded, not skipped) | None needed |
+| 1.7 (c) MISSING reporting for an undeclared token | same | Integration (fixture tokens package in a temp cwd) | as above | Written first — this was the case that failed in (a), with the real received note in the failure output | `5 passed` | 2 cases: all tokens absent (44 MISSING lines, tally `MISSING 44`) and one ID isolated (42 MISSING / 2 measured, `CP-18` only) | Clean |
+| 1.7 (d) mutation sensitivity (proves the assertions bite) | same | Integration | `5 passed` before each mutant | **Mutant 1** (exit code forced to `0`): `Tests: 3 failed, 2 passed` — `Expected: 1 / Received: 0`. **Mutant 2** (`measureGroup` returns after the first non-PASS result — a first-failure abort, i.e. a CC-03 violation): `Tests: 5 failed, 5 total` — `Expected length: 44 / Received length: 1`, received `["CP-01 light 4.27 need 4.5 FAIL \| --color-primary on --color-bg (landing link)"]` | Both mutants reverted with `git checkout -- scripts/check-contrast.mjs`; harness SHA-256 back to `bd2de718…d7fef2`, no tracked file modified, `5 passed` again | n/a (mutation check) | None needed |
+
+### Test Summary
+
+- **Total tests written**: 5 (1 file) — the 22-ID x 2-mode report, the exit contract, the
+  per-ID MISSING isolation, the all-MISSING case, and the CC-03 completeness check
+- **Total tests passing**: 5 — suite: **319 passed / 2 skipped, 27 suites, exit 0**
+- **Layers used**: Integration (5) — the harness is a process, so its CLI is the contract; Unit (0)
+- **Approval tests** (existing behaviour): 5 — the harness already existed, so this is an
+  approval/characterization test. RED is therefore (i) the real failing run in 1.7 (a), and
+  (ii) the two mutation checks in 1.7 (d) proving the assertions are not vacuous
+- **Pure functions created**: 0 — no production code was written or modified
+
+## Work Unit Evidence (task 1.7)
+
+| Evidence | Value |
+|----------|-------|
+| Focused test command and exact result | `npx jest scripts/check-contrast.spec.mjs` -> **5 passed, 5 total**, exit `0` (1.5 s). RED before the config change: same command -> `1 failed, 4 passed, 5 total`, exit `1` |
+| Runtime harness command and exact result | `npm run test` -> **27 suites / 319 passed / 2 skipped**, exit `0` — the default (CI) suite now includes the harness contract test. `npm run check:contrast` -> exit `1` (RED by design against 1.2.0), stdout **83 lines / 44 Group A**, **0 differences** against `contrast-baseline-1.2.0.txt` |
+| Rollback boundary | `scripts/check-contrast.spec.mjs` (new file — delete it) plus the `testMatch` line and its comment in `jest.config.js`. Reverting those two restores the pre-slice state exactly; the harness and the retained baseline are untouched |
+
+## Deviations (task 1.7)
+
+8. **The remediation's mechanism was half wrong, and measurement decides it.** (i) Widening
+   `testMatch` **was** required, but for a reason the plan did not have:
+   `@angular-builders/jest` injects its own `testMatch`
+   (`node_modules/@angular-builders/jest/dist/default-config.resolver.js:36`,
+   `<projectRoot>/**/*(*.)@(spec|test).[tj]s?(x)`), and `jest.config.js` wins that
+   `lodash.mergeWith` — so the widening had to live in `jest.config.js`. Bare Jest 30.4.2
+   *does* collect `.mjs` (`npx jest --listTests` -> 27, spec included) while `npm run test`
+   collected only 26. (ii) `NODE_OPTIONS=--experimental-vm-modules` was **not needed at all**:
+   jest-preset-angular's `transform` already covers `^.+\.(ts|js|mjs|html|svg)$`, so the spec
+   runs as a transformed module under both `jest` and `ng test`. Trap 2 (Windows inline env
+   vars) never materialised; **no launcher and no `cross-env` were added**, and the default
+   `npm run test` path is untouched apart from the collection pattern.
+9. **The `testMatch` pattern is narrower than the plan's.** The plan proposed the general
+   `**/?(*.)+(spec|test).mjs`; the shipped pattern is the builder's library pattern plus
+   `**/scripts/**/*.spec.mjs`. Measured reason: the repo holds exactly 26 spec files under
+   `projects/bursit-angular/` and 1 under `scripts/`, so a general pattern would grant
+   collection authority over the whole workspace for no benefit. The library set is unchanged
+   (26 suites before and after).
+10. **The spec spawns the harness instead of importing it** — the alternative the task brief
+    permitted, adopted for the reason it gives: the CLI output is the contract tasks 1.3–1.5
+    accept, and importing an ESM module would have coupled the spec to Jest's ESM mode.
+    `scripts/check-contrast.mjs` now exports nothing new and is byte-identical to the
+    verified revision.
+11. **No fixed exit code and no fixed PASS/FAIL count**, because 27 of the 44 Group A lines
+    fail on 1.2.0 and Phase 2 expects them to pass on 2.0.0. The exit contract is asserted
+    **relationally** (`0` iff the run's own `Result:` line reports nothing below threshold),
+    which holds in both states. The array merge is index-wise (lodash `mergeWith`), which is
+    why the builder's pattern is restated as the first entry.
+
+## Issues Found (task 1.7)
+
+8. **The `testMatch` premise in `verify-report.md` (and in task 1.7's text) is only half
+   true.** It is the *builder*, not Jest's defaults, that hides the `.mjs` file:
+   `@angular-builders/jest` replaces `testMatch` with a project-scoped `[tj]s?(x)` pattern.
+   Whoever debugs this next should read
+   `node_modules/@angular-builders/jest/dist/default-config.resolver.js` before the Jest docs.
+9. **`ng test` and bare `jest` were silently collecting different sets** (26 vs 27 files)
+   before this change, because the builder's `testMatch` differs from Jest's defaults. The
+   restated pattern makes the intended set explicit and the two entry points now agree.
+10. **A raw `Get-FileHash` of a source file does not reproduce the digests in
+    `verify-report.md` on this Windows checkout**, because `core.autocrlf` writes CRLF into
+    the working tree while the recorded digests are over LF bytes. Normalising CRLF -> LF
+    reproduces `bd2de718…d7fef2` for the harness exactly. A verifier recomputing hashes
+    should normalise first (or hash the committed blob), otherwise a perfectly unchanged file
+    looks modified.
+
+## Verification Evidence (as run, 2026-09-16)
+
+```
+$ npm run test                                             # before, safety net
+Test Suites: 26 passed, 26 total
+Tests:       2 skipped, 314 passed, 316 total
+Time:        25.322 s                     exit 0
+
+$ npx jest scripts/check-contrast.spec.mjs                 # RED (spec first, config unchanged)
+FAIL scripts/check-contrast.spec.mjs
+  ● contrast harness CLI contract › isolates MISSING to the IDs whose own token is absent
+    expect(received).toBe(expected) // Object.is equality
+    Expected: true
+    Received: false
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 4 passed, 5 total   exit 1
+
+$ npx jest scripts/check-contrast.spec.mjs                 # GREEN (expectation corrected)
+Tests:       5 passed, 5 total            exit 0   (1.538 s)
+
+$ npx jest --listTests                                     # collection proof
+BARE_JEST_COLLECTED=27 · HARNESS_SPEC_PRESENT=1
+$ npm run test                                             # after (the CI path)
+Test Suites: 27 passed, 27 total
+Tests:       2 skipped, 319 passed, 321 total
+Time:        13.545 s                     exit 0
+
+$ mutants                                                  # sensitivity (reverted after each)
+exit code forced to 0        -> Tests: 3 failed, 2 passed   (Expected: 1 / Received: 0)
+abort on first non-PASS      -> Tests: 5 failed, 5 total    (Expected length: 44 / Received length: 1)
+harness restored             -> LF SHA-256 bd2de718410927d5551d61b01d26000f32e12fcde8586b3139101571cdd7fef2
+
+$ npm run check:contrast                                   # harness output unchanged
+Result: FAIL - 48 result lines are below threshold          exit 1
+FRESH_STDOUT_LINES=83 · FRESH_GROUP_A_LINES=44
+BASELINE_STDOUT_LINES=83 · BASELINE_GROUP_A_LINES=44
+GROUP_A_ORDER_DIFFS=0 · FULL_STDOUT_DIFFS=0 · BASELINE_FILE_UNTOUCHED=True
+```
+
+## Workload / PR Boundary (task 1.7)
+
+- **Mode**: chained PR slice (`feature-branch-chain`, child of PR #1 on the tracker branch
+  `feat/rebrand-palette`) — this branch targets the harness branch, not `master`.
+- **Current work unit**: the harness contract test plus the collection pattern.
+- **Boundary**: starts at the merged harness slice and ends at a suite that collects and runs
+  the harness's behavioural contract. Nothing else is touched: no manifest bump, no lockfile,
+  no Storybook chrome, no checkbox outline, no landing assets.
+- **Review budget impact**: **167 changed lines** (161 new spec file + 6 in `jest.config.js`)
+  against this attempt's 200-line budget. Nothing was removed or compressed to reach it.
+- **Rollback boundary**: the two files above; the harness and baseline are untouched.
+
+## Status (task 1.7)
+
+**Task 1.7 complete — 1/1.** `scripts/check-contrast.spec.mjs` is collected and green in the
+default suite (27 suites / 319 passed / 2 skipped, exit 0), the harness is byte-identical to
+the verified revision, and its output is unchanged. Phase 1 is now 7/7.
+
+Phases 2–5 remain **0/… and intentionally not started** (blocked on the external publish gate
+`npm view bursit-ui-tokens@2.0.0`). Unchanged open items from Phase 1: the 485-line overage of
+the harness slice (needs the maintainer's decision) and the CP-13 spec correction.
+
+**Next recommended**: `sdd-verify` for independent verification of task 1.7 (re-run
+`npm run test`, `npx jest scripts/check-contrast.spec.mjs`, and `npm run check:contrast`).
+
+> **Superseded by the merge (2026-09-17).** This section is the task 1.7 record as written on
+> 2026-09-16, when it was accurate. The "Phases 2-5 not started" line above was true then and is now
+> false: Phase 2 is complete and verified (44 PASS / 0 FAIL against the published
+> `bursit-ui-tokens@2.0.0`). See the top of this document for the current state.
