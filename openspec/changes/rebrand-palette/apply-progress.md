@@ -1,11 +1,11 @@
-# Apply Progress: rebrand-palette — Phase 1 (contrast harness) + Phase 2 (adoption)
+# Apply Progress: rebrand-palette — Phase 1 (contrast harness), task 1.7 (harness contract test), Phase 2 (adoption), Phase 3 (Storybook chrome + checkbox outline) and Phase 4 (landing assets + docs)
 
 **Change**: `rebrand-palette`
-**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3) **and Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2)
+**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3), **Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2), **Phase 3** (`feat/rebrand-palette-chrome`, chained PR #4) **and Phase 4** (`feat/rebrand-palette-landing`, chained PR #5)
 **Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 originally reported a declared deviation from it; that deviation is **CLOSED by task 1.7** (see the "Task 1.7" section at the end). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)".
 **Artifact Store**: openspec (repo-local)
 **Date**: Phase 1 2026-09-15 · Phase 2 2026-09-16
-**Branch**: Phase 1 `feat/rebrand-palette-harness`; Phase 2 `feat/rebrand-palette-adopt-2` (both target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
+**Branch**: Phase 1 `feat/rebrand-palette-harness`; task 1.7 `fix/rebrand-palette-harness-spec`; Phase 2 `feat/rebrand-palette-adopt-2`; Phase 3 `feat/rebrand-palette-chrome`; Phase 4 `feat/rebrand-palette-landing` (all target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
 **SDD attempt token**: `sha256:18105916fa20539acf91a0e3b43a18c44603615df57ff114982279c01079f3e2`
 
 ## Summary
@@ -315,15 +315,15 @@ is quoted verbatim from the run above.
 
 ## Status
 
-**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44).
-Phases 3–5: not started.
+**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44, merged). **Phase 3: 2/3 complete** (3.1 chrome and 3.2 focus-ring consumer delivered and merged — `feat/rebrand-palette-chrome`, PR #45; 3.3's interactive toolbar toggle stays open for the maintainer). **Phase 4: 4/4 complete** (`feat/rebrand-palette-landing`, PR #46).
+Phase 5: not started.
 
 Phase 2's open follow-ups are both pre-existing and outside its scope: the CP-13 spec correction
 (Phase 1, Issue 2) and Phase 1's 485-line review overage, which still needs the decision recorded in
 the Phase 1 section above.
 
-**Next recommended**: `sdd-verify` for independent verification of Phase 2 (and re-verification of the
-unchanged Phase 1 and task 1.7 evidence).
+**Next recommended**: Phase 5 (final verification) on the integrated tree, then `sdd-verify` for
+independent verification of the whole change. Task 5.6 is decided: the contrast harness gets a CI gate.
 
 ---
 
@@ -632,3 +632,104 @@ toolbar toggle is owed to the maintainer. Phases 4–5: not started.
 
 **Next recommended**: `sdd-verify` for independent verification of Phase 3 (re-run `npm run build-storybook`,
 `npm run test`, `npm run check:contrast`, and inspect the built manager bundle).
+# Phase 4 — Landing Assets + Docs (tasks 4.1–4.4)
+
+**Date**: 2026-09-17
+**Branch**: `feat/rebrand-palette-landing` (branched off the tracker `feat/rebrand-palette` at `8ec0f03`; `feature-branch-chain`, PR #4 of 4)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). This slice declares an **honest deviation** — see "TDD obligation (Phase 4)" below. No test was invented.
+**Artifact Store**: openspec (repo-local)
+
+## Summary
+
+Phase 4 is complete: 4/4 tasks. The OG card's seven literals now genuinely come from the installed
+package's dark layer, the committed raster is regenerated and provably different, the three
+placeholder marks carry the mark's own tonal axis through brand tokens, and `AGENTS.md`'s `file:`
+claim is correct. `npm run test` is unchanged (27 suites / 319 passed / 2 skipped), the contrast
+harness still reads 44 PASS / 0 FAIL, and the landing build is green. Task 4.5 stays **out of this
+change** (BA-01, artwork-gated) and is untouched.
+
+## Completed Tasks (4/4 in Phase 4)
+
+- [x] 4.1 `generate-og-image.mjs` — all 7 `PALETTE` literals re-copied from the installed dark layer; the header claim is true; the stale line-98 comment is reworded. → BA-04
+- [x] 4.2 `og-image.png` — regenerated with the landing `npm run og-image` self-check (1200×630, exit 0); raster provably changed. → BA-04
+- [x] 4.3 Nav/Footer/global.scss — the primary→secondary gradient replaced by the brand-mark tonal axis via tokens. → BA-03
+- [x] 4.4 `AGENTS.md:23` — the `file:` claim corrected to the registry consumption the lockfiles prove. → TC-03
+
+## Files Changed (Phase 4)
+
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `landing/scripts/generate-og-image.mjs` | Modified | 7 `PALETTE` literals → dark register (+2 comment normalisations); `:98` comment reworded |
+| `landing/public/og-image.png` | Regenerated | `npm run og-image`; 1200×630; 155594 → 170773 bytes |
+| `landing/src/components/Nav.astro` | Modified | `:108` mark gradient → brand tokens |
+| `landing/src/components/Footer.astro` | Modified | `:87` mark gradient → brand tokens |
+| `landing/src/styles/global.scss` | Modified | `:407` code-block mark gradient → brand tokens |
+| `AGENTS.md` | Modified | `:23` `file:` claim → registry `^2.0.0` |
+| `openspec/changes/rebrand-palette/tasks.md` | Modified | 4.1–4.4 marked `[x]` with measured evidence |
+| `openspec/changes/rebrand-palette/apply-progress.md` | Modified | This merged Phase 4 section |
+
+The Angular library, Storybook config, `jest.config.js`, the dependency manifests,
+`scripts/check-contrast.*` and `contrast-baseline-1.2.0.txt` were **not** touched.
+
+## Work Unit Evidence (Phase 4)
+
+| Evidence | Value |
+|----------|-------|
+| Focused test command and exact result | `npm run og-image` (in `landing/`) → **exit 0**, `og-image.png written — 1200x630`. Plus the static product sweep: `git grep -iE "indigo|cyan|#6366f1|#06b6d4|155e75" -- landing projects AGENTS.md` → **0 hits** (exit 1). |
+| Runtime harness command/scenario and exact result | Raster regenerated and pixel-sampled: rail top `#6267f1`→`#e7a1af`, rail bottom `#07b5d4`→`#7ca3cc`, surface `#0f172a`→`#272e35`. Landing `npm run build` → **exit 0**; the built `landing/dist/_astro/index.*.css` carries the brand-token gradient 3× and both register declarations. `npm run test` → 27 suites / 319 passed / 2 skipped, exit 0. `npm run check:contrast` → 44 PASS / 0 FAIL, exit 0. |
+| Rollback boundary | The six tracked files in the table above (`git checkout -- landing/scripts/generate-og-image.mjs landing/public/og-image.png landing/src/components/Nav.astro landing/src/components/Footer.astro landing/src/styles/global.scss AGENTS.md`). Nothing else depends on them; the SDD artifacts are bookkeeping. |
+
+## TDD obligation (Phase 4) — declared deviation, no invented test
+
+Strict TDD resolves as active, but this slice has no unit under test a Jest run could reach, and
+the slice's own instruction forbids changing the mandated suite count. Declared plainly rather
+than faked:
+
+- **No test runner exists in `landing/`.** `landing/package.json` declares only
+  `dev`/`build`/`preview`/`og-image`/`astro` — no `test`, no jest/vitest, no config file.
+- **A root-collected spec cannot be added without breaking the invariant.** `jest.config.js`'s
+  `testMatch` includes `**/scripts/**/*.spec.mjs`, which would also collect a spec placed under
+  `landing/scripts/`, turning the required **27 suites** into 28. Adding a test runner to the
+  landing would mean editing a dependency manifest — also out of scope.
+- **The work is not logic-bearing.** It is raster generation, two CSS/Astro gradient declarations,
+  and one documentation line. There is no pure function to drive.
+
+Compensation instead of a tautological test — every item below is an executable, observed
+instrument output recorded above: the script's own 1200×630 geometry self-check; a pixel-level
+before/after sample proving the raster's palette actually changed; a repo-wide sweep proving zero
+indigo/cyan in product source; the built-CSS proof that all three sites emit the brand-token
+gradient; and the `file:` sweep. If the orchestrator wants true RED-first here, the scope must be
+widened to permit a test runner in `landing/` (or to accept a 28th root suite) — say so.
+
+## TDD Cycle Evidence (Phase 4)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 4.1 | none — declared deviation | Static/raster (no runner) | ✅ `npm run test` 27/319/2 before any edit | ✅ Measured: `git grep` found `#6366f1`/`#06b6d4`/`indigo-to-cyan` in the script; committed raster sampled `#6267f1`/`#07b5d4` | ✅ Product-source sweep 0 hits; script values equal the installed dark layer | ➖ Single (one register) | ➖ None needed |
+| 4.2 | none — declared deviation | Runtime (raster) | N/A (regenerated artifact) | ✅ Pre-change raster: blob `c6142e93…`, 155594 B | ✅ `npm run og-image` exit 0, 1200×630; 170773 B; sampled pixels show the new palette | ➖ Single | ➖ None needed |
+| 4.3 | none — declared deviation | Static (built CSS) | ✅ landing build green | ✅ `git grep` found the primary→secondary pair at 3 sites; 0 brand-token gradients | ✅ 3 brand-token gradients in source and in the built CSS; 0 primary→secondary | ✅ 3 sites, both registers (light + dark declarations present) | ➖ None needed |
+| 4.4 | none — declared deviation | Static (doc) | N/A (doc line) | ✅ The `AGENTS.md:23` claim was contradicted by the lockfiles; `file:` sweep over the three manifests = 0 | ✅ `:23` names the registry `^2.0.0`; both lockfiles resolve the registry tarball | ➖ Single | ➖ None needed |
+
+## Test Summary (Phase 4)
+
+- **Total tests written (Phase 4)**: **0** — see the declared deviation. No test was invented.
+- **Total tests passing**: `npm run test` → **27 suites / 319 passed / 2 skipped**, exit 0 (unchanged).
+- **Layers used**: Static/runtime instruments (repo sweep, raster sampling, built-CSS inspection, package-manager output) — 0 new automated tests.
+- **Approval tests** (refactoring): None — no refactoring task.
+- **Pure functions created**: 0.
+
+## Workload / PR Boundary (Phase 4)
+
+- **Mode**: chained PR slice (`feature-branch-chain`, PR #4 of 4; branch `feat/rebrand-palette-landing` off the tracker `feat/rebrand-palette`).
+- **Current work unit**: Landing assets + docs.
+- **Boundary**: starts at the tracker tip and ends at a regenerated OG raster, three brand-token mark gradients, and a corrected `AGENTS.md` claim. Nothing after it (Phase 5) is started; task 4.5 stays out of scope.
+- **Review budget impact**: authored diff **36 changed lines** (24 insertions + 12 deletions over 5 text files) plus the regenerated binary raster. Well inside the 400-line budget; SDD artifact bookkeeping is counted in the return envelope.
+
+## Status (Phase 4)
+
+**Phase 4 complete — 4/4** (`feat/rebrand-palette-landing`). `npm run test` unchanged at
+27 suites / 319 passed / 2 skipped; `npm run check:contrast` 44 PASS / 0 FAIL, exit 0; landing
+`npm run build` exit 0. Task 4.5 remains out of this change (BA-01). Phases 3 and 5 remain not
+started.
+
+**Next recommended**: `sdd-verify` for independent verification of Phase 4.

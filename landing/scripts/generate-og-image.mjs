@@ -23,13 +23,13 @@ import sharp from 'sharp';
 // page should speak in. Nothing here is invented.
 // -----------------------------------------------------------------------------
 const PALETTE = {
-  surface: '#0f172a', // --color-bg-elevated (dark)
-  text: '#f8fafc', // --color-text (dark)
-  textMuted: '#94a3b8', // --color-text-muted (dark)
-  textSubtle: '#475569', // --color-text-subtle (dark)
-  border: '#1e293b', // --color-border (dark)
-  primary: '#6366f1', // --color-primary
-  secondary: '#06b6d4', // --color-secondary
+  surface: '#272e35', // --color-bg-elevated (dark)
+  text: '#f9fafb', // --color-text (dark)
+  textMuted: '#9aa8b6', // --color-text-muted (dark)
+  textSubtle: '#9aa8b6', // --color-text-subtle (dark)
+  border: '#313b44', // --color-border (dark)
+  primary: '#e8a1af', // --color-primary (dark)
+  secondary: '#7ba3cc', // --color-secondary (dark)
 };
 
 // -----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ function buildSvg() {
         fill="url(#brand)" opacity="0.13"
         transform="rotate(12 1165 115)"/>
 
-  <!-- Brand rail: the same indigo-to-cyan axis as the wordmark mark, vertical. -->
+  <!-- Brand rail: the same primary-to-secondary axis as the card's wordmark mark, vertical. -->
   <rect x="0" y="0" width="8" height="${CANVAS.height}" fill="url(#rail)"/>
 
   <!-- Wordmark: mark plus name, mirroring the site header. -->
