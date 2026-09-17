@@ -130,9 +130,9 @@ the evidence that justifies it, and where it landed.
 
 ## Phase 3: Chrome + Checkbox Outline
 
-- [ ] 3.1 `projects/bursit-angular/.storybook/manager.ts:2` — import `create`; build `bursitLight`/`bursitDark` per TC-05; pass to `setConfig`; keep `isDark`/`globalsUpdated`/`matchMedia` → TC-05.
-- [ ] 3.2 `projects/bursit-angular/src/lib/forms/checkbox/checkbox.scss:31–34` — add `outline: var(--border-width-medium) solid var(--color-focus-ring); outline-offset: var(--space-xs);` → `--color-focus-ring` gains its first consumer.
-- [ ] 3.3 `npm run build-storybook`; toggle the toolbar → chrome tracks mode; TC-06.
+- [x] 3.1 `projects/bursit-angular/.storybook/manager.ts:2` — import `create`; build `bursitLight`/`bursitDark` per TC-05; pass to `setConfig`; keep `isDark`/`globalsUpdated`/`matchMedia` → TC-05. **Landed 2026-09-17.** `create` replaces the `themes` import; the built manager bundle carries both objects (`base:"light"` / `base:"dark"`) and `setConfig({theme:o?p:c})`; `themes.light`/`themes.dark` source refs = **0**.
+- [x] 3.2 `projects/bursit-angular/src/lib/forms/checkbox/checkbox.scss:31–34` — add `outline: var(--border-width-medium) solid var(--color-focus-ring); outline-offset: var(--space-xs);` → `--color-focus-ring` gains its first consumer. **Landed 2026-09-17.** `outline: none` removed; source consumers of `var(--color-focus-ring)` **0 → 1**; `npm run check:contrast` CC-06 stays 3.12 light / 5.14 dark PASS.
+- [ ] 3.3 `npm run build-storybook`; toggle the toolbar → chrome tracks mode; TC-06. **Build half PROVEN 2026-09-17**: `build-storybook` exit 0, both themes present and reachable in the built bundle. **The interactive toolbar toggle is NOT observed** — it needs a manual run and is owed to the maintainer. Left unchecked: the box cannot be closed without it.
 
 ## Phase 4: Landing Assets + Docs
 
