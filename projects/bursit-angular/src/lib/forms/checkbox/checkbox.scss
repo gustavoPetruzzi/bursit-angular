@@ -29,7 +29,8 @@ input[type="checkbox"] {
 
   // Focus state
   &:focus-visible {
-    outline: none;
+    outline: var(--border-width-medium) solid var(--color-focus-ring);
+    outline-offset: var(--space-xs);
     box-shadow: var(--checkbox-focus-shadow);
   }
 

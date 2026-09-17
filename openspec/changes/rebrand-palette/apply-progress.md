@@ -1,11 +1,11 @@
-# Apply Progress: rebrand-palette — Phase 1 (contrast harness) + Phase 2 (adoption) + Phase 4 (landing assets + docs)
+# Apply Progress: rebrand-palette — Phase 1 (contrast harness), task 1.7 (harness contract test), Phase 2 (adoption), Phase 3 (Storybook chrome + checkbox outline) and Phase 4 (landing assets + docs)
 
 **Change**: `rebrand-palette`
-**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3) **and Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2)
+**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3), **Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2), **Phase 3** (`feat/rebrand-palette-chrome`, chained PR #4) **and Phase 4** (`feat/rebrand-palette-landing`, chained PR #5)
 **Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 originally reported a declared deviation from it; that deviation is **CLOSED by task 1.7** (see the "Task 1.7" section at the end). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)".
 **Artifact Store**: openspec (repo-local)
 **Date**: Phase 1 2026-09-15 · Phase 2 2026-09-16
-**Branch**: Phase 1 `feat/rebrand-palette-harness`; Phase 2 `feat/rebrand-palette-adopt-2` (both target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
+**Branch**: Phase 1 `feat/rebrand-palette-harness`; task 1.7 `fix/rebrand-palette-harness-spec`; Phase 2 `feat/rebrand-palette-adopt-2`; Phase 3 `feat/rebrand-palette-chrome`; Phase 4 `feat/rebrand-palette-landing` (all target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
 **SDD attempt token**: `sha256:18105916fa20539acf91a0e3b43a18c44603615df57ff114982279c01079f3e2`
 
 ## Summary
@@ -315,15 +315,15 @@ is quoted verbatim from the run above.
 
 ## Status
 
-**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44).
-Phases 3–5: not started.
+**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44, merged). **Phase 3: 2/3 complete** (3.1 chrome and 3.2 focus-ring consumer delivered and merged — `feat/rebrand-palette-chrome`, PR #45; 3.3's interactive toolbar toggle stays open for the maintainer). **Phase 4: 4/4 complete** (`feat/rebrand-palette-landing`, PR #46).
+Phase 5: not started.
 
 Phase 2's open follow-ups are both pre-existing and outside its scope: the CP-13 spec correction
 (Phase 1, Issue 2) and Phase 1's 485-line review overage, which still needs the decision recorded in
 the Phase 1 section above.
 
-**Next recommended**: `sdd-verify` for independent verification of Phase 2 (and re-verification of the
-unchanged Phase 1 and task 1.7 evidence).
+**Next recommended**: Phase 5 (final verification) on the integrated tree, then `sdd-verify` for
+independent verification of the whole change. Task 5.6 is decided: the contrast harness gets a CI gate.
 
 ---
 
@@ -511,6 +511,127 @@ the harness slice (needs the maintainer's decision) and the CP-13 spec correctio
 
 ---
 
+# Phase 3 — Chrome + Checkbox Outline
+
+**Date**: 2026-09-17
+**Branch**: `feat/rebrand-palette-chrome` (branched off the tracker `feat/rebrand-palette`, currently at the
+merge of PR #43 and PR #44)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). This slice declares a
+deviation from it — see "Strict TDD deviation (Phase 3)".
+**Working tree**: changes are left **uncommitted** for review and verification.
+
+## Summary
+
+Phase 3 is **2/3 tasks**. `manager.ts` now builds `bursitLight`/`bursitDark` with `create()` from the exact
+TC-05 literals and passes them to the existing `setConfig` call; the mode-detection logic (`isDark`,
+`globalsUpdated`, `matchMedia`) is unchanged. `checkbox.scss` replaces the `outline: none` anti-pattern with
+a real `--color-focus-ring` outline, giving that token its **first consumer** (source consumers 0 → 1).
+`npm run build-storybook`, `npm run test` and `npm run check:contrast` are all green. Task 3.3's build half
+is proven; its interactive toolbar toggle is **not** observed and is owed to the maintainer, so 3.3 stays
+unchecked.
+
+## Completed Tasks (Phase 3)
+
+- [x] 3.1 `manager.ts:2` — `create` replaces the `themes` import; `bursitLight`/`bursitDark` built per TC-05; passed to `setConfig`; `isDark`/`globalsUpdated`/`matchMedia` untouched.
+- [x] 3.2 `checkbox.scss:31–34` — `outline: var(--border-width-medium) solid var(--color-focus-ring);` + `outline-offset: var(--space-xs);` replace `outline: none`; the `box-shadow` declaration is kept.
+- [ ] 3.3 `npm run build-storybook` — **PROVEN** (exit 0). The toolbar toggle **NOT observed** — manual, owed to the maintainer.
+
+## Files Changed (Phase 3)
+
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `projects/bursit-angular/.storybook/manager.ts` | Modified | `:2` `create` import; new `bursitLight`/`bursitDark` (TC-05 literals); `setConfig` theme object switched. Detection logic unchanged (+29/−2) |
+| `projects/bursit-angular/src/lib/forms/checkbox/checkbox.scss` | Modified | Focus block: `outline: none` → token outline + offset; `box-shadow` kept (+2/−1) |
+| `openspec/changes/rebrand-palette/tasks.md` | Modified | 3.1/3.2 marked `[x]` with evidence; 3.3 annotated, left `[ ]` |
+| `openspec/changes/rebrand-palette/apply-progress.md` | Modified | This merged Phase 3 section |
+
+## Work Unit Evidence (Phase 3)
+
+| Evidence | Value |
+|----------|-------|
+| Focused test command and exact result | `npm run build-storybook` → **exit 0**, "Storybook build completed successfully"; both themes present and reachable in `storybook-static/sb-addons/projects-bursit-angular-storybook-5/manager-bundle.js` |
+| Runtime harness command/scenario and exact result | `npm run check:contrast` → Group A **PASS 44 / FAIL 0**, Group B **PASS 25 / FAIL 0**, `Result: PASS`, exit 0. `npm run test` → **27 suites / 319 passed / 2 skipped**, exit 0. Built-bundle inspection: `create({base:"light",…})` and `create({base:"dark",…})` both emitted; `setConfig({theme:o?p:c})`; `themes.light`/`themes.dark` source refs = 0 |
+| Rollback boundary | `manager.ts` (revert to `import { themes }` + `themes.dark : themes.light`) and `checkbox.scss` (restore `outline: none`). Nothing else depends on either; reverting the two restores the pre-slice state exactly |
+
+## TDD Cycle Evidence (Phase 3)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 3.1 | — none; deviation declared | Static/measurement + built-artifact | `npm run test` green (27/319) and `npm run check:contrast` green before editing | `themes.light`/`themes.dark` referenced at `manager.ts:14` — the chrome is Storybook's own default, not brand-tinted; source refs = **1** | Built manager bundle carries both `create({base:"light"…})`/`create({base:"dark"…})` and `setConfig({theme:o?p:c})`; source refs = **0** | ➖ One variable (the object passed to `setConfig`); both modes emitted in one bundle | ➖ None (config slice) |
+| 3.2 | — none; deviation declared | Static/measurement | as above | `outline: none` present in the focus block (`checkbox.scss:32`); source consumers of `var(--color-focus-ring)` = **0** | `outline: none` = **0**; source consumers = **1**; `check:contrast` CC-06 still 3.12 / 5.14 PASS | ➖ Single declaration swap | ➖ None (style slice) |
+| 3.3 | — none | Runtime build | as above | ➖ Not applicable (a build gate is pass/fail, not RED-first) | `build-storybook` exit 0; both themes in the bundle | ➖ | ➖ |
+
+## Strict TDD deviation (Phase 3) — declared, not silent
+
+Strict TDD Mode resolves as active (`strict_tdd: true` + a working runner), so it is followed **or reported
+as failed**. This slice is reported as a **declared deviation**, for a concrete reason per task:
+
+- **3.1** — the theme objects are configuration consumed by Storybook's own manager runtime. `manager.ts`
+  calls `addons.register` at import time and does not export the objects; a Jest test would have to mock
+  both `storybook/manager-api` and `storybook/theming/create` and then assert the very literal table the
+  design fixes — a tautology of the deliverable, not a behavioural assertion. Deliberately **not written**.
+- **3.2** — the change is compiled CSS; jsdom does not resolve stylesheets, so no DOM assertion on
+  `outline` is possible. A test that re-reads the SCSS source text would re-encode the diff, which the task
+  brief explicitly rules out as a tautology.
+
+**The real RED is what the requirements name**: a wrong/retired chrome colour (Storybook's default chrome,
+`themes.dark`/`themes.light`, not brand-tinted) and an **unreachable** focus ring (`--color-focus-ring`
+declared twice, consumed nowhere; `outline: none` actively removes the focus indicator). The strongest
+honest evidence produced is the before/after source measurement plus the built-artifact inspection recorded
+in the table above. No behavioural test was written because none exists that is not tautological.
+
+## Test Summary (Phase 3)
+
+- **Total tests written**: **0** — see the declared deviation above; no genuine failing-first unit exists for
+  a manager-side config table or for compiled SCSS that jsdom cannot evaluate.
+- **Total tests passing**: `npm run test` → **27 suites / 319 passed / 2 skipped, exit 0** (unchanged).
+- **Layers used**: Static/measurement (grep counts, before/after) and Runtime build (`build-storybook`) +
+  Runtime acceptance (`check:contrast`). Unit: 0 new.
+- **Approval tests / Pure functions created**: none.
+
+## Deviations (Phase 3)
+
+**D-3.1 — Strict TDD deviation declared (no test written).** Justified above; the obligation is reported,
+not silently dropped. The `strict-tdd.md` module's "no silent fallback" rule is satisfied by this explicit
+record.
+
+**D-3.2 — Task 3.3 left unchecked.** Its verbatim text requires toggling the toolbar and observing the
+chrome track the mode. That is interactive and cannot be observed in a headless run, so the box is not
+closed. The build half is proven and recorded; the toggle is owed to the maintainer.
+
+**D-3.3 — `appContentBg`/`textColor`/`appBg` literals repeat by design.** Dark `appContentBg` and light
+`appBg` equal `#22282E`, and light `appContentBg` equals `#FFFFFF` while dark `textColor` equals `#F9FAFB`.
+This is the design's table verbatim, not a copy/paste slip; it is left as specified.
+
+## Issues Found (Phase 3)
+
+1. **The built manager entry still destructures `themes`.** Storybook's manager runtime exposes the whole
+   `__STORYBOOK_THEMING_CREATE__` namespace, so the emitted bundle contains `{create:l,themes:Te}` even
+   though `Te` is unused. This is webpack namespace destructuring, not a `themes.*` reference; the source
+   has none (`themes.light`/`themes.dark` = 0). Recorded so a reviewer reading the bundle does not mistake it
+   for a leftover.
+2. **TC-07 sweep is clean for this slice.** The only `indigo|cyan` hit in source is the stale comment at
+   `landing/scripts/generate-og-image.mjs:98`, already scheduled as task 4.1 (Phase 4, out of scope). The
+   manager chrome introduces no indigo/cyan value.
+
+## Workload / PR Boundary (Phase 3)
+
+- **Mode**: chained PR slice (`feature-branch-chain`, PR #3 of 4). Branch `feat/rebrand-palette-chrome`
+  targets the tracker `feat/rebrand-palette`.
+- **Current work unit**: Chrome tint + checkbox focus outline.
+- **Boundary**: starts at the merge of PR #43/#44 and ends at a brand-tinted manager plus a checkbox with a
+  real focus outline, verified by `build-storybook`, `npm run test` and `check:contrast`. Nothing after it is
+  included: no landing assets, no OG card, no `AGENTS.md`.
+- **Review budget impact**: **34 authored changed lines** (`manager.ts` +29/−2, `checkbox.scss` +2/−1)
+  against the 400-line budget; SDD bookkeeping is counted in the return envelope.
+
+## Status (Phase 3)
+
+**Phase 3: 2/3 complete.** 3.1 and 3.2 landed and measured; 3.3's build half is proven and its interactive
+toolbar toggle is owed to the maintainer. Phases 4–5: not started.
+
+**Next recommended**: `sdd-verify` for independent verification of Phase 3 (re-run `npm run build-storybook`,
+`npm run test`, `npm run check:contrast`, and inspect the built manager bundle).
 # Phase 4 — Landing Assets + Docs (tasks 4.1–4.4)
 
 **Date**: 2026-09-17
