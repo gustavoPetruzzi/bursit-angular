@@ -1,0 +1,105 @@
+# RED baseline - contrast harness vs the installed token package
+#
+# Change:      rebrand-palette (Phase 1: contrast harness, tasks 1.1-1.6)
+# Harness:     scripts/check-contrast.mjs
+# Command:     npm run check:contrast   (equivalent to: node scripts/check-contrast.mjs)
+# Measured:    node_modules/bursit-ui-tokens/index.css (read-only) - installed bursit-ui-tokens 1.2.0
+# Captured:    2026-09-15
+# Exit code:   1
+#
+# CC-03 forbids exiting on the first failure, so all 44 Group A lines are emitted before
+# the process exits non-zero. The bytes below are the harness's own stdout, unmodified.
+#
+# Group A: 44 lines (22 pairs x 2 modes) - 27 FAIL / 17 PASS.
+#          21 of the 22 pairs fail in at least one mode; 6 pairs fail in both modes
+#          (CP-02, CP-03, CP-15, CP-16, CP-17, CP-18).
+#          CP-13 passes in both modes: the installed 1.2.0 already ships dark ink for
+#          --color-warning-contrast (#0f172a), so the spec's "Today 2.15:1" figure for
+#          CP-13 describes white ink this package does not ship.
+# Group B: 25 lines - 21 FAIL / 4 PASS.
+#
+# ---------------------------------------------------------------------------
+# Raw stdout follows.
+bursit-angular - contrast harness (rebrand-palette Phase 1)
+source: node_modules/bursit-ui-tokens/index.css (read-only)
+formula: WCAG 2.x relative luminance (L1 + 0.05) / (L2 + 0.05), two decimals
+light layer: 21 :root blocks
+dark layer: [bursit-theme=dark], .dark - found
+structure: no later :root block shadows the dark layer - OK
+
+Group A - CC-03 (18 IDs) + CC-04 (4 badge pairs), one line per ID per mode
+CP-01 light 4.27 need 4.5 FAIL | --color-primary on --color-bg (landing link)
+CP-01 dark 6.52 need 4.5 PASS | --color-primary on --color-bg (landing link)
+CP-02 light 2.56 need 4.5 FAIL | --color-text-subtle on --color-bg-elevated
+CP-02 dark 2.36 need 4.5 FAIL | --color-text-subtle on --color-bg-elevated
+CP-03 light 1.23 need 3 FAIL | --input-border-color on --input-bg
+CP-03 dark 1.22 need 3 FAIL | --input-border-color on --input-bg
+CP-04 light 4.47 need 4.5 FAIL | --badge-primary-color on --badge-primary-bg (filled badge)
+CP-04 dark 6.52 need 4.5 PASS | --badge-primary-color on --badge-primary-bg (filled badge)
+CP-05 light 3.87 need 4.5 FAIL | --color-primary on --color-primary-alpha-8
+CP-05 dark 5.96 need 4.5 PASS | --color-primary on --color-primary-alpha-8
+CP-06 light 2.16 need 4.5 FAIL | --color-secondary on --color-secondary-alpha-8
+CP-06 dark 9.54 need 4.5 PASS | --color-secondary on --color-secondary-alpha-8
+CP-07 light 2.01 need 4.5 FAIL | --alert-success-color on --alert-success-bg
+CP-07 dark 9.09 need 4.5 PASS | --alert-success-color on --alert-success-bg
+CP-08 light 1.91 need 4.5 FAIL | --alert-warning-color on --alert-warning-bg
+CP-08 dark 9.49 need 4.5 PASS | --alert-warning-color on --alert-warning-bg
+CP-09 light 3.16 need 4.5 FAIL | --alert-error-color on --alert-error-bg
+CP-09 dark 6.12 need 4.5 PASS | --alert-error-color on --alert-error-bg
+CP-10 light 2.60 need 4.5 FAIL | --alert-info-color on --alert-info-bg
+CP-10 dark 8.03 need 4.5 PASS | --alert-info-color on --alert-info-bg
+CP-11 light 2.28 need 4.5 FAIL | --color-success-contrast on --color-success (filled badge)
+CP-11 dark 11.16 need 4.5 PASS | --color-success-contrast on --color-success (filled badge)
+CP-12 light 3.76 need 4.5 FAIL | --color-error-contrast on --color-error
+CP-12 dark 7.03 need 4.5 PASS | --color-error-contrast on --color-error
+CP-13 light 8.31 need 4.5 PASS | --color-warning-contrast on --color-warning
+CP-13 dark 11.64 need 4.5 PASS | --color-warning-contrast on --color-warning
+CP-14 light 2.98 need 4.5 FAIL | --color-info-contrast on --color-info
+CP-14 dark 9.75 need 4.5 PASS | --color-info-contrast on --color-info
+CP-15 light 1.46 need 3 FAIL | --shadow-glow-primary on --color-bg (focus glow)
+CP-15 dark 1.78 need 3 FAIL | --shadow-glow-primary on --color-bg (focus glow)
+CP-16 light 1.68 need 3 FAIL | --color-focus-ring on --color-bg (spec ID is light-scoped)
+CP-16 dark 2.20 need 3 FAIL | --color-focus-ring on --color-bg (spec ID is light-scoped)
+CP-17 light 1.68 need 3 FAIL | --color-focus-ring on --color-bg (spec ID is dark-scoped)
+CP-17 dark 2.20 need 3 FAIL | --color-focus-ring on --color-bg (spec ID is dark-scoped)
+CP-18 light 2.45 need 4.5 FAIL | --color-text-subtle on --color-bg (spec ID is dark-scoped)
+CP-18 dark 2.57 need 4.5 FAIL | --color-text-subtle on --color-bg (spec ID is dark-scoped)
+CC04-01 light 2.01 need 4.5 FAIL | badge-subtle success on its own tint (CC-04)
+CC04-01 dark 9.09 need 4.5 PASS | badge-subtle success on its own tint (CC-04)
+CC04-02 light 1.91 need 4.5 FAIL | badge-subtle warning on its own tint (CC-04)
+CC04-02 dark 9.49 need 4.5 PASS | badge-subtle warning on its own tint (CC-04)
+CC04-03 light 3.16 need 4.5 FAIL | badge-subtle error on its own tint (CC-04)
+CC04-03 dark 6.12 need 4.5 PASS | badge-subtle error on its own tint (CC-04)
+CC04-04 light 2.60 need 4.5 FAIL | badge-subtle info on its own tint (CC-04)
+CC04-04 dark 8.03 need 4.5 PASS | badge-subtle info on its own tint (CC-04)
+Group A: 22 pairs x 2 modes = 44 lines | PASS 17 | FAIL 27 | MISSING 0 | pairs failing in every mode 6
+
+Group B - supplementary obligations: BP-06, BP-07, BP-09, CC-05, CC-06
+BP-06 light 1.23 need 3 FAIL | --input-border-color on --input-bg
+BP-06 dark 1.22 need 3 FAIL | --input-border-color on --input-bg
+BP-06 light 1.48 need 3 FAIL | --checkbox-border-color on --checkbox-bg
+BP-06 dark 1.88 need 3 FAIL | --checkbox-border-color on --checkbox-bg
+BP-06 light 1.48 need 3 FAIL | --radio-border-color on --radio-bg
+BP-06 dark 1.88 need 3 FAIL | --radio-border-color on --radio-bg
+BP-06 light 1.48 need 3 FAIL | --switch-bg on --color-bg-elevated
+BP-06 dark 1.72 need 3 FAIL | --switch-bg on --color-bg-elevated
+BP-06 light 1.48 need 3 FAIL | --select-hover-border-color on --select-bg
+BP-06 dark 1.72 need 3 FAIL | --select-hover-border-color on --select-bg
+BP-06 light 1.48 need 3 FAIL | --badge-outline-border-color on --color-bg-elevated
+BP-06 dark 1.72 need 3 FAIL | --badge-outline-border-color on --color-bg-elevated
+BP-07 light 7.27 need 4.5 PASS | secondary hover ink (--color-secondary-strong fills this bg in 2.0.0)
+BP-07 dark 2.68 need 4.5 FAIL | secondary hover ink (--color-secondary-strong fills this bg in 2.0.0)
+BP-09 light 2.45 need 4.5 FAIL | light --color-text-subtle on --color-bg
+BP-09 light 2.56 need 4.5 FAIL | light --color-text-subtle on --color-bg-elevated
+BP-09 light 2.34 need 4.5 FAIL | light --color-text-subtle on --color-bg-sunken
+CC-05 light 2.28 need 4.5 FAIL | --color-success-contrast on --color-success
+CC-05 dark 11.16 need 4.5 PASS | --color-success-contrast on --color-success
+CC-05 light 8.31 need 4.5 PASS | --color-warning-contrast on --color-warning
+CC-05 dark 11.64 need 4.5 PASS | --color-warning-contrast on --color-warning
+CC-06 light 1.68 need 3 FAIL | --color-focus-ring on --color-bg
+CC-06 dark 2.20 need 3 FAIL | --color-focus-ring on --color-bg
+CC-06 light 1.46 need 3 FAIL | --shadow-glow-primary on --color-bg (outline: none checkbox)
+CC-06 dark 1.78 need 3 FAIL | --shadow-glow-primary on --color-bg (outline: none checkbox)
+Group B: 25 lines | PASS 4 | FAIL 21 | MISSING 0
+
+Result: FAIL - 48 result lines are below threshold
