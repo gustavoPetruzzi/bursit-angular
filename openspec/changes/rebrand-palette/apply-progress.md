@@ -1,11 +1,11 @@
-# Apply Progress: rebrand-palette — Phase 1 (contrast harness), task 1.7 (harness contract test), Phase 2 (adoption), Phase 3 (Storybook chrome + checkbox outline) and Phase 4 (landing assets + docs)
+# Apply Progress: rebrand-palette — Phase 1 (contrast harness), task 1.7 (harness contract test), Phase 2 (adoption), Phase 3 (Storybook chrome + checkbox outline), Phase 4 (landing assets + docs) and Phase 5 (final verification)
 
 **Change**: `rebrand-palette`
-**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3), **Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2), **Phase 3** (`feat/rebrand-palette-chrome`, chained PR #4) **and Phase 4** (`feat/rebrand-palette-landing`, chained PR #5)
-**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 originally reported a declared deviation from it; that deviation is **CLOSED by task 1.7** (see the "Task 1.7" section at the end). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)".
+**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3), **Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2), **Phase 3** (`feat/rebrand-palette-chrome`, chained PR #4), **Phase 4** (`feat/rebrand-palette-landing`, chained PR #5) **and Phase 5** (`chore/rebrand-palette-final`, final chained slice)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 originally reported a declared deviation from it; that deviation is **CLOSED by task 1.7** (see the "Task 1.7" section at the end). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)". Phase 5 carries one genuine failing-first assertion (5.6) and declares the rest — see "TDD Cycle Evidence (Phase 5)".
 **Artifact Store**: openspec (repo-local)
-**Date**: Phase 1 2026-09-15 · Phase 2 2026-09-16
-**Branch**: Phase 1 `feat/rebrand-palette-harness`; task 1.7 `fix/rebrand-palette-harness-spec`; Phase 2 `feat/rebrand-palette-adopt-2`; Phase 3 `feat/rebrand-palette-chrome`; Phase 4 `feat/rebrand-palette-landing` (all target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
+**Date**: Phase 1 2026-09-15 · Phase 2 2026-09-16 · Phase 3/4/5 2026-09-17
+**Branch**: Phase 1 `feat/rebrand-palette-harness`; task 1.7 `fix/rebrand-palette-harness-spec`; Phase 2 `feat/rebrand-palette-adopt-2`; Phase 3 `feat/rebrand-palette-chrome`; Phase 4 `feat/rebrand-palette-landing`; Phase 5 `chore/rebrand-palette-final` (all target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
 **SDD attempt token**: `sha256:18105916fa20539acf91a0e3b43a18c44603615df57ff114982279c01079f3e2`
 
 ## Summary
@@ -315,15 +315,15 @@ is quoted verbatim from the run above.
 
 ## Status
 
-**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44, merged). **Phase 3: 2/3 complete** (3.1 chrome and 3.2 focus-ring consumer delivered and merged — `feat/rebrand-palette-chrome`, PR #45; 3.3's interactive toolbar toggle stays open for the maintainer). **Phase 4: 4/4 complete** (`feat/rebrand-palette-landing`, PR #46).
-Phase 5: not started.
+**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44, merged). **Phase 3: 2/3 complete** (3.1 chrome and 3.2 focus-ring consumer delivered and merged — `feat/rebrand-palette-chrome`, PR #45; 3.3's interactive toolbar toggle stays open for the maintainer). **Phase 4: 4/4 complete** (`feat/rebrand-palette-landing`, PR #46). **Phase 5: 6/6 complete** (`chore/rebrand-palette-final`, the integrated tree) — the four builds pass, the suite is 27 suites / 322 passed / 2 skipped, the contrast harness reads 44 PASS / 0 FAIL and is now a CI gate, the indigo/cyan sweep is zero in product source, and both 5.5 spec wordings are amended.
 
 Phase 2's open follow-ups are both pre-existing and outside its scope: the CP-13 spec correction
 (Phase 1, Issue 2) and Phase 1's 485-line review overage, which still needs the decision recorded in
 the Phase 1 section above.
 
-**Next recommended**: Phase 5 (final verification) on the integrated tree, then `sdd-verify` for
-independent verification of the whole change. Task 5.6 is decided: the contrast harness gets a CI gate.
+**Next recommended**: `sdd-verify` for independent verification of the whole change, then archive.
+The only task still open anywhere in this change is Phase 3's 3.3 interactive toolbar toggle, which
+needs a human at a browser.
 
 ---
 
@@ -733,3 +733,102 @@ widened to permit a test runner in `landing/` (or to accept a 28th root suite) �
 started.
 
 **Next recommended**: `sdd-verify` for independent verification of Phase 4.
+
+---
+
+# Phase 5 — Final Verification (integration tree)
+
+**Date**: 2026-09-17
+**Branch**: `chore/rebrand-palette-final` (branched off the tracker `feat/rebrand-palette` at `99b0fca`; `feature-branch-chain`, final slice)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). This slice contains one genuine failing-first assertion (5.6's CI-gate wiring) and declares honest deviations for the tasks where no non-tautological test exists. No test was invented.
+**Artifact Store**: openspec (repo-local)
+
+## Summary
+
+This is the first tree on which the whole change exists at once, and it is green end to end. All four
+builds pass; the suite is **27 suites / 322 passed / 2 skipped, exit 0** (319 + the 3 new gate-wiring
+tests); `npm run check:contrast` reads **44 PASS / 0 FAIL** (Group A and Group B) with exit 0; the
+indigo/cyan sweep is **zero hits in product source**; the two spec wording points are amended; and the
+contrast harness is now a CI gate.
+
+The one number worth reading twice is 5.3. The harness reports **4.52**, not the 4.51 the task text
+and the harness's own header comment carry; the declared surface (`--color-bg`) decides, and the
+elevated-surface counterfactual (4.19, a FAIL) was reproduced rather than inherited.
+
+## Completed Tasks (5.1–5.6)
+
+- [x] 5.1 Four builds green: `npm run build` exit 0; `npm run test` → 27/319/2 exit 0 (pre-spec-edit run); `npm run build-storybook` exit 0; landing `npm run build` exit 0. → TC-07
+- [x] 5.2 Indigo/cyan sweep: zero hits in product source; the hex-literal exceptions are exactly `icon.spec.ts:13`/`:47` and `AGENTS.md:90`. → TC-07
+- [x] 5.3 Margin recorded: `CC04-03 dark 4.52 need 4.5 PASS` on the declared surface `--color-bg`; `4.19 FAIL` on `--color-bg-elevated`; not rounded, not "fixed".
+- [x] 5.4 BA-05: both renders retained (light + forced-dark), checksums in `evidence/ba-05.md`; **no visual capture made** and said so.
+- [x] 5.5 Spec wording amended in `brand-palette` BP-04 and `contrast-conformance` CC-04 (the prompt's `token-consumption` attribution was wrong — see deviation D-5.2).
+- [x] 5.6 Harness wired into CI as a real gate, backed by a RED→GREEN test.
+
+## Files Changed (Phase 5)
+
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `.github/workflows/ci.yml` | Modified | New `contrast` job running `npm run check:contrast` (+20) |
+| `scripts/check-contrast.spec.mjs` | Modified | `contrast gate wiring` describe block: 3 tests (+42/−1) |
+| `openspec/changes/rebrand-palette/specs/brand-palette/spec.md` | Modified | BP-04 exception + scenario (+19/−1) |
+| `openspec/changes/rebrand-palette/specs/contrast-conformance/spec.md` | Modified | CC-04 scope + 5.3 margin note (+27/−3) |
+| `openspec/changes/rebrand-palette/tasks.md` | Modified | Phase 5 tasks marked with measured evidence (6/6) |
+| `openspec/changes/rebrand-palette/evidence/ba-05.md` | Created | Retained BA-05 evidence record (renders, checksums, resolved tokens, stated limits) |
+| `openspec/changes/rebrand-palette/apply-progress.md` | Modified | This merged Phase 5 section + Status |
+
+The harness (`scripts/check-contrast.mjs`), `contrast-baseline-1.2.0.txt`, the product source, the
+manifests and both lockfiles were **not** touched. `landing/dist/index.dark.html` is a generated
+artifact inside a gitignored directory.
+
+## Work Unit Evidence (Phase 5)
+
+| Evidence | Value |
+|----------|-------|
+| Focused test command and exact result | `npx jest scripts/check-contrast.spec.mjs` → **RED `1 failed, 7 passed, 8 total`** (before the CI job: `contrast gate wiring › runs the harness as a gate`) → **GREEN `8 passed, 8 total`, exit 0** (after). |
+| Runtime harness command/scenario and exact result | `npm run check:contrast` → Group A **PASS 44 / FAIL 0 / MISSING 0**, Group B **PASS 25 / FAIL 0**, `Result: PASS`, **exit 0**. CI YAML validated with a parser: `jobs = library, contrast, landing`; `contrast.name` is the string `"Contrast: check"`. |
+| Rollback boundary | `.github/workflows/ci.yml` (delete the `contrast` job) and the `contrast gate wiring` block in `scripts/check-contrast.spec.mjs` (delete it). Reverting both restores the pre-slice state; the specs, `tasks.md` and `evidence/` are change bookkeeping that do not affect runtime. |
+
+## TDD Cycle Evidence (Phase 5)
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 5.6 (CI gate wiring) | `scripts/check-contrast.spec.mjs` | Integration (the workflow file is read as an artifact) | `npm run test` green (27/319/2) before the edit | **Written first, observed failing:** `npx jest scripts/check-contrast.spec.mjs` → `1 failed, 7 passed, 8 total`, the failure being `contrast gate wiring › runs the harness as a gate` — no `contrast:` job existed | `npx jest scripts/check-contrast.spec.mjs` → **`8 passed, 8 total`**, exit 0, after the job landed | 3 assertions over 3 artifacts: the gate's presence, the two existing jobs' survival, and the unquoted-`name`-with-`: ` defect class | Clean — one `workflowText()` reader and one pure `unquotedNameWithColon()` helper |
+| 5.1, 5.2, 5.4 | none — declared deviation | Runtime/static (builds, sweep, rendered artifact) | n/a (verification tasks) | Real RED is what each check would catch: a failing build, a surviving indigo/cyan literal, a missing render | All observed green/zero as recorded above | ➖ | ➖ |
+| 5.3, 5.5 | none — declared deviation | Measurement + document wording | n/a | 5.3's RED is the counterfactual that fails (4.19) and the discrepancy the task carried; 5.5's is the spec text as it stood (a reading that collapses three button states, and a scenario that contradicts CP-05/CP-06) | 5.3 recorded from the harness; 5.5 amended and re-read | ➖ | ➖ |
+
+## Test Summary (Phase 5)
+
+- **Total tests written (Phase 5)**: **3** (one `describe` block, `contrast gate wiring`), all in `scripts/check-contrast.spec.mjs`.
+- **Total tests passing**: `npm run test` → **27 suites / 322 passed / 2 skipped, exit 0** (was 27 / 319 / 2).
+- **Layers used**: Integration (3 new — the CI workflow is asserted as a readable artifact); runtime acceptance (the harness run, unchanged).
+- **Approval tests / Pure functions created**: 1 pure helper (`unquotedNameWithColon`), 1 reader (`workflowText`).
+
+## Deviations (Phase 5)
+
+**D-5.1 — Strict TDD deviation declared for 5.1/5.2/5.3/5.4/5.5.** These tasks are verification, measurement and document wording. No unit under test exists that a Jest run could drive without re-encoding the very literal being checked (a tautology), so no test was written. The strongest honest instruments were used instead: the four real builds, the repo sweep, the harness output, the rendered artifacts with checksums, and a same-math counterfactual measurement. Stated, not silently dropped. Triangulation is explicitly skipped for these tasks under the module's structural criterion: a build exits 0 or it does not, and a sweep is empty or it is not — there is no branching logic for a second case to force out.
+
+**D-5.2 — The prompt's spec-file attribution is wrong, and the amendments went where the requirements live.** The launch prompt said both 5.5 wording points belong in `token-consumption/spec.md`. Neither does: (a) light `--color-error-active` is BP-04 in `brand-palette/spec.md`; (b) CC-04 scenario 2 is in `contrast-conformance/spec.md`. `token-consumption/spec.md` owns TC-01…TC-07 and contains no error-active or CC-04 text, so writing either there would have added unrelated requirements to the wrong capability. Both landed in the owning specs; `token-consumption/spec.md` is unchanged.
+
+**D-5.3 — The 5.3 margin is 0.02, not 0.01, and the recorded 4.51 does not reproduce.** The harness prints `CC04-03 dark 4.52 need 4.5 PASS`. The task text and the harness header comment both carry 4.51; per the slice's instruction the measured value is reported as measured and neither figure is rounded. The task's elevated-surface figure is confirmed exactly (4.19 FAIL).
+
+**D-5.4 — The CI-gate test asserts the workflow as text, not via a YAML parser.** `js-yaml` is present in `node_modules` but is **not** a declared dependency of this package, so a committed test may not rely on it. The test therefore asserts the gate's presence, the existing jobs' survival and the exact quoting defect class with text/regex; parseability itself was validated separately with the parser (one-off, reported) and remains a CI responsibility.
+
+## Issues Found (Phase 5)
+
+1. **The task text's 4.51 is off by 0.01 from the artifact it describes.** `CC04-03 dark` measures 4.52; the same stale 4.51 sits in `scripts/check-contrast.mjs`'s header comment (lines 27–30). The harness must not be edited, so the correction is recorded in the spec and here. A verifier re-reading the header will meet the same 0.01 gap.
+2. **The design's CC04-03 figures mix surfaces.** `design.md:148` records "5.54 light / 4.51 dark". 5.54 is the `--color-bg-elevated` light reading; the declared-`--color-bg` light reading is 5.31, and its dark reading is 4.52. No single surface yields the design's pair.
+3. **`landing/dist/` is gitignored**, so the two BA-05 renders are retained on disk but are not part of the review diff. The durable record is `evidence/ba-05.md` plus the checksums; the renders are regenerable with `npm run build`.
+4. **Phase 3's 3.3 remains 2/3** (the interactive Storybook toolbar toggle is owed to a human). Phase 5 does not and cannot close it: `build-storybook` is proven, the toggle needs a manual run.
+
+## Workload / PR Boundary (Phase 5)
+
+- **Mode**: chained PR slice (`feature-branch-chain`, final slice). Branch `chore/rebrand-palette-final` off the tracker `feat/rebrand-palette` at `99b0fca`.
+- **Current work unit**: final verification + spec wording + CI gate.
+- **Boundary**: starts at the integrated tree (Phases 1–4 merged) and ends at a green four-build matrix, a gated contrast harness, two amended specs and the retained BA-05 evidence. Nothing else is touched; no product source is modified.
+- **Review budget impact**: authored diff **125 changed lines** across 5 tracked text files (114 insertions / 11 deletions) + `evidence/ba-05.md` (48 lines) + this bookkeeping section. Total with bookkeeping is reported in the return envelope; it is inside the 400-line budget.
+
+## Status (Phase 5)
+
+**Phase 5 complete — 6/6.** All four builds green; suite 27 suites / 322 passed / 2 skipped; harness 44 PASS / 0 FAIL exit 0; indigo/cyan sweep zero in product source; specs amended; contrast gate in CI with a RED→GREEN test. The whole change is now green on one tree for the first time. Phase 3's 3.3 toggle remains owed to the maintainer.
+
+**Next recommended**: `sdd-verify` for independent verification of the whole change.

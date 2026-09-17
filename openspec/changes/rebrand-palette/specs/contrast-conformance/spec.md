@@ -94,7 +94,8 @@ this change corrects** — the defect count is 17 of the 18 pairs.
 ### Requirement: CC-04 — The tint-as-text defect class is closed
 
 No token that resolves to a 500-level primitive MUST be used as a foreground on an `-alpha-*` tint of
-itself. `alert.scss` and `badge.scss` MUST consume `--color-{variant}-text` for
+itself **where that pairing measures below 4.5:1**. `alert.scss` and `badge.scss` MUST consume
+`--color-{variant}-text` for
 `--alert-{variant}-color`, `--alert-{variant}-icon-color`, `--alert-{variant}-border-color` and
 `--badge-subtle-{variant}-color`, matching `toast.scss:6–9`, which documents the correct pattern.
 The fix is the pairing, not the palette: with the tuned ramp the best achievable in the defect shape
@@ -110,11 +111,34 @@ their alert counterparts.
 - WHEN their variant colour tokens are read
 - THEN each foreground resolves to `--color-{variant}-text`
 
-#### Scenario: No 500-level token sits on its own tint
+**The class is scoped to pairings that fail AA, and that changes no measurement.** A blanket "zero
+500-level tokens over their own tint" reading would contradict CP-05/CP-06:
+`--badge-subtle-primary-color` and `--badge-subtle-secondary-color` are exactly that shape, and those
+two pairs are mandated to clear 4.5:1 by *tuning* the ramp rather than by repointing to a `-text`
+token (no `--color-primary-text` token exists). The forbidden class is therefore the pairings that
+measure below 4.5:1. The 22-pair set is unchanged: the 18 `CP-*` IDs and the four CC-04 badge pairs
+stay exactly as listed, and the two 500-level badge pairs that clear 4.5:1 remain governed by
+CP-05/CP-06.
+
+#### Scenario: No 500-level token sits below AA on its own tint
 
 - GIVEN the whole component source
-- WHEN a token resolving to a 500-level primitive is used as a colour over its own `-alpha-*` background
+- WHEN a 500-level primitive foreground over its own `-alpha-*` background measures below 4.5:1
 - THEN zero such pairings remain
+- AND a pairing that clears 4.5:1 is outside this class and is governed by its own requirement
+
+**Recorded margin — the declared surface decides (task 5.3).** Dark `--color-error-text` `#F87171` on
+dark `--color-error-alpha-10` (`rgba(248, 113, 113, 0.12)`) measures **4.52:1** on the declared
+surface `--color-bg` `#22282E` — a **0.02** margin over the 4.5 floor. The same pairing measures
+**4.19:1** on `--color-bg-elevated` `#272E35` and fails there. The harness declares a surface per
+pair; CC04-03 (badge-subtle error) and CP-09 (alert error) both inherit the `--color-bg` default, so
+**4.52:1 is the measured value and the pairing passes**. The elevated figure is recorded, not acted
+on: the colour is not retuned and neither ratio is rounded up. Harness line:
+`CC04-03 dark 4.52 need 4.5 PASS`; the 4.19 figure was reproduced with the same harness maths under a
+`--color-bg-elevated` surface override. The previously published figures do not match a single
+declared surface: 4.51 (in the task text and in the harness header comment) is 0.01 above the
+measured 4.52, and the design's 5.54 light is the `--color-bg-elevated` light reading (the declared
+`--color-bg` light reading is 5.31).
 
 ### Requirement: CC-05 — Filled-variant ink is chosen per fill
 

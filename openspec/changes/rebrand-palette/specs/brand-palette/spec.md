@@ -59,7 +59,8 @@ become ramp steps: their 16–19 % saturation is not monotonic with the ramps.
 
 Each token below MUST resolve to the named primitive step (hexes are BP-01). Unlisted tokens MUST keep
 their current step name; the hex follows the ramp. `--color-border` and `--color-border-strong` keep
-`neutral-200` / `neutral-300`.
+`neutral-200` / `neutral-300`. There is exactly one normative exception to the unlisted-token rule:
+light `--color-error-active` MUST be `red-800` `#991B1B`, not `red-700` (see below).
 
 | Token | Step |
 |---|---|
@@ -71,8 +72,25 @@ their current step name; the hex follows the ramp. `--color-border` and `--color
 | `--color-focus-ring`, `--shadow-glow-primary` | `rgba(wine-500, 0.7)` |
 | `--color-success-contrast` | `neutral-950` (was white — CC-05) |
 | `--color-error`, `--color-error-hover` | `red-600`, `red-700` |
+| `--color-error-active` | `red-800` `#991B1B` (exception to the unlisted-token rule — see below) |
 | `--color-info`, `--color-info-text` | `#2563EB`, `#1D4ED8` (BP-10) |
 | `--color-warning`, `--color-warning-text` | unchanged |
+
+**Exception — light `--color-error-active` is `$red-800` `#991B1B`.** Reading the unlisted-token rule
+literally gives `red-700` `#B91C1C`, but the published component layer wires
+`--btn-danger-bg: var(--color-error-hover)` and both `--btn-danger-hover-bg` and
+`--btn-danger-active-bg` to `var(--color-error-active)`
+(`node_modules/bursit-ui-tokens/src/components/button.scss:125–129`, read-only). With `red-700`, a
+danger button's base, hover and active backgrounds collapse to the single colour `#B91C1C` — three
+states, one colour. `$red-800` mirrors the existing `$green-800` / `$amber-800` steps, preserves the
+state ladder, and measures 8.31:1 against white. The published `bursit-ui-tokens@2.0.0` ships light
+`--color-error-active: #991B1B`, so this records the shipped behaviour.
+
+#### Scenario: The danger button's three states stay distinct
+
+- GIVEN light mode
+- WHEN `--color-error-active` is resolved
+- THEN it is `#991B1B`, distinct from `--color-error-hover` `#B91C1C`
 
 #### Scenario: Light primary is the tuned 500 step
 
