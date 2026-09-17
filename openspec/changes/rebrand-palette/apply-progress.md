@@ -1,11 +1,11 @@
-# Apply Progress: rebrand-palette — Phase 1 (contrast harness)
+# Apply Progress: rebrand-palette — Phase 1 (contrast harness) + Phase 2 (adoption)
 
 **Change**: `rebrand-palette`
-**Phase**: apply — **Phase 1 only** (`feat/rebrand-palette-harness`, chained PR #1)
-**Mode**: Task 1.7 Strict TDD; Phase 1 Standard (that deviation is **CLOSED by task 1.7**, documented in the "Task 1.7" section at the end). Original Phase 1 note: see "Strict TDD deviation" below — this is a reported deviation, not a silent fallback
+**Phase**: apply — **Phase 1** (`feat/rebrand-palette-harness`, chained PR #1), **task 1.7** (`fix/rebrand-palette-harness-spec`, chained PR #3) **and Phase 2** (`feat/rebrand-palette-adopt-2`, chained PR #2)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). Phase 1 originally reported a declared deviation from it; that deviation is **CLOSED by task 1.7** (see the "Task 1.7" section at the end). Phase 2 follows it as far as a dependency bump permits — see "TDD Cycle Evidence (Phase 2)".
 **Artifact Store**: openspec (repo-local)
-**Date**: 2026-09-15
-**Branch**: `feat/rebrand-palette-harness` (targets the tracker branch `feat/rebrand-palette`)
+**Date**: Phase 1 2026-09-15 · Phase 2 2026-09-16
+**Branch**: Phase 1 `feat/rebrand-palette-harness`; Phase 2 `feat/rebrand-palette-adopt-2` (both target the tracker branch `feat/rebrand-palette`; `feature-branch-chain`)
 **SDD attempt token**: `sha256:18105916fa20539acf91a0e3b43a18c44603615df57ff114982279c01079f3e2`
 
 ## Summary
@@ -18,8 +18,14 @@ declared surface, and reports the WCAG 2.x ratio for 22 pairs in both modes.
 The 1.2.0 RED baseline is measured and retained at
 `openspec/changes/rebrand-palette/contrast-baseline-1.2.0.txt`.
 
-Phases 2–5 were **not** started: they are blocked on the external publish gate
-(`npm view bursit-ui-tokens@2.0.0` must resolve).
+**Phase 2 (adoption) is complete: 6/6 tasks.** The publish gate opened
+(`npm view bursit-ui-tokens@2.0.0 version` → `2.0.0`), and the repo adopted the published
+major: **three** manifests moved to `^2.0.0` (the plan named two — see Phase 2 deviation
+D-2.1), both lockfiles were regenerated through the registry, and `npm run check:contrast`
+now reads **44 PASS / 0 FAIL** where the retained 1.2.0 baseline read 27 FAIL / 17 PASS.
+`npm run test`, `npm run build` and the landing `npm run build` are all green.
+
+Phases 3–5 were **not** started (Phase 3 is the next work unit).
 
 ## Completed Tasks (6/6 in Phase 1)
 
@@ -185,16 +191,144 @@ Group A line count, asserted by pattern `^(CP-\d\d|CC04-\d\d) (light|dark) ` ove
 stdout: **44**. Group A lines printed before the non-zero exit: **44 of 44** — the exit is
 set after the single stdout write, so no line can be lost.
 
+## Phase 2: Adoption — Completed Tasks (6/6)
+
+- [x] 2.1 Confirmed the gate (read-only): `npm view bursit-ui-tokens@2.0.0 version` → `2.0.0`; the gate is OPEN. → TC-01.
+- [x] 2.2 `package.json:26` `^1.2.0` → `^2.0.0`. → TC-02.
+- [x] 2.3 `landing/package.json:21` `^1.2.0` → `^2.0.0`; ranges identical across the manifests. → TC-02.
+- [x] 2.4 `package-lock.json` regenerated with `npm install` at the repo root (`changed 1 package`); resolved `https://registry.npmjs.org/bursit-ui-tokens/-/bursit-ui-tokens-2.0.0.tgz`; `file:` = 0. → TC-03.
+- [x] 2.5 `landing/package-lock.json` regenerated with `npm install` in `landing/` (`changed 1 package`); same registry URL at 2.0.0; `file:` = 0. → TC-03.
+- [x] 2.6 `npm run check:contrast` → **Group A `PASS 44 / FAIL 0 / MISSING 0`, `pairs failing in every mode 0`; Group B `PASS 25 / FAIL 0`; `Result: PASS`; exit 0.** The predicted 44 PASS is confirmed by measurement. → CC-03 / CC-04.
+
+### Files Changed (Phase 2)
+
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `package.json` | Modified | `:26` `bursit-ui-tokens` `^1.2.0` → `^2.0.0` (TC-02) |
+| `landing/package.json` | Modified | `:21` same (TC-02) |
+| `projects/bursit-angular/package.json` | Modified | `:11` (`dependencies`) same — **not in the plan; deviation D-2.1** |
+| `package-lock.json` | Regenerated | `npm install` at repo root; resolved 2.0.0 from the registry |
+| `landing/package-lock.json` | Regenerated | `npm install` in `landing/`; resolved 2.0.0 from the registry |
+
+`dist/` was rebuilt by `npm run build` (untracked build output; never hand-edited). The regenerated
+`dist/bursit-angular/package.json` now carries `^2.0.0`, which is the observable proof that D-2.1 was
+load-bearing, not cosmetic.
+
+### Work Unit Evidence (Phase 2)
+
+| Evidence | Value |
+|----------|-------|
+| Focused test command and exact result | `npm run check:contrast` → **exit 0**; Group A `PASS 44 / FAIL 0 / MISSING 0`, Group B `PASS 25 / FAIL 0`, `Result: PASS`. Calibration: `node scripts/check-contrast.mjs --self-test` → exit 0, **9/9 passed**. |
+| Runtime harness command/scenario and exact result | Adopt-then-measure over the real installed artifact. `npm install` (root) → `changed 1 package`, installed `2.0.0`. `npm install` (landing) → `changed 1 package`, installed `2.0.0`. `npm run test` → 26/26 suites, 2 skipped, 314 passed, exit 0. `npm run build` → exit 0. landing `npm run build` → exit 0 (compiles the 2.0.0 SCSS source). |
+| Rollback boundary | The three manifest range lines and the two lockfiles — `git diff --stat` = 5 files, 11 insertions / 11 deletions. Reverting the five restores 1.2.0 exactly; nothing else in the tree references the range. |
+
+### TDD Cycle Evidence (Phase 2)
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 2.1–2.6 (one work unit: adopt the major) | `scripts/check-contrast.mjs` (existing acceptance harness) | Runtime/acceptance (integration against the installed artifact) | ✅ `--self-test` 9/9; full suite green | ✅ Measured pre-bump against installed 1.2.0: **27 FAIL / 17 PASS**, 6 pairs failing in every mode, exit 1 — reproduces `contrast-baseline-1.2.0.txt` | ✅ Measured post-bump: **44 PASS / 0 FAIL**, exit 0 | ➖ Single transition (the artifact version is the one variable; both modes are already reported per ID) | ➖ None needed (config-only slice) |
+
+**Honest declaration.** This slice is a dependency/version adoption with no production code of its
+own, so there is no new unit under test and no new test was invented. The RED is real and measured,
+not assumed: the existing harness was run against the still-installed 1.2.0 **in this session** and
+reproduced the retained baseline count-for-count (27 FAIL / 17 PASS, 6 pairs failing in every mode,
+exit 1) before any manifest moved. The GREEN is the same harness run against the adopted 2.0.0
+(44 PASS / 0 FAIL, exit 0). Both endpoints are recorded above. A test asserting a version string in a
+JSON file would call no production code, so it was deliberately **not** written.
+
+**Two premises in the launch prompt did not survive measurement — reported, not worked around:**
+
+1. **`scripts/check-contrast.spec.mjs` does not exist.** The launch prompt described it as "the
+   existing" RED for this slice (task 1.7). It is absent; `scripts/` holds only `check-contrast.mjs`.
+   Task 1.7 remains `[ ]` and open in `tasks.md`. Its chosen remediation (widen Jest `testMatch` to
+   `*.spec.mjs` plus `NODE_OPTIONS=--experimental-vm-modules`) is a Phase 1 decision and was **not**
+   executed here: it is outside this slice's assigned tasks, and changing Jest's collection config
+   from an adoption slice would widen the blast radius of a 22-line diff.
+2. **The stated test baseline `27 suites / 319 passed / 2 skipped` does not reproduce.** Measured:
+   `26 suites / 316 total / 314 passed / 2 skipped` (exit 0). The difference is not caused by this
+   change: `npx jest --listTests` returns **26** spec files, and the committed spec-file count is
+   **26 at HEAD and 26 at HEAD~1**. No spec imports `bursit-ui-tokens` or the `bursit-angular` dist
+   alias (grep: zero hits), so test discovery and the test count are invariant to this bump. The
+   suite is green; the quoted baseline appears stale.
+
+### Test Summary
+
+- **Total tests written (Phase 2)**: 0 new — see the honest declaration above; the slice reuses the existing acceptance harness.
+- **Total tests passing**: `npm run test` → 314 passed, 2 skipped, 0 failed of 316, across 26 suites.
+- **Layers used**: Unit (26 suites, library) and Runtime/acceptance (1 harness, 2 runs).
+- **Approval tests** (refactoring): None — no refactoring task.
+- **Pure functions created**: 0 — the diff is version strings in manifests and resolved lockfile entries.
+
+### Phase 2 Deviations from the Plan
+
+**D-2.1 — A third manifest was bumped: `projects/bursit-angular/package.json:11`.** The plan names two
+manifests (2.2 `package.json`, 2.3 `landing/package.json`). The repo declares
+`"bursit-ui-tokens": "^1.2.0"` in **three** places; the third sits in the library manifest's
+`dependencies`, beside `tslib`. That file is what ng-packagr copies into the published library package,
+so leaving it at `^1.2.0` would ship a library advertising the retired major to every consumer — the
+exact consumer-facing defect class this repo already fixed once (issue #35 / PR #36). **Proof it is
+load-bearing:** before the change, `dist/bursit-angular/package.json` (build output) carried `^1.2.0`;
+after `npm run build` it carries `^2.0.0`. Bumping it is a deliberate deviation from the plan's file
+list, reported here rather than silently absorbed.
+
+**D-2.2 — Task 2.6's prediction is CONFIRMED, and reported as measured.** Unlike the Phase 1 prediction
+(which predicted 44 FAIL and was refuted — measured 27 FAIL / 17 PASS), task 2.6's "22/22 both modes →
+44 PASS" is **correct**: Group A `PASS 44 / FAIL 0`, exit 0. No number was forced; the per-mode tally
+is quoted verbatim from the run above.
+
+### Phase 2 Issues Found
+
+1. **Deleted-token sweep (trap 1) — CLEAN, nothing broke.** 2.0.0 deletes `$indigo-*`/`$cyan-*`. A
+   case-insensitive sweep of `projects/**` and `landing/**` for `indigo|cyan|155E75` returns exactly
+   **two** hits, neither a token consumption: `landing/scripts/generate-og-image.mjs:98` (a stale
+   "indigo-to-cyan" **comment**, already scheduled as task 4.1) and a generated `landing/dist/*.css`
+   file (build output, untracked). The repo's SCSS consumes only
+   `--color-{bg,bg-elevated,bg-sunken,border,primary,primary-hover,secondary,secondary-active,text,text-muted}`
+   — all still shipped by 2.0.0. The 2.0.0 SCSS source itself has zero `indigo|cyan` hits, and both
+   builds compile it: Storybook and the landing consume
+   `node_modules/bursit-ui-tokens/src/index.scss` (`angular.json:56,60,73,77`), and the landing build
+   passed. **No replacement token was invented anywhere.**
+2. **Published-artifact contract re-confirmed from the installed tree** (read-only): `#155E75` = **0**;
+   `#ba3b54` (wine-500), `#3a6b9c` (steel-500) and `#991B1B` (red-800) each present;
+   `--color-border-control` ×8, `--color-secondary-strong` ×3 and `--color-brand-*` ×6 declared;
+   `index.css` = 860 lines.
+3. **Task 1.7 remains open** — the only Strict-TDD gap in the change. It is Phase 1 scope; it was not
+   silently closed here.
+4. **`npm audit` on the root install reports 53 vulnerabilities** (3 low / 22 moderate / 25 high /
+   3 critical). Pre-existing and unrelated to this bump (the install changed exactly one package).
+   Recorded, not acted on — dependency remediation is outside this change's scope.
+
+### Workload / PR Boundary (Phase 2)
+
+- **Mode**: chained PR slice (`feature-branch-chain`, PR #2 of 4). Branch
+  `feat/rebrand-palette-adopt-2` targets the tracker `feat/rebrand-palette`.
+- **Current work unit**: Adopt the published major.
+- **Boundary**: starts at the tracker tip and ends at three manifests declaring `^2.0.0` with two
+  regenerated lockfiles resolving 2.0.0 from the registry, verified by the existing harness and both
+  builds. Nothing after it is included: no Storybook chrome, no checkbox outline, no landing assets,
+  no `AGENTS.md` correction.
+- **Review budget impact**: **authored diff = 22 changed lines** (5 files, 11 insertions /
+  11 deletions) — well inside the 400-line budget. SDD artifact bookkeeping adds to the recorded total;
+  the final count is stated in the return envelope.
+
+---
+
 ## Status
 
-**Phase 1: 6/6 tasks complete. Phases 2–5: 0/… — intentionally not started** (blocked on
-the external publish gate `npm view bursit-ui-tokens@2.0.0`).
+**Phase 1: 7/7 complete** (task 1.7 delivered and verified — `fix/rebrand-palette-harness-spec`, PR #43, merged). **Phase 2: 6/6 complete and verified** (44 PASS / 0 FAIL against the published `bursit-ui-tokens@2.0.0` — `feat/rebrand-palette-adopt-2`, PR #44).
+Phases 3–5: not started.
 
-The slice is self-contained and verifiable on its own; nothing in it depends on the tokens
-major. Two items need a decision before this slice is closed: the 485-line review overage
-(section "Workload / PR Boundary") and the CP-13 spec correction (Issue 2).
+Phase 2's open follow-ups are both pre-existing and outside its scope: the CP-13 spec correction
+(Phase 1, Issue 2) and Phase 1's 485-line review overage, which still needs the decision recorded in
+the Phase 1 section above.
 
-**Next recommended**: `sdd-verify` for independent verification of Phase 1.
+**Next recommended**: `sdd-verify` for independent verification of Phase 2 (and re-verification of the
+unchanged Phase 1 and task 1.7 evidence).
+
+---
+
+Note: the Phase 1 sections above are preserved verbatim; only the title, the phase metadata block and
+this tail were amended for the merge.
 
 ---
 
@@ -369,3 +503,8 @@ the harness slice (needs the maintainer's decision) and the CP-13 spec correctio
 
 **Next recommended**: `sdd-verify` for independent verification of task 1.7 (re-run
 `npm run test`, `npx jest scripts/check-contrast.spec.mjs`, and `npm run check:contrast`).
+
+> **Superseded by the merge (2026-09-17).** This section is the task 1.7 record as written on
+> 2026-09-16, when it was accurate. The "Phases 2-5 not started" line above was true then and is now
+> false: Phase 2 is complete and verified (44 PASS / 0 FAIL against the published
+> `bursit-ui-tokens@2.0.0`). See the top of this document for the current state.
