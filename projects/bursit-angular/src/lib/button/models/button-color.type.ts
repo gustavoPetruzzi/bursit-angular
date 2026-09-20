@@ -1,1 +1,1 @@
-export type ButtonColor = 'primary' | 'secondary' | 'outline' | 'link' | 'danger';
+export type ButtonColor = 'primary' | 'secondary' | 'outline' | 'link' | 'danger' | 'ghost' | 'icon';

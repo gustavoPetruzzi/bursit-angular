@@ -1,0 +1,457 @@
+---
+// Shows the token layer rather than describing it: every swatch, type step and
+// space bar below reads its value from the real `var(--token)`, so the section
+// stays correct in both themes without a single hardcoded visual.
+interface PaletteGroup {
+  name: string;
+  note: string;
+  tokens: string[];
+}
+
+const paletteGroups: PaletteGroup[] = [
+  {
+    name: 'Brand',
+    note: 'The accent every interactive element resolves to.',
+    tokens: [
+      '--color-primary',
+      '--color-primary-hover',
+      '--color-primary-active',
+      '--color-primary-subtle',
+      '--color-primary-contrast',
+    ],
+  },
+  {
+    name: 'Secondary',
+    note: 'The cool counterpart, used for support accents and glows.',
+    tokens: [
+      '--color-secondary',
+      '--color-secondary-hover',
+      '--color-secondary-active',
+      '--color-secondary-subtle',
+      '--color-secondary-contrast',
+    ],
+  },
+  {
+    name: 'Semantic',
+    note: 'Each status color also ships -hover, -active, -contrast and alpha partners.',
+    tokens: ['--color-success', '--color-warning', '--color-error', '--color-info'],
+  },
+];
+
+const neutralRamp = [
+  { step: '0' },
+  { step: '50' },
+  { step: '100' },
+  { step: '200' },
+  { step: '300' },
+  { step: '400' },
+  { step: '500' },
+  { step: '600' },
+  { step: '700' },
+  { step: '800' },
+  { step: '900' },
+  { step: '950' },
+  { step: '1000' },
+].map((entry) => ({ ...entry, token: `--color-neutral-${entry.step}` }));
+
+const typeScale = [
+  '--font-size-xs',
+  '--font-size-sm',
+  '--font-size-base',
+  '--font-size-lg',
+  '--font-size-xl',
+  '--font-size-2xl',
+  '--font-size-3xl',
+  '--font-size-4xl',
+  '--font-size-5xl',
+];
+
+const spaceScale = [
+  '--space-px',
+  '--space-xs',
+  '--space-sm',
+  '--space-md',
+  '--space-lg',
+  '--space-xl',
+  '--space-2xl',
+  '--space-3xl',
+  '--space-4xl',
+];
+
+// The customization snippet is the one code block that carries syntax colour,
+// so it is authored as per-line token runs.
+type CodeKind = 'comment' | 'selector' | 'key' | 'value';
+interface CodeToken {
+  text: string;
+  kind?: CodeKind;
+}
+interface CodeLine {
+  indent: number;
+  tokens: CodeToken[];
+}
+
+const customizationCode: CodeLine[] = [
+  { indent: 0, tokens: [{ kind: 'comment', text: '/* Rebrand the whole library from one place. */' }] },
+  { indent: 0, tokens: [{ kind: 'selector', text: ':root {' }] },
+  {
+    indent: 1,
+    tokens: [
+      { kind: 'key', text: '--color-primary' },
+      { text: ': ' },
+      { kind: 'value', text: '#your-brand' },
+      { text: ';' },
+    ],
+  },
+  {
+    indent: 1,
+    tokens: [
+      { kind: 'key', text: '--radius-md' },
+      { text: ': ' },
+      { kind: 'value', text: '0.75rem' },
+      { text: ';' },
+    ],
+  },
+  {
+    indent: 1,
+    tokens: [
+      { kind: 'key', text: '--font-family-sans' },
+      { text: ': ' },
+      { kind: 'value', text: "'Your Sans', system-ui, sans-serif" },
+      { text: ';' },
+    ],
+  },
+  { indent: 0, tokens: [{ kind: 'selector', text: '}' }] },
+];
+---
+
+<section class="section section--divided" id="tokens" aria-labelledby="tokens-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow">
+        <span class="eyebrow__index">02</span>
+        <span>Design tokens</span>
+        <span class="eyebrow__rule"></span>
+      </p>
+      <h2 class="section-title" id="tokens-title">The design system lives outside your components</h2>
+      <p class="section-lead">
+        Colors, type, space, radii and shadows are CSS custom properties published by
+        <code>bursit-ui-tokens</code>. Nothing below is a screenshot — every sample on this page
+        resolves through <code>var()</code>.
+      </p>
+    </header>
+
+    <div class="palette">
+      {
+        paletteGroups.map((group) => (
+          <div class="palette-group">
+            <h3 class="palette-group__name">{group.name}</h3>
+            <p class="palette-group__note">{group.note}</p>
+            <ul class="swatch-list">
+              {group.tokens.map((token) => (
+                <li class="swatch-row">
+                  <span class="swatch" style={`background-color: var(${token})`} aria-hidden="true" />
+                  <code class="swatch-row__token">{token}</code>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="ramp">
+      <h3 class="ramp__name">Neutral ramp</h3>
+      <p class="ramp__note">
+        0 is always the surface end and 1000 the ink end, so the whole ramp inverts when the theme
+        flips. Every step is a token.
+      </p>
+      <ul class="ramp__strip">
+        {
+          neutralRamp.map((entry) => (
+            <li class="ramp__item">
+              <span
+                class="ramp__chip"
+                style={`background-color: var(${entry.token})`}
+                aria-hidden="true"
+              />
+              <span class="ramp__step">{entry.step}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="scales">
+      <div class="scale">
+        <h3 class="scale__name">Typography scale</h3>
+        <p class="scale__note">
+          Nine steps on a single ramp, from <code>--font-size-xs</code> to
+          <code>--font-size-5xl</code>.
+        </p>
+        <ul class="type-list">
+          {
+            typeScale.map((token) => (
+              <li class="type-row">
+                <code class="type-row__token">{token}</code>
+                <span class="type-row__specimen" style={`font-size: var(${token})`}>
+                  Directive-first
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="scale">
+        <h3 class="scale__name">Spacing scale</h3>
+        <p class="scale__note">
+          Nine steps used for padding, gap and rhythm. Each bar is exactly as wide as its token.
+        </p>
+        <ul class="space-list">
+          {
+            spaceScale.map((token) => (
+              <li class="space-row">
+                <code class="space-row__token">{token}</code>
+                <span class="space-row__bar" style={`inline-size: var(${token})`} aria-hidden="true" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="customize">
+      <div class="customize__copy">
+        <h3 class="customize__title">Rebranding is one declaration</h3>
+        <p class="customize__body">
+          Components never reference a value directly, so overriding a token is enough to re-skin
+          every primitive that consumes it — including the ones you have not written yet.
+        </p>
+        <p class="customize__body">
+          The same mechanism is what makes theming work: light and dark are two sets of token values
+          behind the same names.
+        </p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block__bar">
+          <span class="code-block__mark" aria-hidden="true"></span>
+          <span>theme.css</span>
+          <span class="code-block__bar-text">customization</span>
+        </div>
+        <pre class="code"><code>{
+          customizationCode.map((line) => (
+            <span class="code__line code__indent" style={`--indent: ${line.indent}`}>
+              {line.tokens.map((token) => (
+                <span class={token.kind ? `code__${token.kind}` : undefined}>{token.text}</span>
+              ))}
+            </span>
+          ))
+        }</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  // ---------------------------------------------------------------------------
+  // Palette
+  // ---------------------------------------------------------------------------
+
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--layout-spec-min), 100%), 1fr));
+    gap: var(--space-xl);
+  }
+
+  .palette-group {
+    display: grid;
+    gap: var(--space-sm);
+    align-content: start;
+  }
+
+  .palette-group__name {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .palette-group__note {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .swatch-list {
+    display: grid;
+    gap: var(--space-px);
+    margin-top: var(--space-xs);
+  }
+
+  .swatch-row {
+    display: grid;
+    grid-template-columns: var(--space-lg) 1fr;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .swatch {
+    inline-size: var(--space-lg);
+    block-size: var(--space-lg);
+    border: var(--border-width-thin) var(--border-style) var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .swatch-row__token {
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Neutral ramp
+  // ---------------------------------------------------------------------------
+
+  .ramp {
+    display: grid;
+    gap: var(--space-sm);
+    margin-top: var(--space-2xl);
+  }
+
+  .ramp__name,
+  .scale__name {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .ramp__note,
+  .scale__note {
+    max-inline-size: var(--layout-measure);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // Grid rather than flex: auto-fit keeps every column the same width, so a
+  // partially filled last row cannot render wider chips than the rows above it.
+  .ramp__strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--space-2xl), 1fr));
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+  }
+
+  .ramp__item {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .ramp__chip {
+    block-size: var(--space-xl);
+    border: var(--border-width-thin) var(--border-style) var(--color-border);
+    border-radius: var(--radius-xs);
+  }
+
+  .ramp__step {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    text-align: center;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Type and space scales
+  // ---------------------------------------------------------------------------
+
+  .scales {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--layout-panel-min), 100%), 1fr));
+    gap: var(--space-2xl);
+    margin-top: var(--space-2xl);
+  }
+
+  .scale {
+    display: grid;
+    gap: var(--space-sm);
+    align-content: start;
+  }
+
+  .type-list {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-xs);
+  }
+
+  .type-row {
+    display: grid;
+    gap: var(--space-xs);
+    padding-bottom: var(--space-sm);
+    border-bottom: var(--border-width-thin) var(--border-style) var(--color-border);
+  }
+
+  .type-row__token {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  .type-row__specimen {
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .space-list {
+    display: grid;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+  }
+
+  .space-row {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .space-row__token {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  .space-row__bar {
+    display: block;
+    block-size: var(--space-sm);
+    border-radius: var(--radius-xs);
+    background-color: var(--color-primary);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Customization example
+  // ---------------------------------------------------------------------------
+
+  .customize {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--layout-panel-min), 100%), 1fr));
+    gap: var(--space-xl);
+    align-items: start;
+    margin-top: var(--space-3xl);
+  }
+
+  .customize__copy {
+    display: grid;
+    gap: var(--space-md);
+    align-content: start;
+  }
+
+  .customize__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .customize__body {
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+  }
+</style>

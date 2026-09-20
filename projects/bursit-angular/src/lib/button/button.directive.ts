@@ -10,6 +10,8 @@ import { ButtonColor } from './models/button-color.type';
     '[class.bursit-button-outline]': 'color() === "outline"',
     '[class.bursit-button-link]': 'color() === "link"',
     '[class.bursit-button-danger]': 'color() === "danger"',
+    '[class.bursit-button-ghost]': 'color() === "ghost"',
+    '[class.bursit-button-icon]': 'color() === "icon"',
   },
 })
 export class ButtonDirective {

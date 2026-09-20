@@ -1,0 +1,393 @@
+---
+// Theme handling. The comparison below is the real proof: identical markup,
+// rendered twice — once against `:root` and once against the `.dark` selector
+// that `bursit-ui-tokens` ships. Nothing in either panel is a hardcoded value.
+function toLines(source: string[]) {
+  return source.map((raw) => {
+    const trimmed = raw.trimStart();
+    return {
+      text: trimmed,
+      indent: Math.floor((raw.length - trimmed.length) / 2),
+      blank: trimmed.length === 0,
+    };
+  });
+}
+
+const themeSample = toLines([
+  "import { Component, inject } from '@angular/core';",
+  "import { BursitThemeService } from 'bursit-angular';",
+  '',
+  '@Component({ selector: \'app-shell\', template: \'...\' })',
+  'export class ShellComponent {',
+  '  readonly theme = inject(BursitThemeService);',
+  '',
+  '  switchToDark(): void {',
+  "    this.theme.setTheme('dark');",
+  '  }',
+  '',
+  '  cycle(): void {',
+  '    // light -> dark -> system -> light',
+  '    this.theme.toggle();',
+  '  }',
+  '}',
+]);
+
+const api = [
+  {
+    member: 'mode',
+    type: "Signal<'light' | 'dark' | 'system'>",
+    description: 'The mode that was requested, whether or not the user chose it explicitly.',
+  },
+  {
+    member: 'effectiveTheme',
+    type: "Signal<'light' | 'dark'>",
+    description: 'The resolved theme after the system preference has been taken into account.',
+  },
+  {
+    member: 'setTheme(theme)',
+    type: 'void',
+    description: 'Stores the choice, then applies the resolved theme to the document.',
+  },
+  {
+    member: 'toggle()',
+    type: 'void',
+    description: 'Cycles through light, dark and system in that order.',
+  },
+];
+
+const cycle = ['light', 'dark', 'system'];
+---
+
+<section class="section section--divided" id="theming" aria-labelledby="theming-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow">
+        <span class="eyebrow__index">05</span>
+        <span>Theming</span>
+        <span class="eyebrow__rule"></span>
+      </p>
+      <h2 class="section-title" id="theming-title">One attribute switches the whole interface</h2>
+      <p class="section-lead">
+        <code>BursitThemeService</code> resolves the requested mode and writes it to the
+        <code>bursit-theme</code> attribute on the document element. Because every component reads
+        tokens rather than values, that single attribute repaints everything.
+      </p>
+    </header>
+
+    <div class="theme-layout">
+      <div class="theme-copy">
+        <h3 class="theme-label">Service API</h3>
+        <dl class="api">
+          {
+            api.map((entry) => (
+              <div class="api__row">
+                <dt class="api__member">
+                  <code>{entry.member}</code>
+                </dt>
+                <dd class="api__detail">
+                  <span class="api__type">{entry.type}</span>
+                  <span class="api__description">{entry.description}</span>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <div class="cycle">
+          <p class="cycle__label">toggle()</p>
+          <ol class="cycle__track">
+            {
+              cycle.map((mode) => (
+                <li class="cycle__step">
+                  <code>{mode}</code>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <ul class="facts">
+          <li class="fact">
+            Persistence: the chosen mode is written to <code>localStorage</code> under
+            <code>bursit-theme</code> and restored on the next visit.
+          </li>
+          <li class="fact">
+            Application: the resolved theme is set as <code>bursit-theme</code> on
+            <code>&lt;html&gt;</code>, which is exactly what the token layer selects on.
+          </li>
+          <li class="fact">
+            System mode: a <code>prefers-color-scheme</code> listener keeps the interface in sync
+            until an explicit mode is chosen.
+          </li>
+        </ul>
+      </div>
+
+      <div class="theme-aside">
+        <h3 class="theme-label">Same markup, both themes</h3>
+
+        <div class="theme-preview">
+          <div class="preview">
+            <p class="preview__caption"><code>:root</code> — light</p>
+            <div class="preview__surface">
+              <p class="preview__eyebrow">surface / raised</p>
+              <p class="preview__title">Card title</p>
+              <p class="preview__text">Body copy on an elevated surface, one step above the page.</p>
+              <p class="preview__row">
+                <span class="btn btn--primary btn--sm">Primary</span>
+                <span class="chip chip--accent">subtle</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="preview dark">
+            <p class="preview__caption"><code>.dark</code> — dark</p>
+            <div class="preview__surface">
+              <p class="preview__eyebrow">surface / raised</p>
+              <p class="preview__title">Card title</p>
+              <p class="preview__text">Body copy on an elevated surface, one step above the page.</p>
+              <p class="preview__row">
+                <span class="btn btn--primary btn--sm">Primary</span>
+                <span class="chip chip--accent">subtle</span>
+              </p>
+            </div>
+          </div>
+
+          <p class="theme-preview__note">
+            Identical markup and identical classes. The right panel only adds the
+            <code>.dark</code> selector, so every token inside it re-resolves — including the ones
+            used by primitives this page has never rendered.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-sample">
+      <div class="code-block">
+        <div class="code-block__bar">
+          <span class="code-block__mark" aria-hidden="true"></span>
+          <span>shell.component.ts</span>
+          <span class="code-block__bar-text">typescript</span>
+        </div>
+        <pre class="code"><code>{
+          themeSample.map((line) => (
+            <span
+              class={`code__line code__indent${line.blank ? ' code__line--blank' : ''}`}
+              style={`--indent: ${line.indent}`}
+            >
+              {line.text}
+            </span>
+          ))
+        }</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .theme-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--layout-panel-min), 100%), 1fr));
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .theme-copy {
+    display: grid;
+    gap: var(--space-lg);
+    align-content: start;
+  }
+
+  .theme-aside {
+    display: grid;
+    gap: var(--space-md);
+    align-content: start;
+  }
+
+  .theme-label {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  // ---------------------------------------------------------------------------
+  // API list
+  // ---------------------------------------------------------------------------
+
+  .api {
+    display: grid;
+    gap: var(--space-px);
+    background-color: var(--color-border);
+  }
+
+  .api__row {
+    display: grid;
+    gap: var(--space-xs);
+    padding-block: var(--space-sm);
+    background-color: var(--color-bg);
+  }
+
+  .api__member code {
+    padding: var(--space-0);
+    border: none;
+    background-color: transparent;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .api__detail {
+    display: grid;
+    gap: var(--space-xs);
+    margin: var(--space-0);
+  }
+
+  .api__type {
+    color: var(--color-secondary-active);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+  }
+
+  .api__description {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Toggle cycle
+  // ---------------------------------------------------------------------------
+
+  .cycle {
+    display: grid;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: var(--border-width-thin) var(--border-style) var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-elevated);
+  }
+
+  .cycle__label {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+  }
+
+  .cycle__track {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .cycle__step {
+    color: var(--color-text-muted);
+
+    & + .cycle__step::before {
+      content: '→';
+      margin-inline-end: var(--space-sm);
+      color: var(--color-primary);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Facts
+  // ---------------------------------------------------------------------------
+
+  .facts {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .fact {
+    padding-inline-start: var(--space-md);
+    border-inline-start: var(--border-width-medium) var(--border-style)
+      var(--color-primary-alpha-20);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Live light / dark comparison
+  // ---------------------------------------------------------------------------
+
+  .theme-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+    gap: var(--space-md);
+    align-content: start;
+  }
+
+  .theme-preview__note {
+    grid-column: 1 / -1;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // The panel paints its own themed surface, so it reads as a real dark-mode
+  // viewport rather than a floating swatch on a light page.
+  .preview {
+    display: grid;
+    gap: var(--space-sm);
+    align-content: start;
+    padding: var(--space-md);
+    border: var(--border-width-thin) var(--border-style) var(--color-border);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-bg);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .preview__caption {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+  }
+
+  // The panel paints its own themed surface, so it reads as a real component
+  // preview rather than a swatch.
+  .preview__surface {
+    display: grid;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    border: var(--border-width-thin) var(--border-style) var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-elevated);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .preview__eyebrow {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--letter-spacing-wide);
+  }
+
+  .preview__title {
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .preview__text {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .preview__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+  }
+
+  .theme-sample {
+    margin-top: var(--space-2xl);
+  }
+</style>

@@ -22,7 +22,7 @@
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@lucide/angular": "^1.21.0",
-    "bursit-ui-tokens": "file:../bursit-ui-tokens",
+    "bursit-ui-tokens": "^1.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -54,5 +54,13 @@
   },
   "overrides": {
     "yargs": "18.0.0"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "lmdb@3.5.1": true,
+    "msgpackr-extract@3.0.3": true,
+    "unrs-resolver@1.11.1": true,
+    "@compodoc/compodoc@1.2.1": true,
+    "@parcel/watcher": true
   }
 }
