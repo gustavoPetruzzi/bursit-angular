@@ -832,3 +832,182 @@ artifact inside a gitignored directory.
 **Phase 5 complete — 6/6.** All four builds green; suite 27 suites / 322 passed / 2 skipped; harness 44 PASS / 0 FAIL exit 0; indigo/cyan sweep zero in product source; specs amended; contrast gate in CI with a RED→GREEN test. The whole change is now green on one tree for the first time. Phase 3's 3.3 toggle remains owed to the maintainer.
 
 **Next recommended**: `sdd-verify` for independent verification of the whole change.
+
+---
+
+# Correction — TC-05 Storybook chrome (task 3.1 amendment + task 3.3 close)
+
+**Date**: 2026-09-17
+**Branch**: `fix/rebrand-palette-chrome-tokens` (branched off the tracker `feat/rebrand-palette` at `34b8649`)
+**Mode**: Strict TDD is active (`openspec/config.yaml` → `strict_tdd: true`). This correction declares an honest deviation — no failing-first assertion exists for a manager-side value table. See "TDD obligation" below.
+**Artifact Store**: openspec (repo-local)
+**Scope**: one bounded correction — complete the TC-05 chrome tinting. `manager.ts` plus bookkeeping.
+**Working tree**: change left **uncommitted** for review and verification.
+
+## Summary
+
+Task 3.1 landed a `create()`-built theme that set only **8 colour vars** per mode. The other **13 colour vars plus both radii** silently inherited Storybook's own `themes.light`/`themes.dark`, so the chrome was only partially branded. This correction sets **every** colour var the manager theme accepts, and the built-artifact audit now shows **all 21 colour vars + 2 radii trace to shipped `bursit-ui-tokens@2.0.0` tokens, 0 untraceable**.
+
+Two things the earlier report got wrong, recorded here rather than glossed:
+
+1. **The enumeration in the launch brief was itself incomplete.** Besides the vars it named, **`buttonBg`, `buttonBorder`, `booleanBg` and `booleanSelectedBg`** were also inheriting stock colours. Confirmed against `ThemeVarsColors` (`node_modules/storybook/dist/theming/create.d.ts`) and the defaults chunk.
+2. **The previous verification could not have caught this.** It asserted the brand hexes were *present*; the defect is that stock colours were *absent from the checks, not from the bundle*. Presence and absence are different tests. This correction runs both, and the absence test is the one that bites — it fails 30/30 against the still-deployed preview bundle.
+
+## The defect, measured
+
+`Storybook's create()` merges `themes[vars.base]` under the caller's vars:
+
+```js
+barSelectedColor: vars.barSelectedColor || inherit.colorSecondary
+```
+
+so an unset `barSelectedColor` resolves to `colorSecondary`. Before this correction the built theme resolved it to `#3A6B9C` / `#7BA3CC` — brand-adjacent, but **not** the decided brand primary. Everything else unset stayed Storybook's.
+
+## The fix — full var → value → token mapping
+
+Every literal is copied from the installed `node_modules/bursit-ui-tokens/index.css` light `:root` layer and the `[bursit-theme=dark], .dark` layer, and names the token it traces to. The manager document is separate from the preview, so `var(--token)` cannot resolve there — literals are structurally required (design.md D6).
+
+| Manager var | Token | Light value | Dark value |
+|---|---|---|---|
+| `colorPrimary` | `--color-primary` | `#BA3B54` | `#E8A1AF` |
+| `colorSecondary` | `--color-secondary` | `#3A6B9C` | `#7BA3CC` |
+| `barSelectedColor` | `--color-primary` **(decided)** | `#BA3B54` | `#E8A1AF` |
+| `barHoverColor` | `--color-primary` | `#BA3B54` | `#E8A1AF` |
+| `appHoverBg` | `--color-primary-alpha-15` | `rgba(186, 59, 84, 0.15)` | `rgba(232, 161, 175, 0.15)` |
+| `appBg` | `--color-bg` | `#F9FAFB` | `#22282E` |
+| `appContentBg` | `--color-bg-elevated` | `#FFFFFF` | `#272E35` |
+| `appPreviewBg` | `--color-bg-elevated` | `#FFFFFF` | `#272E35` |
+| `barBg` | `--color-bg-elevated` | `#FFFFFF` | `#272E35` |
+| `buttonBg` | `--color-bg` | `#F9FAFB` | `#22282E` |
+| `booleanBg` | `--color-bg-sunken` | `#EFF2F5` | `rgba(17, 20, 24, 0.6)` |
+| `booleanSelectedBg` | `--color-bg-elevated` | `#FFFFFF` | `#272E35` |
+| `inputBg` | `--input-bg` (→ `--color-bg-elevated`) | `#FFFFFF` | `#272E35` |
+| `textColor` | `--color-text` | `#272E35` | `#F9FAFB` |
+| `textMutedColor` | `--color-text-muted` | `#505E6D` | `#9AA8B6` |
+| `barTextColor` | `--color-text-muted` | `#505E6D` | `#9AA8B6` |
+| `inputTextColor` | `--color-text` | `#272E35` | `#F9FAFB` |
+| `textInverseColor` | `--color-text-inverse` | `#FFFFFF` | `#22282E` |
+| `appBorderColor` | `--color-border` | `#DDE3E9` | `#313B44` |
+| `buttonBorder` | `--color-border-control` | `#647587` | `#9AA8B6` |
+| `inputBorder` | `--color-border-control` | `#647587` | `#9AA8B6` |
+| `appBorderRadius` | `--radius-md` (0.5rem → 8px) | `8` | `8` |
+| `inputBorderRadius` | `--radius-sm` (0.375rem → 6px) | `6` | `6` |
+
+`--color-primary-alpha-15`, `--color-bg-sunken` (dark), `--input-bg` and the two radii are exact tokens from the installed package; `--input-bg` is `var(--color-bg-elevated)` and resolves through one hop. **0 vars untraceable.**
+
+## Stock values present before, gone now
+
+Derived from Storybook's own defaults chunk (`chunk-IH6QJILI.js`, imported directly — not hand-copied) with the **old** `manager.ts` args read back via `git show HEAD:`, and `create()` re-run on them. **All 15 previously-inherited fields changed; none still resolves to a stock value.**
+
+| Var | Stock light | Stock dark | After light | After dark |
+|---|---|---|---|---|
+| `appHoverBg` | `#DBECFF` | `#233952` | `rgba(186, 59, 84, 0.15)` | `rgba(232, 161, 175, 0.15)` |
+| `appPreviewBg` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` | `#272E35` (was white in dark) |
+| `appBorderRadius` | `4` | `4` | `8` | `8` |
+| `textInverseColor` | `#FFFFFF` | `#1B1C1D` | `#FFFFFF` | `#22282E` |
+| `barTextColor` | `#5C6570` | `#95999D` | `#505E6D` | `#9AA8B6` |
+| `barHoverColor` | `#005CC7` | `#70B3FF` | `#BA3B54` | `#E8A1AF` |
+| `barSelectedColor` | `#0063D6` | `#479DFF` | `#BA3B54` | `#E8A1AF` |
+| `barBg` | `#FFFFFF` | `#222325` | `#FFFFFF` | `#272E35` |
+| `buttonBg` | `#F6F9FC` | `#1B1C1D` | `#F9FAFB` | `#22282E` |
+| `buttonBorder` | `#D9E5F2` | `hsl(0 0% 100% / 0.1)` | `#647587` | `#9AA8B6` |
+| `booleanBg` | `#ECF2F9` | `#1B1C1D` | `#EFF2F5` | `rgba(17, 20, 24, 0.6)` |
+| `booleanSelectedBg` | `#FFFFFF` | `#292B2E` | `#FFFFFF` | `#272E35` |
+| `inputBg` | `#FFFFFF` | `#1B1C1D` | `#FFFFFF` | `#272E35` |
+| `inputTextColor` | `#2E3338` | `#C9CCCF` | `#272E35` | `#F9FAFB` |
+| `inputBorderRadius` | `4` | `4` | `6` | `6` |
+
+Note on `barSelectedColor`: its *previous resolved* value was `#3A6B9C` / `#7BA3CC` (the `colorSecondary` fallback), not the stock hex — the stock column is what it would have been had `colorSecondary` also been unset.
+
+**Value coincidences, stated rather than hidden.** Six fields in the light mode land on the same value the stock theme used — `appContentBg`, `appPreviewBg`, `barBg`, `booleanSelectedBg`, `inputBg`, `textInverseColor`, all `#FFFFFF`. That is not a leftover: `#FFFFFF` is `--color-bg-elevated` / `--color-text-inverse` in light, and each field is now explicitly set to that token (proved by the same field resolving to `#272E35` / `#22282E` in dark). The distinction that matters is *inherited vs. assigned*: 0 fields are now inherited.
+
+**The only fields still supplied by Storybook are `fontBase` and `fontCode`.** Verified by re-running `create()` on the built args: 24 literal args → 26 runtime keys, the two extra being the two font stacks. They are fonts, not colours, and are deliberately out of this change's colour objective.
+
+## Work Unit Evidence
+
+| Evidence | Value |
+|----------|-------|
+| Focused test command and exact result | `npm run build-storybook` → **exit 0**, "Storybook build completed successfully"; output `storybook-static/`. This is the smallest command that proves the manager entry compiles and emits the theme. |
+| Runtime harness command/scenario and exact result | The built-theme audit (below) over `storybook-static/sb-addons/projects-bursit-angular-storybook-5/manager-bundle.js` → **RESULT: PASS — every colour var traces to a shipped token**, exit 0, 21/21 colour vars + 2/2 radii OK, 0 untraceable. Stock-absence audit → **RESULT: PASS — no colour var still resolves to a Storybook stock value**, exit 0, 15/15 previously-inherited fields changed. Supporting: `npm run test` → **27 suites / 322 passed / 2 skipped, exit 0**; `npm run check:contrast` → Group A **PASS 44 / FAIL 0 / MISSING 0**, Group B **PASS 25 / FAIL 0**, `Result: PASS`, exit 0. |
+| Rollback boundary | `projects/bursit-angular/.storybook/manager.ts` (the single source file; 63 insertions / 18 deletions). Reverting it restores the 9-var theme and nothing else in the tree is affected. The `.md` artifacts are bookkeeping and do not affect runtime. |
+
+### Built-theme dump (verbatim from the built artifact)
+
+Both theme objects are emitted unminified in the bundle:
+
+```
+i({base:"light",colorPrimary:"#BA3B54",colorSecondary:"#3A6B9C",barSelectedColor:"#BA3B54",
+   barHoverColor:"#BA3B54",appHoverBg:"rgba(186, 59, 84, 0.15)",appBg:"#F9FAFB",
+   appContentBg:"#FFFFFF",appPreviewBg:"#FFFFFF",barBg:"#FFFFFF",buttonBg:"#F9FAFB",
+   booleanBg:"#EFF2F5",booleanSelectedBg:"#FFFFFF",inputBg:"#FFFFFF",textColor:"#272E35",
+   textMutedColor:"#505E6D",barTextColor:"#505E6D",inputTextColor:"#272E35",
+   textInverseColor:"#FFFFFF",appBorderColor:"#DDE3E9",buttonBorder:"#647587",
+   inputBorder:"#647587",appBorderRadius:8,inputBorderRadius:6})
+d({base:"dark",colorPrimary:"#E8A1AF",colorSecondary:"#7BA3CC",barSelectedColor:"#E8A1AF",
+   barHoverColor:"#E8A1AF",appHoverBg:"rgba(232, 161, 175, 0.15)",appBg:"#22282E",
+   appContentBg:"#272E35",appPreviewBg:"#272E35",barBg:"#272E35",buttonBg:"#22282E",
+   booleanBg:"rgba(17, 20, 24, 0.6)",booleanSelectedBg:"#272E35",inputBg:"#272E35",
+   textColor:"#F9FAFB",textMutedColor:"#9AA8B6",barTextColor:"#9AA8B6",inputTextColor:"#F9FAFB",
+   textInverseColor:"#22282E",appBorderColor:"#313B44",buttonBorder:"#9AA8B6",
+   inputBorder:"#9AA8B6",appBorderRadius:8,inputBorderRadius:6})
+```
+
+The audit reads the bundle and `node_modules/bursit-ui-tokens/index.css`, resolves the token layers and `var()` chains independently, and compares. It hardcodes the *mapping*, not any value — so a wrong literal or a drifted token fails the run.
+
+## Deployed-preview absence test — FAILS, as expected
+
+`https://feat-rebrand-palette.bursit-angular.pages.dev/sb-addons/projects-bursit-angular-storybook-5/manager-bundle.js` → fetched OK (2030 bytes), audited with the same script: **30 vars untraceable, 0 traceable beyond the 8 the old theme set; 9 theme fields present, 13 colour fields absent**. That is the **pre-correction** build — this fix is uncommitted on `fix/rebrand-palette-chrome-tokens` and was never pushed or deployed, and this task forbids pushing. It is reported as measured, not rationalised: **the deployed preview does not satisfy the absence test, and will not until this branch is committed, merged to the tracker and redeployed.** `https://bursit-angular.pages.dev` was **not** used (pre-rebrand build).
+
+## TDD obligation — declared deviation, no invented test
+
+Strict TDD resolves as active, but no genuine failing-first assertion exists for this change, and saying otherwise would be dishonest:
+
+- **The unit under change is a value table consumed by Storybook's manager runtime.** `manager.ts` calls `addons.register` at import time and exports nothing. A Jest test would have to mock `storybook/manager-api` and `storybook/theming/create`, then assert the very literals the design fixes — a tautology of the deliverable, not a behavioural assertion.
+- **No runner reaches the artifact either.** Prettier/tsc type-check the file; Jest (jsdom) never loads the manager bundle; there is no visual-regression harness in this repo.
+- **The instruction to keep `npm run test` at exactly 27 suites / 322 passed / 2 skipped** rules out adding a suite without breaking a required invariant.
+
+**Compensation, not fallback.** The verifiable evidence is the **built-artifact audit**: it reads the *shipped* bundle, re-derives every token value from the *installed* package, and applies both a presence test and an absence test. Its RED is real and was **observed**: run against the deployed (pre-fix) bundle it exits **1 with 30 untraceable vars**; run against the built (post-fix) bundle it exits **0 with 0**. That is a genuine failing-then-passing instrument over the real artifact — the same instrument that failed to exist last time.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 3.1 amendment (full chrome tint) | none committed — declared deviation (built-artifact audit instead, kept out of the repo as a throwaway temp script) | Runtime / built-artifact + measurement | `npm run test` green (27/322/2) and `npm run check:contrast` 44 PASS before any edit | **Observed on the real artifact:** the same audit against the pre-fix deployed bundle → `RESULT: FAIL - 30 var(s) untraceable`, exit 1; static RED: 15 fields not set in `manager.ts` | `npm run build-storybook` exit 0; audit on the built bundle → `RESULT: PASS - every colour var traces to a shipped token`, exit 0; absence audit → `RESULT: PASS`, 15/15 inherited fields changed | **Two independent scripts over two artifacts** (built + deployed) × two modes = 4 runs; each of the 21 colour vars + 2 radii is checked against its *own* token's resolved value, so a single wrong literal fails | ➖ None needed (config slice); the audit script itself was corrected once when `dark_default` turned out not to be exported (`themes.dark` is) |
+| 3.3 (interactive toolbar toggle) | none — human observation | Runtime / manual browser | build half already proven (5.1) | ➖ Not applicable (a manual browser check is not RED-first) | Maintainer observed `system → light → dark` on the tracker preview; `dark` applies `bursitDark`; `system`/`light` are a no-op on a light-mode OS by construction | ➖ Single manual run | ➖ |
+
+## Deviations (correction)
+
+**C-1 — Four vars beyond the brief's enumeration were also stock and are now tokenised.** `buttonBg`, `buttonBorder`, `booleanBg`, `booleanSelectedBg`. The brief explicitly warned its list was not complete and to confirm against the chunk; these four are the gap. Leaving them would have failed the absence test.
+
+**C-2 — `inputBg` ← `--input-bg`, but `inputTextColor` ← `--color-text`, not `--input-color`.** Deliberate: measured from the stock theme, `inputTextColor` and `textColor` are **identical in both stock modes** (`#2E3338` light, `#C9CCCF` dark), so the role Storybook assigns is "body text", and `--color-text` is that token. Using `--input-color` (→ `--color-neutral-900`) would have produced `#EFF2F5` in dark — traceable, but not the role Storybook models.
+
+**C-3 — `buttonBorder` ← `--color-border-control`, so it equals `inputBorder`.** A manager push-button is a control, and `--color-border-control` is the package's own control-border token (the one `--input-border-color` resolves to). Stock Storybook already makes these two identical in dark (`hsl(0 0% 100% / 0.1)`), so the consolidation follows stock rather than diverging from it. Consequence to watch: the light `#647587` is a more visible border than stock's `#D9E5F2`.
+
+**C-4 — Radii ARE tokenised, so they are set, not left at Storybook's `4`.** `inputBorderRadius` ← `--radius-sm` is the package's `--input-border-radius` verbatim; `appBorderRadius` ← `--radius-md` is the package's panel radius (`--card-border-radius`, `--alert-border-radius`, `--toast-border-radius` and `--input-border-radius-lg` all resolve to it). Storybook's API takes a **unitless px number** while the tokens declare **rem**, so both values are an explicit 16px-root conversion (0.5rem → 8, 0.375rem → 6). This is a conversion, not an invented value.
+
+**C-5 — `barBg` is deliberately identical to `appContentBg` (both `--color-bg-elevated`).** The brief asked this be decided, not defaulted. Stock Storybook does exactly this — `barBg` and `appContentBg` are both `color.lightest` (`#FFFFFF`) in light and both `#222325` in dark. The shell and the content panels therefore do **not** separate from each other; they separate from the canvas, which is `appBg` (`--color-bg`: `#F9FAFB` light / `#22282E` dark). Choosing a different token for `barBg` (e.g. `--color-bg-sunken`) would have *inverted* stock's elevation relationship and made the sidebar darker than the canvas. State chosen: **mirror stock's hierarchy with brand tokens**, not invent a new one. `barTextColor` equally equals `textMutedColor` (`--color-text-muted`), which stock also did.
+
+**C-6 — `fontBase` / `fontCode` deliberately left on Storybook's stacks.** They are not colours, so they are outside the objective. Falling back to `--font-family-sans` / `--font-family-mono` would be a reasonable follow-up but is a scope expansion, not a fix to the reported defect. Flagged, not done.
+
+## Issues Found (correction)
+
+1. **The previously-shipped verification was structurally unable to find this defect.** It tested *presence* of brand values in the bundle. Stock colours coexisted with them, so presence passed while the chrome stayed half Storybook's. The absence test is now the load-bearing one, and it is the check that fails 30/30 on the currently deployed bundle.
+2. **The brief's stock-value list was incomplete** — four colour vars (`buttonBg`, `buttonBorder`, `booleanBg`, `booleanSelectedBg`) were unlisted and were discovered only by reading `ThemeVarsColors` in `create.d.ts` and the defaults chunk. The authoritative field list is the 25-key `ThemeVarsColors` interface, not any prose enumeration.
+3. **`dark_default` is not exported from the theming chunk** — only `themes` (and `create`) are. A verification script that imports `dark_default` fails; use `themes.dark`. Noted for whoever re-runs the audit.
+4. **The deployed preview is stale by construction** and cannot be evidence of this fix until the branch is committed, merged and redeployed. Reported rather than substituted with the production URL, which serves the pre-rebrand build.
+5. **`themes` is still destructured in the emitted bundle** (`{create:i,themes:ge}`) as webpack namespace destructuring, not a `themes.*` use — carried forward from Phase 3 issue 1.
+
+## Workload / PR Boundary (correction)
+
+- **Mode**: chained PR slice (`feature-branch-chain`) — a child of the Phase 3 chrome slice, targeting the tracker `feat/rebrand-palette`.
+- **Current work unit**: complete the TC-05 chrome tinting (task 3.1 amendment) and close task 3.3.
+- **Boundary**: starts at `34b8649` (tracker tip) with a 9-var theme and ends at a 21-colour-var + 2-radii theme whose built artifact audits clean. Nothing else is touched: no product component, no `checkbox.scss`, no harness, no workflow, no manifest, no lockfile.
+- **Review budget impact**: `manager.ts` = **81 changed lines** (63 insertions / 18 deletions). Bookkeeping in this file plus `tasks.md` is counted in the return envelope. No comments, blank lines or docs were removed or compressed to fit.
+
+## Status (correction)
+
+**Task 3.1 amended and task 3.3 closed — Phase 3 is now 3/3.** All 21 colour vars and both radii in the built manager theme trace to shipped `bursit-ui-tokens@2.0.0` tokens; no colour var still resolves to a Storybook stock value. `npm run build-storybook` exit 0; `npm run test` 27 suites / 322 passed / 2 skipped, exit 0; `npm run check:contrast` 44 PASS / 0 FAIL, exit 0. The change is **uncommitted** on `fix/rebrand-palette-chrome-tokens`.
+
+This supersedes the earlier tail of this document: the "only task still open anywhere in this change is Phase 3's 3.3 interactive toolbar toggle" line is now **false** — the maintainer observed that toggle on 2026-09-17 and it is recorded in `tasks.md`. Every task in this change is now `[x]`.
+
+**Next recommended**: `sdd-verify` for independent verification of this correction (re-run `npm run build-storybook`, `npm run test`, `npm run check:contrast`, and re-audit the built manager bundle for absence of stock colours), then archive.
