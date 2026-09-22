@@ -404,7 +404,11 @@ figcaption > code {
   inline-size: var(--space-sm);
   block-size: var(--space-sm);
   border-radius: var(--radius-xs);
-  background-image: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background-image: linear-gradient(
+    135deg,
+    var(--color-brand-mark-bright),
+    var(--color-brand-mark-deep)
+  );
 }
 
 .code-block__bar-text {

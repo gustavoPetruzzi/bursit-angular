@@ -12,6 +12,12 @@ module.exports = {
     { prefix: '<rootDir>/' }
   ),
   coverageDirectory: '<rootDir>/coverage',
+  // @angular-builders/jest injects its own testMatch - scoped to the project root and
+  // limited to [tj]s?(x) - so Jest's default patterns never apply under `npm run test`
+  // and `scripts/check-contrast.spec.mjs` would never be collected. The first entry
+  // restates the builder's pattern exactly (the library set is unchanged); the second one
+  // adds the contrast harness's behavioural contract test (rebrand-palette task 1.7).
+  testMatch: ['**/projects/bursit-angular/**/*(*.)@(spec|test).[tj]s?(x)', '**/scripts/**/*.spec.mjs'],
   collectCoverageFrom: [
     'projects/bursit-angular/src/lib/**/*.ts',
     '!projects/bursit-angular/src/lib/**/*.spec.ts',
