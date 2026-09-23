@@ -23,7 +23,7 @@
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@lucide/angular": "^1.21.0",
-    "bursit-ui-tokens": "^2.0.0",
+    "bursit-ui-tokens": "^3.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

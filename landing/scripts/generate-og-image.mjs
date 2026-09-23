@@ -28,7 +28,7 @@ const PALETTE = {
   textMuted: '#9aa8b6', // --color-text-muted (dark)
   textSubtle: '#9aa8b6', // --color-text-subtle (dark)
   border: '#313b44', // --color-border (dark)
-  primary: '#e8a1af', // --color-primary (dark)
+  primary: '#ebb2bd', // --color-primary (dark)
   secondary: '#7ba3cc', // --color-secondary (dark)
 };
 

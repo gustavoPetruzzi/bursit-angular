@@ -5,7 +5,7 @@ import { create } from 'storybook/theming/create';
 // var(--token) cannot resolve here; the literals below are structurally required in this file
 // (design.md D6). EVERY colour var Storybook's manager theme accepts is set explicitly, so no
 // colour falls through to Storybook's stock palette; each literal is copied from the installed
-// bursit-ui-tokens@2.0.0 light / dark layer and names the token it traces to.
+// bursit-ui-tokens@3.0.0 light / dark layer and names the token it traces to.
 //
 // `create()` resolves `barSelectedColor` to `colorSecondary` when it is not set, so it is set
 // here deliberately to the brand primary (maintainer decision, 2026-09-17).
@@ -17,11 +17,11 @@ import { create } from 'storybook/theming/create';
 const bursitLight = create({
   base: 'light',
   // Accents
-  colorPrimary: '#BA3B54', // --color-primary
+  colorPrimary: '#835A60', // --color-primary
   colorSecondary: '#3A6B9C', // --color-secondary
-  barSelectedColor: '#BA3B54', // --color-primary
-  barHoverColor: '#BA3B54', // --color-primary
-  appHoverBg: 'rgba(186, 59, 84, 0.15)', // --color-primary-alpha-15
+  barSelectedColor: '#835A60', // --color-primary
+  barHoverColor: '#835A60', // --color-primary
+  appHoverBg: 'rgba(131, 90, 96, 0.15)', // --color-primary-alpha-15
   // Surfaces
   appBg: '#F9FAFB', // --color-bg
   appContentBg: '#FFFFFF', // --color-bg-elevated
@@ -48,11 +48,11 @@ const bursitLight = create({
 
 const bursitDark = create({
   base: 'dark',
-  colorPrimary: '#E8A1AF', // --color-primary
+  colorPrimary: '#EBB2BD', // --color-primary
   colorSecondary: '#7BA3CC', // --color-secondary
-  barSelectedColor: '#E8A1AF', // --color-primary
-  barHoverColor: '#E8A1AF', // --color-primary
-  appHoverBg: 'rgba(232, 161, 175, 0.15)', // --color-primary-alpha-15
+  barSelectedColor: '#EBB2BD', // --color-primary
+  barHoverColor: '#EBB2BD', // --color-primary
+  appHoverBg: 'rgba(235, 178, 189, 0.15)', // --color-primary-alpha-15
   appBg: '#22282E', // --color-bg
   appContentBg: '#272E35', // --color-bg-elevated
   appPreviewBg: '#272E35', // --color-bg-elevated
