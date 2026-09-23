@@ -20,7 +20,7 @@ npm run build-storybook # Build static Storybook
   - `src/public-api.ts` — public surface
 - **`projects/bursit-angular/schematics/`** — Angular CLI schematics
 - **`dist/`** — build output (not committed, generated on `npm run build`)
-- **`bursit-ui-tokens`** — external design token package, consumed from the npm registry as `^2.0.0`
+- **`bursit-ui-tokens`** — external design token package, consumed from the npm registry as `^3.0.0`
 
 ## Project Conventions
 

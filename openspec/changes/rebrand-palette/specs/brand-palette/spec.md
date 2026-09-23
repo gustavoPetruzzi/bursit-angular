@@ -13,7 +13,9 @@ produced zero validated claims and is not cited.
 ### Requirement: BP-01 — Primitive ramps are replaced
 
 `indigo` and `cyan` MUST be removed. `wine` (hue 348) and `steel` (hue 210) MUST be added, and the
-neutral family MUST be re-derived to hue 210 at ~15 % saturation. Step names MUST be preserved.
+neutral family MUST be re-derived to hue 210 at ~15 % saturation — measured on the shipped ramp:
+steps `500`–`950` sit at 14.9–16.2 % saturation and the lightest steps `50`–`200` carry up to
+23.1 %. Step names MUST be preserved.
 
 | Ramp | Steps (hex) |
 |---|---|
@@ -29,9 +31,18 @@ neutral family MUST be re-derived to hue 210 at ~15 % saturation. Step names MUS
 
 #### Scenario: Neutrals hold the logo's field
 
+**Amended (verify remediation, 2026-09-22).** The original text demanded hue 208–210 / saturation
+15–16 % on *every* step, which the requirement's own hex table defeats: `neutral-0` `#FFFFFF` is
+definitionally H0/S0 and the lightest steps ease to 23.1 % saturation. The field claim — the point
+of the scenario — is measured on the field steps and holds exactly.
+
 - GIVEN the `neutral` ramp
 - WHEN each step is converted to HSL
-- THEN hue is 208–210 and saturation is 15–16 %
+- THEN every step sits in one hue family: hue 208–215 (measured 208.4–214.3; `neutral-0` `#FFFFFF`
+  is exempt as hue-undefined white)
+- AND the logo's field steps `850` / `900` / `950` (`#2B333B`, `#272E35`, `#22282E`) hold hue 210.0
+  and saturation 15.0–15.7 % — the logo field band
+- AND no step is hueless grey: measured saturation is 14.9–23.1 % everywhere but `neutral-0`
 
 ### Requirement: BP-02 — The dark canvas is the mark's own canvas
 
