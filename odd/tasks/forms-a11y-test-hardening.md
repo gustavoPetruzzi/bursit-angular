@@ -136,6 +136,72 @@ The writer contradicted this plan in three places. The plan was wrong; the recor
 - [x] `npm run test` full suite green — 27 suites, 340 passed, 2 skipped, no regressions.
 - [x] `npm run build` succeeds.
 
+## Part 2 — select parity (same branch)
+
+The same dangling-`aria-describedby` defect existed on `select.ts:307-309`, which
+hardcoded both ids. Fixed, and the id-resolution extracted so there is exactly one
+implementation instead of two copies.
+
+### Added
+
+- `forms/aria-describedby.ts` — new pure `resolveAriaDescribedBy(fieldEl, fieldId)`.
+  No Angular imports, unit-testable with plain DOM. Extracted from `input.directive.ts`.
+- `forms/aria-describedby.spec.ts` — 10 specs, no TestBed.
+- `forms/select/select.spec.ts:1233-1379` — new `AriaHostComponent` plus 8 specs.
+
+### Changed
+
+- `forms/select/select.ts:305-317` — `_wireAriaDescribedBy()` now bails when the trigger
+  already carries `aria-describedby`, then resolves through the helper and sets the
+  attribute only when non-null.
+- `forms/input/input.directive.ts:128-136` — pure move onto the helper, no behaviour
+  change. The `!fieldEl` early return is subsumed by the helper's own guard.
+
+### Not touched, deliberately
+
+- `select.ts:288-295` `aria-labelledby` — already correctly guarded against an existing
+  `aria-label` and `aria-labelledby`. An earlier exploration report wrongly called it
+  unconditional; re-reading the source proved otherwise.
+- `select.html:11-12` `aria-required` / `aria-invalid` — already `|| null`.
+
+### Verification
+
+| Command | Observed |
+| --- | --- |
+| New select specs, before the fix (RED) | 4 failed, 81 passed, 85 total |
+| `select.spec` + `aria-describedby.spec` after (GREEN) | **95 passed, 95 total** |
+| `input.directive.spec` regression gate | **17 passed** — unchanged from baseline |
+| `npm run test` (repo root) | **28 suites passed**, 2 skipped, 358 passed, 360 total |
+| `npm run build` (repo root) | succeeded |
+
+The RED case that proves the defect is not theoretical: with a valid control, the DOM had
+no `#bursit-field-8-error` while the attribute still read
+`"bursit-field-8-error bursit-field-8-message"`.
+
+## Open defect — duplicate DOM ids (found, verified, NOT fixed)
+
+`form-field.html:8` stamps `[id]="fieldId + '-error'"` on the slot **wrapper div**, and
+`error.component.ts:19` stamps the **same** id on the projected element. Same for message
+at `form-field.html:12` and `message.component.ts:19`.
+
+So when an author projects `<span bursitError>` without an explicit `id`, the DOM ships
+two elements with `id="bursit-field-N-error"`. That is invalid HTML, and it makes
+`aria-describedby` resolve ambiguously — `getElementById` returns the first match, which is
+the **empty wrapper**, not the error text.
+
+This is arguably worse than the dangling reference this feature set out to fix: a dangling
+id is announced as missing, whereas a duplicate is resolved to the wrong (empty) element.
+
+Two candidate resolutions, not yet decided:
+
+1. Drop the ids from the wrapper divs in `form-field.html`, leaving them only on the
+   projected components. One file, but an empty slot then carries no id at all.
+2. Drop the ids from `error.component.ts` / `message.component.ts`, leaving them on the
+   wrappers. Two files, but the wrapper always exists while the field is invalid, so the
+   reference is stable even when the author projects nothing.
+
+Needs a decision before implementation.
+
 ## Out of scope
 
 - Fixing `--space-2xs` in `src/styles/_label.scss:7` (separate live regression from the

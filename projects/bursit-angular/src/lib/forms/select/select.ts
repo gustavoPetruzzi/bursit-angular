@@ -21,6 +21,7 @@ import { ConnectedPosition, OverlayModule, ScrollStrategyOptions } from '@angula
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { BursitIconComponent } from '../../icon';
 import { BURSIT_SELECT } from './select-token';
+import { resolveAriaDescribedBy } from '../aria-describedby';
 import type { Option } from '../option/option';
 
 @Component({
@@ -304,9 +305,15 @@ export class Select
 
   private _wireAriaDescribedBy(): void {
     const el = this.trigger().nativeElement;
-    const userSet = el.getAttribute('aria-describedby');
-    if (!userSet && this._fieldId) {
-      el.setAttribute('aria-describedby', `${this._fieldId}-error ${this._fieldId}-message`);
+    if (el.getAttribute('aria-describedby')) {
+      return;
+    }
+
+    const fieldEl = el.closest('bursit-form-field') as HTMLElement | null;
+    const describedBy = resolveAriaDescribedBy(fieldEl, this._fieldId);
+
+    if (describedBy !== null) {
+      el.setAttribute('aria-describedby', describedBy);
     }
   }
 

@@ -7,6 +7,9 @@ import { Select } from './select';
 import { Option } from '../option/option';
 import { FormField } from '../form-field/form-field';
 import { FormFieldTypes } from '../form-field/form-field-types.enum';
+import { LabelDirective } from '../label/label.directive';
+import { ErrorComponent } from '../error/error.component';
+import { MessageComponent } from '../message/message.component';
 
 interface TestOptionConfig {
   value: string;
@@ -1189,3 +1192,160 @@ function selectIsOpen(fixture: ComponentFixture<OptionsTestHostComponent>): bool
   const selectDebug = fixture.debugElement.query(By.directive(Select));
   return (selectDebug.componentInstance as Select).isOpen();
 }
+
+// ---------------------------------------------------------------------------
+// Tests — ARIA describedby contract (only projected slots are referenced)
+// ---------------------------------------------------------------------------
+
+@Component({
+  template: `
+    <bursit-form-field>
+      <label bursitLabel>Country</label>
+      <bursit-select [formControl]="control" [validationInteraction]="validationInteraction">
+        <bursit-option value="a">Alpha</bursit-option>
+        <bursit-option value="b">Beta</bursit-option>
+      </bursit-select>
+      @if (showError) {
+        <span bursitError>Country is required</span>
+      }
+      @if (showMessage) {
+        <span bursitMessage>Pick one of the available countries</span>
+      }
+    </bursit-form-field>
+  `,
+  imports: [
+    ReactiveFormsModule,
+    FormField,
+    Select,
+    Option,
+    LabelDirective,
+    ErrorComponent,
+    MessageComponent,
+  ],
+})
+class AriaHostComponent {
+  control = new FormControl<string | null>(null, [Validators.required]);
+  validationInteraction: 'default' | 'touched' = 'default';
+  showError = false;
+  showMessage = false;
+}
+
+describe('Select — aria-describedby contract', () => {
+  function create(config?: {
+    value?: string;
+    validationInteraction?: 'default' | 'touched';
+    showError?: boolean;
+    showMessage?: boolean;
+  }) {
+    TestBed.configureTestingModule({ imports: [AriaHostComponent] });
+
+    const fixture = TestBed.createComponent(AriaHostComponent);
+    const host = fixture.componentInstance;
+
+    if (config?.value !== undefined) host.control.setValue(config.value);
+    if (config?.validationInteraction !== undefined) {
+      host.validationInteraction = config.validationInteraction;
+    }
+    if (config?.showError !== undefined) host.showError = config.showError;
+    if (config?.showMessage !== undefined) host.showMessage = config.showMessage;
+
+    fixture.detectChanges();
+
+    const selectDebug = fixture.debugElement.query(By.directive(Select));
+    const select = selectDebug.componentInstance as Select;
+    const fieldEl = fixture.nativeElement.querySelector('bursit-form-field') as HTMLElement;
+    const trigger = selectEl(selectDebug.nativeElement as HTMLElement);
+
+    return { fixture, host, select, fieldEl, trigger };
+  }
+
+  function selectEl(host: HTMLElement): HTMLElement {
+    return host.querySelector('.bursit-select-trigger') as HTMLElement;
+  }
+
+  it('should not emit aria-describedby when neither error nor message is projected', () => {
+    const { fieldEl, trigger } = create({ value: 'a' });
+
+    expect(fieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(fieldEl.querySelector('[bursitMessage]')).toBeNull();
+    expect(trigger.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('should reference only the message id when a message is projected', () => {
+    const { fieldEl, trigger } = create({ value: 'a', showMessage: true });
+
+    const fieldId = trigger.id;
+    expect(fieldId).toMatch(/^bursit-field-\d+$/);
+    expect(fieldEl.querySelector('[bursitMessage]')).toBeTruthy();
+    expect(trigger.getAttribute('aria-describedby')).toBe(`${fieldId}-message`);
+  });
+
+  it('should reference only the error id when an error is projected', () => {
+    const { fieldEl, trigger } = create({
+      value: null,
+      validationInteraction: 'default',
+      showError: true,
+    });
+
+    const fieldId = trigger.id;
+    expect(fieldEl.querySelector('[bursitError]')).toBeTruthy();
+    expect(trigger.getAttribute('aria-describedby')).toBe(`${fieldId}-error`);
+  });
+
+  it('should reference both ids when an error and a message are projected', () => {
+    const { trigger } = create({
+      value: null,
+      validationInteraction: 'default',
+      showError: true,
+      showMessage: true,
+    });
+
+    const fieldId = trigger.id;
+    expect(trigger.getAttribute('aria-describedby')).toBe(`${fieldId}-error ${fieldId}-message`);
+  });
+
+  it('should not reference the error id while the control is valid, even if an error is projected', () => {
+    const { fieldEl, trigger } = create({ value: 'a', showError: true });
+
+    const fieldId = trigger.id;
+    // The form-field only renders the error slot while the control is invalid.
+    expect(fieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(fieldEl.querySelector(`#${fieldId}-error`)).toBeNull();
+    expect(trigger.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('should only reference ids that exist in the rendered DOM', () => {
+    const { fieldEl, trigger } = create({
+      value: null,
+      validationInteraction: 'default',
+      showError: true,
+      showMessage: true,
+    });
+
+    const describedBy = trigger.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+
+    const ids = describedBy!.split(' ').filter(Boolean);
+    expect(ids.length).toBe(2);
+    ids.forEach((id) => expect(document.getElementById(id)).toBeTruthy());
+    expect(fieldEl.querySelector('[bursitError]')).toBeTruthy();
+    expect(fieldEl.querySelector('[bursitMessage]')).toBeTruthy();
+  });
+
+  it('should not override an author-provided aria-describedby', () => {
+    const { select, trigger } = create({ value: null, showError: true, showMessage: true });
+
+    trigger.setAttribute('aria-describedby', 'custom-hint');
+    select.ngAfterViewInit();
+
+    expect(trigger.getAttribute('aria-describedby')).toBe('custom-hint');
+  });
+
+  it('should stay within the form-field without touching aria-labelledby or aria-required', () => {
+    const { trigger } = create({ value: 'a', showMessage: true });
+
+    const fieldId = trigger.id;
+    expect(trigger.getAttribute('aria-labelledby')).toBe(`${fieldId}-label`);
+    expect(trigger.getAttribute('aria-required')).toBeNull();
+  });
+});

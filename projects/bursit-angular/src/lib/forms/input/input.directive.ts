@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 import { FormFieldControl } from '../form-field';
 import { FormFieldTypes } from '../form-field/form-field-types.enum';
 import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
+import { resolveAriaDescribedBy } from '../aria-describedby';
 import { NgControl } from '@angular/forms';
 
 @Directive({
@@ -127,24 +128,10 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     }
 
     const fieldEl = this.el.nativeElement.closest('bursit-form-field') as HTMLElement | null;
-    if (!fieldEl) {
-      return;
-    }
+    const describedBy = resolveAriaDescribedBy(fieldEl, this._fieldId);
 
-    // Only a projected <span bursitError> / <span bursitMessage> receives the
-    // `${fieldId}-error` / `${fieldId}-message` id, so an unprojected slot must
-    // not be referenced: a dangling aria-describedby id is announced as a
-    // missing description by assistive technology.
-    const ids: string[] = [];
-    if (fieldEl.querySelector('[bursitError], [bursit-error]')) {
-      ids.push(`${this._fieldId}-error`);
-    }
-    if (fieldEl.querySelector('[bursitMessage], [bursit-message]')) {
-      ids.push(`${this._fieldId}-message`);
-    }
-
-    if (ids.length) {
-      this.el.nativeElement.setAttribute('aria-describedby', ids.join(' '));
+    if (describedBy !== null) {
+      this.el.nativeElement.setAttribute('aria-describedby', describedBy);
     }
   }
 
