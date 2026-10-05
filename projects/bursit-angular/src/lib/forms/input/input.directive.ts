@@ -10,6 +10,7 @@ import {
   ElementRef,
   OnInit,
   OnDestroy,
+  afterRenderEffect,
   inject,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -24,7 +25,9 @@ import { NgControl } from '@angular/forms';
     class: 'bursit-input', 
     '[disabled]': 'disabled()',
     '[attr.aria-required]': 'required()',
-    '[attr.aria-invalid]': 'invalid()'
+    // Coerced so the attribute is absent when valid, matching checkbox and select.
+    // aria-required stays a raw boolean because "false" is valid, meaningful ARIA.
+    '[attr.aria-invalid]': 'invalid() ? true : null'
   },
   providers: [
     {
@@ -47,11 +50,20 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
   disabled = model<boolean>(false);
 
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
+  private _userAriaDescribedBy: string | null = null;
+  private _appliedAriaDescribedBy: string | null = null;
 
   constructor(
     private readonly el: ElementRef,
     @Self() @Optional() public control: NgControl,
-  ) {}
+  ) {
+    // Runs in the render phase, after the form-field template has projected the
+    // error/message slots, so the queried ids match the rendered DOM.
+    afterRenderEffect(() => {
+      this.invalid();
+      this._syncAriaDescribedBy();
+    });
+  }
 
   @HostListener('mouseover') onMouseOver() {
     this.hovered.set(true);
@@ -80,6 +92,8 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     this.invalid.set(this.isInputInvalid());
 
     this._wireId();
+
+    this._userAriaDescribedBy = this.el.nativeElement.getAttribute('aria-describedby');
     this._wireAriaDescribedBy();
 
     if (this.control) {
@@ -104,13 +118,53 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
   }
 
   private _wireAriaDescribedBy(): void {
-    const userSet = this.el.nativeElement.getAttribute('aria-describedby');
-    if (!userSet && this._fieldId) {
-      this.el.nativeElement.setAttribute(
-        'aria-describedby',
-        `${this._fieldId}-error ${this._fieldId}-message`,
-      );
+    if (this._userAriaDescribedBy !== null) {
+      return;
     }
+
+    if (!this._fieldId) {
+      return;
+    }
+
+    const fieldEl = this.el.nativeElement.closest('bursit-form-field') as HTMLElement | null;
+    if (!fieldEl) {
+      return;
+    }
+
+    // Only a projected <span bursitError> / <span bursitMessage> receives the
+    // `${fieldId}-error` / `${fieldId}-message` id, so an unprojected slot must
+    // not be referenced: a dangling aria-describedby id is announced as a
+    // missing description by assistive technology.
+    const ids: string[] = [];
+    if (fieldEl.querySelector('[bursitError], [bursit-error]')) {
+      ids.push(`${this._fieldId}-error`);
+    }
+    if (fieldEl.querySelector('[bursitMessage], [bursit-message]')) {
+      ids.push(`${this._fieldId}-message`);
+    }
+
+    if (ids.length) {
+      this.el.nativeElement.setAttribute('aria-describedby', ids.join(' '));
+    }
+  }
+
+  private _syncAriaDescribedBy(): void {
+    if (this._userAriaDescribedBy !== null) {
+      return;
+    }
+
+    // Adopt any value the author introduced after init (template binding or a
+    // direct attribute write) so the effect never clobbers author intent.
+    const current = this.el.nativeElement.getAttribute('aria-describedby');
+    if (current !== null && current !== this._appliedAriaDescribedBy) {
+      this._userAriaDescribedBy = current;
+      return;
+    }
+
+    this.el.nativeElement.removeAttribute('aria-describedby');
+    this._appliedAriaDescribedBy = null;
+    this._wireAriaDescribedBy();
+    this._appliedAriaDescribedBy = this.el.nativeElement.getAttribute('aria-describedby');
   }
 
   private inputHasValue() {
