@@ -4,6 +4,8 @@ import { Checkbox } from './checkbox';
 import { Form, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Component, signal } from '@angular/core';
 import { FormField } from '../form-field';
+import { ErrorComponent } from '../error/error.component';
+import { MessageComponent } from '../message/message.component';
 
 
 @Component({
@@ -83,9 +85,26 @@ describe('Checkbox', () => {
 
     expect(host.control.touched).toBe(true);
   });
+
+  it('should not set aria-describedby when used outside a form-field', () => {
+    const { checkboxEl } = setup();
+    const input = checkboxEl.querySelector('input');
+
+    expect(input?.closest('bursit-form-field')).toBeNull();
+    expect(input?.getAttribute('aria-describedby')).toBeNull();
+  });
 });
 
-function createFormFieldHost(control: FormControl<boolean>, validationInteraction: 'default' | 'touched') {
+interface FormFieldHostSlots {
+  showError?: boolean;
+  showMessage?: boolean;
+}
+
+function createFormFieldHost(
+  control: FormControl<boolean>,
+  validationInteraction: 'default' | 'touched',
+  slots: FormFieldHostSlots = {},
+) {
   @Component({
     template: `
       <bursit-form-field>
@@ -95,13 +114,21 @@ function createFormFieldHost(control: FormControl<boolean>, validationInteractio
         >
           I accept the terms and conditions
         </bursit-checkbox>
+        @if (showError) {
+          <span bursitError>You must accept the terms and conditions</span>
+        }
+        @if (showMessage) {
+          <span bursitMessage>We never share your preferences</span>
+        }
       </bursit-form-field>
     `,
-    imports: [ReactiveFormsModule, FormField, Checkbox]
+    imports: [ReactiveFormsModule, FormField, Checkbox, ErrorComponent, MessageComponent],
   })
   class WrapperComponent {
     control = control;
     validationInteraction = validationInteraction;
+    showError = slots.showError ?? false;
+    showMessage = slots.showMessage ?? false;
   }
 
   const fixture = TestBed.createComponent(WrapperComponent);
@@ -174,15 +201,19 @@ describe('Checkbox in FormField', () => {
     expect(input?.getAttribute('aria-invalid')).toBeNull();
   });
 
-  it('should wire aria-describedby with the field id when user has not set it', () => {
+  it('should NOT set aria-describedby when neither an error nor a message is projected', () => {
     const control = new FormControl(false, [Validators.requiredTrue]) as FormControl;
-    const { checkboxEl } = createFormFieldHost(control, 'touched');
+    const { checkboxEl, formFieldEl } = createFormFieldHost(control, 'touched');
     const input = checkboxEl.querySelector('input');
 
     const fieldId = input?.id;
     expect(fieldId).toBeTruthy();
-    expect(input?.getAttribute('aria-describedby')).toBe(`${fieldId}-error`);
-
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(formFieldEl.querySelector('[bursitMessage]')).toBeNull();
+    // A dangling reference is announced by assistive technology as a missing
+    // description, so the attribute must stay absent rather than name an id that
+    // is not in the DOM.
+    expect(input?.getAttribute('aria-describedby')).toBeNull();
   });
 
   it('should propagate disabled state to the form-field host class', () => {
@@ -194,7 +225,107 @@ describe('Checkbox in FormField', () => {
     control.disable();
     fixture.detectChanges();
 
-    expect(formFieldEl.classList.contains('bursit-form-field-disabled')).toBe(true);
+expect(formFieldEl.classList.contains('bursit-form-field-disabled')).toBe(true);
 
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — ARIA describedby contract (only projected slots are referenced)
+// ---------------------------------------------------------------------------
+
+describe('Checkbox — aria-describedby contract', () => {
+  function create(config?: {
+    value?: boolean;
+    validationInteraction?: 'default' | 'touched';
+    showError?: boolean;
+    showMessage?: boolean;
+  }) {
+    const control = new FormControl(config?.value ?? false, [
+      Validators.requiredTrue,
+    ]) as FormControl<boolean>;
+
+    const { fixture, checkbox, checkboxEl, formFieldEl } = createFormFieldHost(
+      control,
+      config?.validationInteraction ?? 'default',
+      { showError: config?.showError, showMessage: config?.showMessage },
+    );
+
+    const input = checkboxEl.querySelector('input') as HTMLInputElement;
+
+    return { fixture, control, checkbox, checkboxEl, formFieldEl, input };
+  }
+
+  it('should not emit aria-describedby when neither error nor message is projected', () => {
+    const { formFieldEl, input } = create({ value: true });
+
+    expect(input.id).toMatch(/^bursit-field-\d+$/);
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(formFieldEl.querySelector('[bursitMessage]')).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('should reference only the error id when an error is projected', () => {
+    const { formFieldEl, input } = create({ value: false, showError: true });
+
+    const fieldId = input.id;
+    expect(formFieldEl.querySelector('[bursitError]')).toBeTruthy();
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-error`);
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeTruthy();
+  });
+
+  it('should reference only the message id when a message is projected', () => {
+    const { formFieldEl, input } = create({ value: true, showMessage: true });
+
+    const fieldId = input.id;
+    expect(formFieldEl.querySelector('[bursitMessage]')).toBeTruthy();
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-message`);
+    expect(formFieldEl.querySelector(`#${fieldId}-message`)).toBeTruthy();
+  });
+
+  it('should reference both ids when an error and a message are projected', () => {
+    const { formFieldEl, input } = create({ value: false, showError: true, showMessage: true });
+
+    const fieldId = input.id;
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-error ${fieldId}-message`);
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeTruthy();
+    expect(formFieldEl.querySelector(`#${fieldId}-message`)).toBeTruthy();
+  });
+
+  it('should not reference the error id while the control is valid, even if an error is projected', () => {
+    const { formFieldEl, input } = create({ value: true, showError: true });
+
+    const fieldId = input.id;
+    // The form-field only renders the error slot while the control is invalid.
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('should only reference ids that exist in the rendered DOM', () => {
+    const { formFieldEl, input } = create({ value: false, showError: true, showMessage: true });
+
+    const describedBy = input.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+
+    const ids = (describedBy as string).split(' ').filter(Boolean);
+    expect(ids.length).toBe(2);
+    ids.forEach((id) => expect(formFieldEl.querySelector(`#${id}`)).toBeTruthy());
+    expect(formFieldEl.querySelector('[bursitError]')).toBeTruthy();
+    expect(formFieldEl.querySelector('[bursitMessage]')).toBeTruthy();
+  });
+
+  it('should not override an author-provided aria-describedby', () => {
+    const { checkbox, formFieldEl, input } = create({
+      value: false,
+      showError: true,
+      showMessage: true,
+    });
+
+    input.setAttribute('aria-describedby', 'custom-hint');
+    checkbox.ngAfterViewInit();
+
+    expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
+    expect(formFieldEl.querySelector('#custom-hint')).toBeNull();
   });
 });

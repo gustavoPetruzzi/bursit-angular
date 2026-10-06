@@ -202,6 +202,117 @@ Two candidate resolutions, not yet decided:
 
 Needs a decision before implementation.
 
+## Part 3 — checkbox parity (same branch)
+
+The last control still hardcoding a describedby id was `checkbox.ts:129-138`, which wrote
+`${fieldId}-error` unconditionally. Migrated onto the same shared helper, so all three
+controls now resolve describedby through one implementation.
+
+### Changed
+
+- `forms/checkbox/checkbox.ts:130-141` — `_wireAriaDescribedBy()` now mirrors
+  `select.ts:306-318` exactly: early-return when the input already carries
+  `aria-describedby`, then `closest('bursit-form-field')` → `resolveAriaDescribedBy()`,
+  and set the attribute only when the result is non-null. The `!el` arm is the one
+  deliberate difference from select: `inputEl()` is a `viewChild` that can be undefined,
+  whereas select's `trigger()` is non-optional.
+- `forms/checkbox/checkbox.spec.ts` — `createFormFieldHost()` gained an optional third
+  `slots` argument so a host can project `[bursitError]` / `[bursitMessage]`; existing
+  call sites are unchanged and default to projecting nothing.
+
+### A test that encoded the bug
+
+`checkbox.spec.ts:177-186` asserted `aria-describedby === "${fieldId}-error"` from a host
+projecting **neither** slot. The assertion was wrong, not the intent: it is what kept the
+defect alive. Rewritten to `should NOT set aria-describedby when neither an error nor a
+message is projected`, asserting the attribute is absent.
+
+### Added — 8 specs
+
+| Spec | Proves |
+| --- | --- |
+| nothing projected | attribute absent |
+| error only | exactly `${fieldId}-error`, and `#${fieldId}-error` resolves |
+| message only | exactly `${fieldId}-message`, and `#${fieldId}-message` resolves |
+| both | exactly `${fieldId}-error ${fieldId}-message`, both ids resolve |
+| error projected, control valid | attribute absent, error slot not rendered |
+| both projected | every id in the attribute resolves via `fieldEl.querySelector('#'+id)` |
+| author-provided value | untouched after re-running `ngAfterViewInit()` |
+| used outside a form-field | attribute absent (covers the `fieldEl === null` branch) |
+
+Every id assertion resolves against the rendered DOM rather than only string-comparing
+the attribute, so a dangling reference cannot pass.
+
+### RED evidence (before the `checkbox.ts` change)
+
+`6 failed, 13 passed, 19 total`. Real diffs:
+
+```
+● should NOT set aria-describedby when neither an error nor a message is projected
+  expect(received).toBeNull()
+  Received: "bursit-field-5-error"
+
+● should not emit aria-describedby when neither error nor message is projected
+  expect(received).toBeNull()
+  Received: "bursit-field-7-error"
+
+● should reference only the message id when a message is projected
+  Expected: "bursit-field-9-message"
+  Received: "bursit-field-9-error"
+
+● should reference both ids when an error and a message are projected
+  Expected: "bursit-field-10-error bursit-field-10-message"
+  Received: "bursit-field-10-error"
+
+● should not reference the error id while the control is valid, even if an error is projected
+  expect(received).toBeNull()
+  Received: "bursit-field-11-error"
+
+● should only reference ids that exist in the rendered DOM
+  Expected: 2
+  Received: 1
+```
+
+Two of the new specs were green at RED and are regression locks rather than proof of the
+defect: "reference only the error id" (the hardcoded value coincidentally matched) and
+"not override an author-provided value" (the old code already had the user-override
+guard). Both guard behaviour the refactor had to preserve.
+
+### Verification
+
+| Command | Observed |
+| --- | --- |
+| `checkbox.spec` baseline, before any edit | 12 passed, 12 total |
+| `checkbox.spec` with new specs, before the fix (RED) | **6 failed**, 13 passed, 19 total |
+| `checkbox.spec` after the fix (GREEN) | **20 passed**, 20 total |
+| `input.directive.spec` regression gate | **17 passed** — unchanged from baseline |
+| `select.spec` + `aria-describedby.spec` regression gate | **95 passed** — unchanged from baseline |
+| `npm run test` (repo root) | **28 suites passed**, 2 skipped, 366 passed, 368 total |
+| `npm run build` (repo root) | succeeded, exit 0, output to `dist/bursit-angular` |
+
+Suite total moved 358 → 366 passed, exactly the 8 added specs; no test was deleted, so the
+rewritten assertion is a correction rather than a swap. Coverage `checkbox.ts` 95.38 stmts
+/ 79.16 branch (uncovered `103-107`, the mouseenter/mouseleave handlers, untouched here);
+`aria-describedby.ts` stays at 100/100. Overall 95.15 stmts, 82.96 branch — the 80%
+threshold holds.
+
+### Note on the duplicate-id defect
+
+The `formFieldEl.querySelector('#' + id)` assertions resolve against the **slot wrapper
+div** stamped by `form-field.html:8`, which carries the same id as the projected element
+(`error.component.ts:19`). So these specs prove the reference is not dangling; they do not
+prove it resolves to the error *text*. The duplicate-id defect recorded below is still
+open and still unaddressed.
+
+### Prettier
+
+Both touched files already failed `prettier --check` on `HEAD`. Pre-existing drift was left
+alone to avoid unrelated diff noise; only lines written or edited here were matched to
+Prettier output. The remaining violations are all on untouched `HEAD` lines — the
+over-100-char `@angular/core` import, `"checked()"` double quotes, a missing semicolon on
+`this._wireAriaDescribedBy()`, and the pre-existing multi-line `<bursit-checkbox>` template
+markup in `createFormFieldHost()`.
+
 ## Out of scope
 
 - Fixing `--space-2xs` in `src/styles/_label.scss:7` (separate live regression from the

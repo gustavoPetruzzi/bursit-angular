@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, forwardRef, inject, input, model,
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { FORM_FIELD_ID, FormFieldControl } from '../form-field';
+import { resolveAriaDescribedBy } from '../aria-describedby';
 
 @Component({
   selector: 'bursit-checkbox',
@@ -128,12 +129,15 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
 
   private _wireAriaDescribedBy(): void {
     const el = this.inputEl()?.nativeElement;
-    const userSet = el?.getAttribute('aria-describedby');
-    if (!userSet && this._fieldId) {
-      el?.setAttribute(
-        'aria-describedby',
-        `${this._fieldId}-error`,
-      );
+    if (!el || el.getAttribute('aria-describedby')) {
+      return;
+    }
+
+    const fieldEl = el.closest('bursit-form-field') as HTMLElement | null;
+    const describedBy = resolveAriaDescribedBy(fieldEl, this._fieldId);
+
+    if (describedBy !== null) {
+      el.setAttribute('aria-describedby', describedBy);
     }
   }
 }
