@@ -1348,4 +1348,106 @@ describe('Select — aria-describedby contract', () => {
     expect(trigger.getAttribute('aria-labelledby')).toBe(`${fieldId}-label`);
     expect(trigger.getAttribute('aria-required')).toBeNull();
   });
+
+  it('should keep aria-describedby current when validity flips in both directions', () => {
+    const { fieldEl, trigger, host, fixture } = create({
+      value: 'a',
+      validationInteraction: 'default',
+      showError: true,
+    });
+
+    const fieldId = trigger.id;
+    expect(fieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(trigger.getAttribute('aria-describedby')).toBeNull();
+
+    host.control.setErrors({ required: true });
+    host.control.markAsTouched();
+    fixture.detectChanges();
+
+    expect(fieldEl.querySelector('[bursitError]')).toBeTruthy();
+    expect(trigger.getAttribute('aria-describedby')).toBe(fieldId + '-error');
+
+    host.control.setErrors(null);
+    fixture.detectChanges();
+
+    expect(fieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(fieldEl.querySelector('#' + fieldId + '-error')).toBeNull();
+    expect(trigger.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('should keep aria-describedby current and referenced ids must resolve in the DOM', () => {
+    const { fieldEl, trigger, host, fixture } = create({
+      value: 'a',
+      validationInteraction: 'default',
+      showError: true,
+    });
+
+    const fieldId = trigger.id;
+
+    host.control.setErrors({ required: true });
+    host.control.markAsTouched();
+    fixture.detectChanges();
+
+    const describedBy = trigger.getAttribute('aria-describedby');
+    expect(describedBy).toBe(fieldId + '-error');
+    const ids = describedBy.split(' ').filter(Boolean);
+    expect(ids.length).toBe(1);
+    ids.forEach((id) => expect(document.getElementById(id)).toBeTruthy());
+    expect(fieldEl.querySelector('[bursitError]')).toBeTruthy();
+
+    host.control.setErrors(null);
+    fixture.detectChanges();
+
+    expect(trigger.getAttribute('aria-describedby')).toBeNull();
+    expect(document.getElementById(fieldId + '-error')).toBeNull();
+  });
+
+  it('should not override an author-provided aria-describedby across validity transitions', () => {
+    const { trigger, host, fixture, select } = create({
+      value: 'a',
+      validationInteraction: 'default',
+      showError: true,
+    });
+
+    trigger.setAttribute('aria-describedby', 'custom-hint');
+    select.ngAfterViewInit();
+    fixture.detectChanges();
+    expect(trigger.getAttribute('aria-describedby')).toBe('custom-hint');
+
+    host.control.setErrors({ required: true });
+    host.control.markAsTouched();
+    fixture.detectChanges();
+    expect(trigger.getAttribute('aria-describedby')).toBe('custom-hint');
+
+    host.control.setErrors(null);
+    fixture.detectChanges();
+    expect(trigger.getAttribute('aria-describedby')).toBe('custom-hint');
+  });
+
+  it('should remove a stale aria-describedby when an invalid control becomes valid', () => {
+    const { fieldEl, trigger, host, fixture } = create({
+      value: null,
+      validationInteraction: 'default',
+      showError: true,
+      showMessage: true,
+    });
+
+    const fieldId = trigger.id;
+
+    // Starts invalid, so the attribute is wired at init with both ids.
+    expect(trigger.getAttribute('aria-describedby')).toBe(
+      fieldId + '-error ' + fieldId + '-message',
+    );
+    expect(document.getElementById(fieldId + '-error')).toBeTruthy();
+    expect(document.getElementById(fieldId + '-message')).toBeTruthy();
+
+    host.control.setValue('a');
+    fixture.detectChanges();
+
+    // The error slot un-renders, so the -error reference must be REMOVED rather
+    // than left pointing at an id that no longer exists.
+    expect(fieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(document.getElementById(fieldId + '-error')).toBeNull();
+    expect(trigger.getAttribute('aria-describedby')).toBe(fieldId + '-message');
+  });
 });

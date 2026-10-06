@@ -313,6 +313,101 @@ over-100-char `@angular/core` import, `"checked()"` double quotes, a missing sem
 `this._wireAriaDescribedBy()`, and the pre-existing multi-line `<bursit-checkbox>` template
 markup in `createFormFieldHost()`.
 
+## Part 4 - select keeps aria-describedby current (same branch)
+
+Part 2 made select's initial `aria-describedby` correct but left it a one-shot value:
+`ngAfterViewInit()` called `_wireAriaDescribedBy()` exactly once and it could only ever
+SET the attribute. The answer genuinely changes at runtime, because the error
+`<ng-content>` sits inside an `@if` on validity in `form-field.html:7-11` — when the
+control is valid the wrapper does not render, so the projected `[bursitError]` element is
+absent from the DOM. A select that started valid and later went invalid kept its stale
+value and the error text was never announced; the reverse left a reference to an id that
+no longer existed.
+
+### Changed
+
+- `forms/select/select.ts` - constructor registers
+  `afterRenderEffect(() => { this.invalid(); this._syncAriaDescribedBy(); })`, mirroring
+  `input.directive.ts:57-67`. `_wireAriaDescribedBy()` is guarded by
+  `_userAriaDescribedBy` and only sets when non-null; new `_syncAriaDescribedBy()` does
+  remove  clear  re-wire  record. `ngAfterViewInit` keeps `_wireId` and
+  `_wireAriaLabelledBy` unchanged, and still wires describedby for the initial paint.
+- The reactive dependency is the existing `invalid` signal, not a new one. It is already
+  written from `_syncFromControl()` (subscribed to `control.statusChanges` at
+  `ngAfterViewInit` time) and from the `validationInteraction`/`required` effect, so
+  reading it inside the render effect registers exactly the signal that flips with
+  validity. Verified by mutation: deleting the bare `this.invalid()` read leaves the
+  effect with no dependency, it runs once, and the same two specs fail as in RED.
+- No `implements` change and no new imports beyond `afterRenderEffect`.
+
+### Added a guard the input version does not have
+
+`_appliedAriaDescribedBy` is now also recorded at the end of `ngAfterViewInit()`. Without
+it, a control that is already invalid at init has its own attribute adopted as "author
+intent" by the first `_syncAriaDescribedBy()` run and then never updates again. This was
+caught by the new removal spec, not by inspection — it failed against a faithful copy of
+`input.directive.ts`.
+
+**This latent bug is still present in `input.directive.ts` and `checkbox.ts`**: both wire
+describedby at init without recording `_appliedAriaDescribedBy`, so a control that is
+invalid on first render freezes its value permanently. `input.directive.spec.ts:190`
+misses it because that spec starts from a VALID control, where the init wire resolves to
+`null` and nothing is ever set. Out of the allowed edit surfaces here, so it is reported
+rather than fixed.
+
+### Added - 4 specs
+
+| Spec | Proves | RED? |
+| --- | --- | --- |
+| should keep aria-describedby current when validity flips in both directions | valid → absent; invalid → `${fieldId}-error`; back to valid → REMOVED | yes |
+| should keep aria-describedby current and referenced ids must resolve in the DOM | every referenced id resolves via `document.getElementById`; after the flip back the id resolves to `null` | yes |
+| should remove a stale aria-describedby when an invalid control becomes valid | invalid at init → both ids wired; becoming valid drops only `-error`, keeps `-message` | yes |
+| should not override an author-provided aria-describedby across validity transitions | author value survives every flip | **no - regression lock only** |
+
+The fourth spec was already green before the change. The original code had an
+`if (el.getAttribute('aria-describedby')) return` guard, so it never clobbered author
+intent; the spec exists because the new remove-then-reapply path is a new way to destroy
+that value and had to be proven not to. It proves nothing about the defect.
+
+### RED evidence (before the `select.ts` change)
+
+`3 failed, 1 passed` across the 4 new specs, measured by restoring `select.ts` from HEAD
+via read-only `git show` and re-running each spec by name:
+
+```
+? should keep aria-describedby current when validity flips in both directions
+  Expected: "bursit-field-0-error"
+  Received: null
+
+? should keep aria-describedby current and referenced ids must resolve in the DOM
+  Expected: "bursit-field-0-error"
+  Received: null
+
+? should remove a stale aria-describedby when an invalid control becomes valid
+  Expected: "bursit-field-0-message"
+  Received: "bursit-field-0-error bursit-field-0-message"
+```
+
+The third failure is the reverse direction the old code could not express: the `-error`
+slot un-rendered, `document.getElementById('...-error')` returned `null`, and the
+attribute still pointed at it.
+
+### Verification
+
+| Command | Observed |
+| --- | --- |
+| `select.spec` baseline before any edit | 85 passed, 85 total |
+| `select.spec` with the 4 new specs, before the fix (RED) | **3 failed**, 86 passed, 89 total |
+| `select.spec` after the fix (GREEN) | **89 passed**, 89 total |
+| `select.spec` + `aria-describedby.spec` | **99 passed**, 99 total |
+| `input.directive.spec` regression gate | **17 passed** - unchanged from baseline |
+| `checkbox.spec` regression gate | **20 passed** - unchanged from baseline |
+| `npm run test` (repo root) | **28 suites passed**, 2 skipped, 370 passed, 372 total |
+| `npm run build` (repo root) | succeeded, exit 0, output to `dist/bursit-angular` |
+
+Suite total moved 366 → 370 passed, exactly the 4 added specs. No test was deleted or
+weakened.
+
 ## Out of scope
 
 - Fixing `--space-2xs` in `src/styles/_label.scss:7` (separate live regression from the

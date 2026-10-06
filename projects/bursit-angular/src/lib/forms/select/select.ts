@@ -1,4 +1,5 @@
 import {
+  afterRenderEffect,
   AfterViewInit,
   Component,
   ElementRef,
@@ -122,6 +123,11 @@ export class Select
   private _onChange: (val: string) => void = () => {};
   private _onTouched: () => void = () => {};
   private readonly _subscriptions: Subscription[] = [];
+  // Tracks the aria-describedby the author supplied (never clobbered) versus the
+  // value this component applied itself, so the sync can safely re-apply on every
+  // validity flip without ever overwriting author intent.
+  private _userAriaDescribedBy: string | null = null;
+  private _appliedAriaDescribedBy: string | null = null;
 
   get hasPlaceholder(): boolean {
     return this.placeholder() !== '';
@@ -131,6 +137,20 @@ export class Select
     if (this.control) {
       this.control.valueAccessor = this;
     }
+
+    // The reactive dependency is the existing `invalid` signal, which
+    // `_syncFromControl()` already updates from `control.statusChanges`. Reading
+    // it here is what registers the dependency: without a signal read the effect
+    // would run exactly once and the attribute would go stale on the first
+    // validity change.
+    //
+    // This runs in the render phase, after the form-field template has rendered
+    // the `@if`-gated error slot, so the ids resolved below match the DOM that
+    // actually exists right now.
+    afterRenderEffect(() => {
+      this.invalid();
+      this._syncAriaDescribedBy();
+    });
 
     effect(() => {
       this.validationInteraction();
@@ -157,7 +177,14 @@ export class Select
   ngAfterViewInit(): void {
     this._wireId();
     this._wireAriaLabelledBy();
+    // Capture the author's value BEFORE wiring, so the sync can tell an author
+    // value apart from one this component applied itself.
+    this._userAriaDescribedBy = this.trigger().nativeElement.getAttribute('aria-describedby');
     this._wireAriaDescribedBy();
+    // Record what was just applied. Without this, a control that is already
+    // invalid at init would have its own attribute adopted as "author intent" by
+    // the first sync run and never update again.
+    this._appliedAriaDescribedBy = this.trigger().nativeElement.getAttribute('aria-describedby');
   }
 
   ngOnDestroy(): void {
@@ -304,17 +331,45 @@ export class Select
   }
 
   private _wireAriaDescribedBy(): void {
-    const el = this.trigger().nativeElement;
-    if (el.getAttribute('aria-describedby')) {
+    if (this._userAriaDescribedBy !== null) {
       return;
     }
 
+    if (!this._fieldId) {
+      return;
+    }
+
+    const el = this.trigger().nativeElement;
     const fieldEl = el.closest('bursit-form-field') as HTMLElement | null;
     const describedBy = resolveAriaDescribedBy(fieldEl, this._fieldId);
 
     if (describedBy !== null) {
       el.setAttribute('aria-describedby', describedBy);
     }
+  }
+
+  private _syncAriaDescribedBy(): void {
+    if (this._userAriaDescribedBy !== null) {
+      return;
+    }
+
+    const el = this.trigger().nativeElement;
+
+    // Adopt any value the author introduced after init (template binding or a
+    // direct attribute write) so the effect never clobbers author intent.
+    const current = el.getAttribute('aria-describedby');
+    if (current !== null && current !== this._appliedAriaDescribedBy) {
+      this._userAriaDescribedBy = current;
+      return;
+    }
+
+    // Remove first, then re-resolve: the error slot is rendered inside an `@if`
+    // on validity, so a valid -> invalid flip has to be able to ADD a reference
+    // and an invalid -> valid flip has to REMOVE the now-dangling one.
+    el.removeAttribute('aria-describedby');
+    this._appliedAriaDescribedBy = null;
+    this._wireAriaDescribedBy();
+    this._appliedAriaDescribedBy = el.getAttribute('aria-describedby');
   }
 
   private _enabledOptions(): Option[] {
