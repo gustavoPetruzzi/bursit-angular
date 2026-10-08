@@ -449,6 +449,124 @@ Part 5 deliberately; the comment at `checkbox.ts:98-100` states why.
 
 370 -> 374 is exactly the 4 added specs; nothing was deleted or weakened.
 
+## Part 6 - Declarative rewrite (level 3)
+
+**Why.** Parts 1-5 fixed the defects with an imperative design: every control inspects its
+parent through the DOM inside `afterRenderEffect`, then writes the attribute by hand. It
+works, but it is the wrong shape:
+
+1. **Documented anti-pattern.** `afterRenderEffect(cb)` with no options runs in the
+   `mixedReadWrite` phase, which Angular documents as *"never use this phase if it is
+   possible to divide the work among the other phases instead"*, warning of significant
+   performance degradation. The callback both reads (`querySelector`, `getAttribute`) and
+   writes (`setAttribute`, `removeAttribute`) in that one phase.
+2. **Law of Demeter.** `el.closest('bursit-form-field')` + `querySelector('[bursitError]')`
+   reaches through the DOM into the parent's template to discover what it projected. A
+   typo in the selector fails silently.
+3. **Unsignalized state** is the reason the after-render effect is needed at all.
+
+**Verified equivalence.** A throwaway spike (spec written, run, deleted) measured, with the
+error slot `@if`-gated off: `.err-slot` **ABSENT** from the DOM, `[bursitError]` **ABSENT**
+from the DOM, yet `contentChild(ErrorComponent)()` reported **FOUND**. Control group: with
+the `@if` in the *consumer's* template instead, the query correctly reports `undefined`
+when not declared. So `contentChild` matches what the consumer **declared**, never what is
+rendered.
+
+Therefore, because `form-field.html:7` gates the error slot on exactly
+`formFieldControl()?.invalid()`:
+
+```
+querySelector('[bursitError]')   ===  hasError()   && invalid()
+querySelector('[bursitMessage]') ===  hasMessage()   // that slot is unconditional
+```
+
+**Target design.** `FormField` publishes `hasError` / `hasMessage` with `contentChild`
+(the mechanism it already uses at `form-field.ts:33-34`). Each control derives the value
+with `computed()` and binds it on the host: `'[attr.aria-describedby]': 'describedBy()'`.
+The shared resolver keeps a pure, signal-shaped signature so all three controls share one
+tested unit and no component queries another's DOM.
+
+**Author intent is part of the contract.** `select.spec.ts` asserts an author-supplied
+`aria-describedby` survives (`toBe('custom-hint')`). A naive host binding would clobber it.
+Reading the control's **own** host attribute once is legitimate and is not the
+Demeter violation above; the brief must satisfy that spec without reintroducing a parent
+DOM query.
+
+**Coupling to document.** The formula mirrors the `@if` at `form-field.html:7`. If that
+condition changes, the formula must change with it.
+
+**Acceptance.** Every DOM-asserting spec added in Parts 1-5 must pass **unchanged** —
+with ONE documented exception. Four specs encode the *imperative* contract rather than
+the behaviour:
+
+| File | Lines | What they do |
+| --- | --- | --- |
+| `select.spec.ts` | 1339, 1413 | `trigger.setAttribute('aria-describedby', 'custom-hint')` then call `select.ngAfterViewInit()` by hand |
+| `checkbox.spec.ts` | 326, 412 | same pattern against the inner input |
+
+Those four must be **rewritten to express author intent declaratively** (for example by
+binding it in the test host's template) while asserting the **same outcome**: an
+author-provided `aria-describedby` survives validity transitions. The assertion is the
+contract; the mechanism of setting it is not.
+
+Everything else — `input.directive.spec.ts`, `form-field.spec.ts`,
+`label.directive.spec.ts` (zero manual hook calls) and the DOM-contract specs in
+`select.spec.ts` / `checkbox.spec.ts` — must pass untouched. `aria-describedby.spec.ts`
+changes because it tests the resolver signature directly.
+
+CORRECTION: an earlier draft of this section claimed *all* the specs were
+implementation-agnostic and would pass unchanged. That was **wrong** for the four specs
+above; a grep for private methods missed that they call a lifecycle hook manually.
+Counted, not assumed: 2 in `select.spec.ts`, 2 in `checkbox.spec.ts`, 0 elsewhere.
+
+**Target elements.** `input` is a host directive, so its binding is a `host` entry.
+`select` and `checkbox` write to an INNER element (`#trigger` in `select.html`,
+`#input` in `checkbox.html`), so their bindings belong in those templates, not on the
+host.
+
+### Tasks
+
+- [x] T1 - `aria-describedby.ts`: replace the DOM-taking resolver with the signal-shaped one
+- [x] T2 - `aria-describedby.spec.ts`: rewrite against the new signature (RED first) — observed RED: 7 failed / 7 total, `resolveDescribedBy is not a function`; GREEN after T1: 7 passed / 7 total
+- [x] T3 - `form-field.ts`: publish `hasError` / `hasMessage` via `contentChild`
+- [x] T4 - `select.ts` + `select.html`: computed host-side value bound on the inner `#trigger`
+- [x] T5 - `input.directive.ts`: same swap as a `host` binding; author value captured once in `ngOnInit`
+- [x] T6 - `checkbox.ts` + `checkbox.html`: same swap bound on the inner `#input`
+- [x] T7 - Parts 1-5 DOM specs pass UNCHANGED — `input.directive.spec.ts`, `form-field.spec.ts`, `label.directive.spec.ts` untouched; only the 4 named author-intent specs changed in `select.spec.ts` / `checkbox.spec.ts` (+59/-92 across the three spec files including host plumbing)
+- [x] T8 - Verification: `npm run test` **29 suites, 2 skipped, 378 passed, 380 total** (baseline 381 -> 378 is exactly the `aria-describedby.spec.ts` 10 -> 7 reduction); `npm run build` ok; `npm run build-storybook` ok; `npm run check:contrast` PASS
+
+### Evidence
+
+| Command | Observed |
+| --- | --- |
+| `npm run test` (baseline, before edits) | 29 suites, 2 skipped, **381 passed**, 383 total |
+| focused 6 specs, `aria-describedby` RED | **7 failed** / 7 total — `resolveDescribedBy is not a function` |
+| focused 6 specs, after T1 (GREEN) | **6 suites, 148 passed** |
+| `npm run test` (final, re-run by the parent as spot check) | 29 suites, 2 skipped, **378 passed**, 380 total |
+| `npm run build` | `Built bursit-angular` |
+| `npm run build-storybook` | build completed successfully |
+| `npm run check:contrast` | PASS — Group A 44/44, Group B 25/25 |
+
+### Author-intent handling (and the one deviation)
+
+`input` is a host directive writing the same element the author would bind, so it captures the
+author value **once in `ngOnInit`** — before the host binding first applies. Reading it inside the
+computed would re-adopt the control's own previous value on a validity flip and freeze.
+
+`select` and `checkbox` write to an INNER element, which a consumer cannot reach, so they read
+their own **host** element (`inject(ElementRef)`) and forward it. The component never writes the
+host, so there is no feedback loop.
+
+**Disclosed deviation:** expressing author intent declaratively required touching the shared test
+hosts in `select.spec.ts` and `checkbox.spec.ts` (a `describedBy` field/binding on the host and a
+pass-through in the test factory). That is sanctioned by the "for example by binding it in the
+test host's template" clause above, but it is more than a spec-local edit, so it is recorded here
+rather than hidden. No DOM-contract assertion or expected value was altered.
+
+**Known limitation:** the host-attribute read on `select`/`checkbox` is a DOM read and therefore
+not reactive — a *runtime* change to the author's binding would not be tracked. Author intent is
+set-once in the covered contract.
+
 ## Status of every open item in this document
 
 | Item | Status |
@@ -460,7 +578,7 @@ Part 5 deliberately; the comment at `checkbox.ts:98-100` states why.
 | checkbox never re-synced across validity flips | **Fixed** (this part) |
 | `input.directive.ts` latent freeze (`ngOnInit:98` does not record) | **Open** — latent only; slots are not projected at `ngOnInit`, so the resolver returns `null` and nothing is set to freeze. `input.directive.spec.ts:190` starts from a valid control and cannot observe it. |
 | Duplicate DOM ids (wrappers vs projected components) | **Open** — invalid HTML and resolution fragility. Text is still read because the wrapper contains the projected content. |
-| `--space-2xs` removed in tokens 2.0.0, consumed at `src/styles/_label.scss:7` | **Open, deliberately deprioritised** — user states bursit-tokens CI catches it. |
+| `--space-2xs` removed in tokens 3.0.0, consumed at `src/styles/_label.scss:7` | **Open** — tracked by issue **#52**. CORRECTION: an earlier entry here claimed "bursit-tokens CI catches it". That is **false**. Verified against the installed `bursit-ui-tokens@3.0.0`: `_tokens.scss:281-290` declares the scale starting at `--space-px` / `--space-xs` and never `--space-2xs`, and no workflow validates `var(--*)` usage. The declaration is unresolvable, so the label margin silently collapses to 0. |
 
 ## Out of scope
 
