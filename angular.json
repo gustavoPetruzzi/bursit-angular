@@ -49,8 +49,7 @@
           "options": {
             "configDir": "projects/bursit-angular/.storybook",
             "browserTarget": "bursit-angular:build",
-            "compodoc": true,
-            "compodocArgs": ["-e", "json", "-d", "projects/bursit-angular"],
+            "compodoc": false,
             "port": 6006,
             "styles": [
               "node_modules/bursit-ui-tokens/src/index.scss",
@@ -66,8 +65,7 @@
           "options": {
             "configDir": "projects/bursit-angular/.storybook",
             "browserTarget": "bursit-angular:build",
-            "compodoc": true,
-            "compodocArgs": ["-e", "json", "-d", "projects/bursit-angular"],
+            "compodoc": false,
             "outputDir": "storybook-static",
             "styles": [
               "node_modules/bursit-ui-tokens/src/index.scss",
