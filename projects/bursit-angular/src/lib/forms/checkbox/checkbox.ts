@@ -1,8 +1,8 @@
 import {
-  afterRenderEffect,
   AfterViewInit,
   Component,
   ElementRef,
+  computed,
   forwardRef,
   inject,
   input,
@@ -14,8 +14,8 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { FORM_FIELD_ID, FormFieldControl } from '../form-field';
-import { resolveAriaDescribedBy } from '../aria-describedby';
+import { FORM_FIELD_ID, FormField, FormFieldControl } from '../form-field';
+import { resolveDescribedBy } from '../aria-describedby';
 
 @Component({
   selector: 'bursit-checkbox',
@@ -47,35 +47,36 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
   readonly invalid = signal(false);
   control = inject(NgControl, { self: true, optional: true });
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
+  private readonly _field = inject(FormField, { optional: true });
+  private readonly _hostEl = inject(ElementRef<HTMLElement>);
   private onChange?: (value: boolean) => void;
   private onTouched?: () => void;
   private readonly _subscriptions: Subscription[] = [];
-  // Tracks the aria-describedby the author supplied (never clobbered) versus the
-  // value this component applied itself, so the sync can safely re-apply on every
-  // validity flip without ever overwriting author intent.
-  private _userAriaDescribedBy: string | null = null;
-  private _appliedAriaDescribedBy: string | null = null;
 
   inputEl = viewChild<ElementRef<HTMLElement>>('input');
+
+  // Derived reactively instead of written imperatively after render. An author's
+  // `[attr.aria-describedby]` on the `<bursit-checkbox>` host wins; otherwise the
+  // value comes from the field's DECLARED slots and this control's validity.
+  readonly describedBy = computed<string | null>(() => {
+    const author = this._hostEl.nativeElement.getAttribute('aria-describedby');
+    if (author) {
+      return author;
+    }
+    return this._field
+      ? resolveDescribedBy(
+          this._field.fieldId,
+          !!this._field.hasError(),
+          !!this._field.hasMessage(),
+          this.invalid(),
+        )
+      : null;
+  });
 
   constructor() {
     if (this.control) {
       this.control.valueAccessor = this;
     }
-
-    // The reactive dependency is the existing `invalid` signal, which
-    // `_syncFromControl()` already updates from `control.statusChanges`/`valueChanges`.
-    // Reading it here is what registers the dependency: without a signal read the
-    // effect would run exactly once and the attribute would go stale on the first
-    // validity change.
-    //
-    // This runs in the render phase, after the form-field template has rendered
-    // the `@if`-gated error slot, so the ids resolved below match the DOM that
-    // actually exists right now.
-    afterRenderEffect(() => {
-      this.invalid();
-      this._syncAriaDescribedBy();
-    });
   }
 
   ngOnInit(): void {
@@ -90,15 +91,6 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
 
   ngAfterViewInit(): void {
     this._wireId();
-    const el = this.inputEl()?.nativeElement ?? null;
-    // Capture the author's value BEFORE wiring, so the sync can tell an author
-    // value apart from one this component applied itself.
-    this._userAriaDescribedBy = el?.getAttribute('aria-describedby') ?? null;
-    this._wireAriaDescribedBy();
-    // Record what was just applied. Without this, a control that is already
-    // invalid at init would have its own attribute adopted as "author intent" by
-    // the first sync run and never update again.
-    this._appliedAriaDescribedBy = el?.getAttribute('aria-describedby') ?? null;
   }
 
   ngOnDestroy(): void {
@@ -165,54 +157,5 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
     if (!userSet && this._fieldId) {
       el?.setAttribute('id', this._fieldId);
     }
-  }
-
-  private _wireAriaDescribedBy(): void {
-    if (this._userAriaDescribedBy !== null) {
-      return;
-    }
-
-    if (!this._fieldId) {
-      return;
-    }
-
-    const el = this.inputEl()?.nativeElement;
-    if (!el) {
-      return;
-    }
-
-    const fieldEl = el.closest('bursit-form-field') as HTMLElement | null;
-    const describedBy = resolveAriaDescribedBy(fieldEl, this._fieldId);
-
-    if (describedBy !== null) {
-      el.setAttribute('aria-describedby', describedBy);
-    }
-  }
-
-  private _syncAriaDescribedBy(): void {
-    if (this._userAriaDescribedBy !== null) {
-      return;
-    }
-
-    const el = this.inputEl()?.nativeElement;
-    if (!el) {
-      return;
-    }
-
-    // Adopt any value the author introduced after init (template binding or a
-    // direct attribute write) so the effect never clobbers author intent.
-    const current = el.getAttribute('aria-describedby');
-    if (current !== null && current !== this._appliedAriaDescribedBy) {
-      this._userAriaDescribedBy = current;
-      return;
-    }
-
-    // Remove first, then re-resolve: the error slot is rendered inside an `@if`
-    // on validity, so a valid -> invalid flip has to be able to ADD a reference
-    // and an invalid -> valid flip has to REMOVE the now-dangling one.
-    el.removeAttribute('aria-describedby');
-    this._appliedAriaDescribedBy = null;
-    this._wireAriaDescribedBy();
-    this._appliedAriaDescribedBy = el.getAttribute('aria-describedby');
   }
 }

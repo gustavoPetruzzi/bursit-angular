@@ -1201,7 +1201,11 @@ function selectIsOpen(fixture: ComponentFixture<OptionsTestHostComponent>): bool
   template: `
     <bursit-form-field>
       <label bursitLabel>Country</label>
-      <bursit-select [formControl]="control" [validationInteraction]="validationInteraction">
+      <bursit-select
+        [formControl]="control"
+        [validationInteraction]="validationInteraction"
+        [attr.aria-describedby]="describedBy"
+      >
         <bursit-option value="a">Alpha</bursit-option>
         <bursit-option value="b">Beta</bursit-option>
       </bursit-select>
@@ -1228,6 +1232,7 @@ class AriaHostComponent {
   validationInteraction: 'default' | 'touched' = 'default';
   showError = false;
   showMessage = false;
+  describedBy: string | null = null;
 }
 
 describe('Select — aria-describedby contract', () => {
@@ -1236,6 +1241,7 @@ describe('Select — aria-describedby contract', () => {
     validationInteraction?: 'default' | 'touched';
     showError?: boolean;
     showMessage?: boolean;
+    describedBy?: string;
   }) {
     TestBed.configureTestingModule({ imports: [AriaHostComponent] });
 
@@ -1248,6 +1254,7 @@ describe('Select — aria-describedby contract', () => {
     }
     if (config?.showError !== undefined) host.showError = config.showError;
     if (config?.showMessage !== undefined) host.showMessage = config.showMessage;
+    if (config?.describedBy !== undefined) host.describedBy = config.describedBy;
 
     fixture.detectChanges();
 
@@ -1333,11 +1340,15 @@ describe('Select — aria-describedby contract', () => {
   });
 
   it('should not override an author-provided aria-describedby', () => {
-    const { select, trigger } = create({ value: null, showError: true, showMessage: true });
+    const { trigger } = create({
+      value: null,
+      showError: true,
+      showMessage: true,
+      describedBy: 'custom-hint',
+    });
 
-    trigger.setAttribute('aria-describedby', 'custom-hint');
-    select.ngAfterViewInit();
-
+    // Author intent is declared on the host element; the component must carry it
+    // onto the inner trigger instead of clobbering it with its own resolved value.
     expect(trigger.getAttribute('aria-describedby')).toBe('custom-hint');
   });
 
@@ -1403,15 +1414,13 @@ describe('Select — aria-describedby contract', () => {
   });
 
   it('should not override an author-provided aria-describedby across validity transitions', () => {
-    const { trigger, host, fixture, select } = create({
+    const { trigger, host, fixture } = create({
       value: 'a',
       validationInteraction: 'default',
       showError: true,
+      describedBy: 'custom-hint',
     });
 
-    trigger.setAttribute('aria-describedby', 'custom-hint');
-    select.ngAfterViewInit();
-    fixture.detectChanges();
     expect(trigger.getAttribute('aria-describedby')).toBe('custom-hint');
 
     host.control.setErrors({ required: true });

@@ -1,35 +1,45 @@
-const ERROR_SLOT_SELECTOR = '[bursitError], [bursit-error]';
-const MESSAGE_SLOT_SELECTOR = '[bursitMessage], [bursit-message]';
-
 /**
- * Resolves the `aria-describedby` value for a control projected into a
- * `bursit-form-field`, using the same `${fieldId}-error` / `${fieldId}-message`
- * id convention as the error and message components.
+ * Resolves the `aria-describedby` value for a control from the state of its
+ * enclosing `bursit-form-field`, using the same `${fieldId}-error` /
+ * `${fieldId}-message` id convention as the error and message components.
  *
- * Only a projected `[bursitError]` / `[bursitMessage]` actually renders the
- * matching id, so an unprojected slot must not be referenced: a dangling
- * `aria-describedby` id is announced as a missing description by assistive
- * technology.
+ * Pure and DOM-free by design: the caller supplies the projected-slot state
+ * (from the field's `contentChild` queries) and validity, so no component ever
+ * reaches into another's DOM.
  *
- * @param fieldEl The closest `bursit-form-field` ancestor, or `null` when the
- *   control is used standalone.
- * @param fieldId The `FORM_FIELD_ID` of the enclosing field.
- * @returns The space-joined ids that are actually projected, or `null` when
+ * `form-field.html` renders the error slot inside exactly
+ * `@if (formFieldControl()?.invalid())` while the message slot is
+ * unconditional, so:
+ *
+ *   error slot present   === hasError && invalid
+ *   message slot present === hasMessage
+ *
+ * Keep this formula in sync with that template: a declared error must not be
+ * referenced while the control is valid, or the reference dangles.
+ *
+ * @param fieldId The `FORM_FIELD_ID` of the enclosing field, or a falsy value
+ *   when the control is used standalone.
+ * @param hasError Whether an `[bursitError]` was declared.
+ * @param hasMessage Whether a `[bursitMessage]` was declared.
+ * @param invalid Whether the control is currently invalid.
+ * @returns The space-joined ids in error-then-message order, or `null` when
  *   there is nothing to describe.
  */
-export function resolveAriaDescribedBy(
-  fieldEl: HTMLElement | null,
+export function resolveDescribedBy(
   fieldId: string | null | undefined,
+  hasError: boolean,
+  hasMessage: boolean,
+  invalid: boolean,
 ): string | null {
-  if (!fieldId || !fieldEl) {
+  if (!fieldId) {
     return null;
   }
 
   const ids: string[] = [];
-  if (fieldEl.querySelector(ERROR_SLOT_SELECTOR)) {
+  if (hasError && invalid) {
     ids.push(`${fieldId}-error`);
   }
-  if (fieldEl.querySelector(MESSAGE_SLOT_SELECTOR)) {
+  if (hasMessage) {
     ids.push(`${fieldId}-message`);
   }
 

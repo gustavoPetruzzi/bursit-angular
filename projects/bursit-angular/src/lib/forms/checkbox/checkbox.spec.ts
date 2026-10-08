@@ -98,6 +98,7 @@ describe('Checkbox', () => {
 interface FormFieldHostSlots {
   showError?: boolean;
   showMessage?: boolean;
+  describedBy?: string;
 }
 
 function createFormFieldHost(
@@ -111,6 +112,7 @@ function createFormFieldHost(
         <bursit-checkbox
           [formControl]="control"
           [validationInteraction]="validationInteraction"
+          [attr.aria-describedby]="describedBy"
         >
           I accept the terms and conditions
         </bursit-checkbox>
@@ -129,6 +131,7 @@ function createFormFieldHost(
     validationInteraction = validationInteraction;
     showError = slots.showError ?? false;
     showMessage = slots.showMessage ?? false;
+    describedBy = slots.describedBy ?? null;
   }
 
   const fixture = TestBed.createComponent(WrapperComponent);
@@ -240,6 +243,7 @@ describe('Checkbox — aria-describedby contract', () => {
     validationInteraction?: 'default' | 'touched';
     showError?: boolean;
     showMessage?: boolean;
+    describedBy?: string;
   }) {
     const control = new FormControl(config?.value ?? false, [
       Validators.requiredTrue,
@@ -248,7 +252,11 @@ describe('Checkbox — aria-describedby contract', () => {
     const { fixture, checkbox, checkboxEl, formFieldEl } = createFormFieldHost(
       control,
       config?.validationInteraction ?? 'default',
-      { showError: config?.showError, showMessage: config?.showMessage },
+      {
+        showError: config?.showError,
+        showMessage: config?.showMessage,
+        describedBy: config?.describedBy,
+      },
     );
 
     const input = checkboxEl.querySelector('input') as HTMLInputElement;
@@ -316,15 +324,15 @@ describe('Checkbox — aria-describedby contract', () => {
   });
 
   it('should not override an author-provided aria-describedby', () => {
-    const { checkbox, formFieldEl, input } = create({
+    const { formFieldEl, input } = create({
       value: false,
       showError: true,
       showMessage: true,
+      describedBy: 'custom-hint',
     });
 
-    input.setAttribute('aria-describedby', 'custom-hint');
-    checkbox.ngAfterViewInit();
-
+    // Author intent is declared on the host element; the component must carry it
+    // onto the inner input instead of clobbering it with its own resolved value.
     expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
     expect(formFieldEl.querySelector('#custom-hint')).toBeNull();
   });
@@ -406,11 +414,12 @@ describe('Checkbox — aria-describedby contract', () => {
   });
 
   it('should not override an author-provided aria-describedby across validity transitions', () => {
-    const { checkbox, control, input, fixture } = create({ value: true, showError: true });
+    const { control, input, fixture } = create({
+      value: true,
+      showError: true,
+      describedBy: 'custom-hint',
+    });
 
-    input.setAttribute('aria-describedby', 'custom-hint');
-    checkbox.ngAfterViewInit();
-    fixture.detectChanges();
     expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
 
     control.setValue(false);
