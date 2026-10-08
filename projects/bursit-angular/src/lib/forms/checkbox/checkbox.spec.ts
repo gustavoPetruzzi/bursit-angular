@@ -328,4 +328,97 @@ describe('Checkbox — aria-describedby contract', () => {
     expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
     expect(formFieldEl.querySelector('#custom-hint')).toBeNull();
   });
+
+  it('should keep aria-describedby current when validity flips in both directions', () => {
+    const { control, formFieldEl, input, fixture } = create({ value: true, showError: true });
+
+    const fieldId = input.id;
+    expect(fieldId).toMatch(/^bursit-field-\d+$/);
+    // Valid: the @if-gated error slot is not rendered, so nothing may dangle.
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
+
+    control.setValue(false);
+    fixture.detectChanges();
+
+    // Invalid: the error element is in the DOM, so the reference must appear.
+    expect(formFieldEl.querySelector('[bursitError]')).toBeTruthy();
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-error`);
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeTruthy();
+
+    control.setValue(true);
+    fixture.detectChanges();
+
+    // Back to valid: the reference must be REMOVED, not left stale.
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('should only reference ids that resolve in the DOM across validity flips', () => {
+    const { control, formFieldEl, input, fixture } = create({
+      value: true,
+      showError: true,
+      showMessage: true,
+    });
+
+    const fieldId = input.id;
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-message`);
+
+    control.setValue(false);
+    fixture.detectChanges();
+
+    // Every referenced id must resolve via querySelector, so a stale or
+    // dangling reference cannot pass on string comparison alone.
+    const describedBy = input.getAttribute('aria-describedby');
+    expect(describedBy).toBe(`${fieldId}-error ${fieldId}-message`);
+    const ids = (describedBy as string).split(' ').filter(Boolean);
+    expect(ids.length).toBe(2);
+    ids.forEach((id) => expect(formFieldEl.querySelector(`#${id}`)).toBeTruthy());
+
+    control.setValue(true);
+    fixture.detectChanges();
+
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-message`);
+    expect(formFieldEl.querySelector(`#${fieldId}-message`)).toBeTruthy();
+  });
+
+  it('should remove a stale aria-describedby when an invalid control becomes valid', () => {
+    const { control, formFieldEl, input, fixture } = create({
+      value: false,
+      showError: true,
+      showMessage: true,
+    });
+
+    const fieldId = input.id;
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-error ${fieldId}-message`);
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeTruthy();
+
+    control.setValue(true);
+    fixture.detectChanges();
+
+    expect(formFieldEl.querySelector('[bursitError]')).toBeNull();
+    expect(formFieldEl.querySelector(`#${fieldId}-error`)).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBe(`${fieldId}-message`);
+  });
+
+  it('should not override an author-provided aria-describedby across validity transitions', () => {
+    const { checkbox, control, input, fixture } = create({ value: true, showError: true });
+
+    input.setAttribute('aria-describedby', 'custom-hint');
+    checkbox.ngAfterViewInit();
+    fixture.detectChanges();
+    expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
+
+    control.setValue(false);
+    fixture.detectChanges();
+    expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
+
+    control.setValue(true);
+    fixture.detectChanges();
+    expect(input.getAttribute('aria-describedby')).toBe('custom-hint');
+  });
 });

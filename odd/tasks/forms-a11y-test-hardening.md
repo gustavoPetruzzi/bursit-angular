@@ -408,6 +408,60 @@ attribute still pointed at it.
 Suite total moved 366 → 370 passed, exactly the 4 added specs. No test was deleted or
 weakened.
 
+## Part 5 - checkbox tracks validity (same branch)
+
+Same defect class as Part 4, fixed in `checkbox.ts`. Prior art for `select.ts`.
+
+### Added
+
+- `checkbox.ts:56-57` `_userAriaDescribedBy` / `_appliedAriaDescribedBy` fields — neither
+  existed before.
+- `checkbox.ts:75-77` `afterRenderEffect` in the constructor reading `this.invalid()` (the
+  signal already present at `checkbox.ts:34`, fed by `_syncFromControl()` and by the blur
+  handler) and calling `_syncAriaDescribedBy()`.
+- `checkbox.ts:192` `_syncAriaDescribedBy()` — removes first, re-resolves, records.
+- `checkbox.spec.ts` — 4 specs, `20 -> 24`.
+
+### The init-recording trap, paid for twice
+
+`ngAfterViewInit` must record `_appliedAriaDescribedBy` after wiring:
+
+```ts
+this._userAriaDescribedBy = el?.getAttribute('aria-describedby') ?? null;  // capture first
+this._wireAriaDescribedBy();                                                // wire
+this._appliedAriaDescribedBy = el?.getAttribute('aria-describedby') ?? null; // then record
+```
+
+Without the third line the first sync reads the component's own value back as author
+intent, adopts it, and freezes. This bit `select.ts` during Part 4 and was carried into
+Part 5 deliberately; the comment at `checkbox.ts:98-100` states why.
+
+### Verification
+
+| Command | Observed |
+| --- | --- |
+| New specs, `checkbox.ts` reverted to HEAD (**RED**) | **3 failed**, 21 passed, 24 total |
+| `checkbox.spec` after (**GREEN**) | **24 passed**, 24 total |
+| `select.spec` + `aria-describedby.spec` | **99 passed** — unchanged |
+| `input.directive.spec` | **17 passed** — unchanged |
+| `npm run test` (repo root) | 28 suites, 2 skipped, **374 passed**, 376 total |
+| `npm run build` (repo root) | succeeded |
+
+370 -> 374 is exactly the 4 added specs; nothing was deleted or weakened.
+
+## Status of every open item in this document
+
+| Item | Status |
+| --- | --- |
+| Dangling `aria-describedby` on input | **Fixed** (`95c2271`) |
+| Dangling `aria-describedby` on select | **Fixed** (`7f8153f`) |
+| Dangling `aria-describedby` on checkbox + a test that asserted it | **Fixed** (`e807e6f`) |
+| select computed once at init, stale across validity flips | **Fixed** (`bf1d0ef`) |
+| checkbox never re-synced across validity flips | **Fixed** (this part) |
+| `input.directive.ts` latent freeze (`ngOnInit:98` does not record) | **Open** — latent only; slots are not projected at `ngOnInit`, so the resolver returns `null` and nothing is set to freeze. `input.directive.spec.ts:190` starts from a valid control and cannot observe it. |
+| Duplicate DOM ids (wrappers vs projected components) | **Open** — invalid HTML and resolution fragility. Text is still read because the wrapper contains the projected content. |
+| `--space-2xs` removed in tokens 2.0.0, consumed at `src/styles/_label.scss:7` | **Open, deliberately deprioritised** — user states bursit-tokens CI catches it. |
+
 ## Out of scope
 
 - Fixing `--space-2xs` in `src/styles/_label.scss:7` (separate live regression from the
