@@ -30,23 +30,30 @@ work and MUST NOT be reported as complete. The requirement is satisfiable only o
 
 ### Requirement: BA-02 — Favicons stop shipping the framework's mark
 
-`landing/public/favicon.svg` MUST stop shipping the Astro logo path (`M50.4 78.5a75.1…`, fills `#000`
-/ `#FFF`) and MUST carry the brand mark instead. `landing/public/favicon.ico` is a 655-byte PNG file
-named `.ico`, is unreferenced at `BaseLayout.astro:21`, and MUST either become a real ICO or be
-removed while remaining unreferenced.
+**Amended (verify remediation, 2026-09-22).** The favicon swap is mark-dependent work and is
+**split out of this change under BA-01** by the same human decision that struck task 4.5 (design.md
+"Artwork fork": *they MUST NOT be reported complete while unmet*; `tasks.md` line 25). There is no
+vector master, so `favicon.svg` / `favicon.ico` cannot be re-marked here. The deferred MUSTs — the
+SVG must stop shipping the Astro logo path (`M50.4 78.5a75.1…`, fills `#000` / `#FFF`) and carry the
+brand mark; the ICO must become a real ICO or be removed — transfer **in full** to the artwork
+gated change. This change's obligations are that the split is observable (not silently absorbed)
+and that the framework-era assets stay inert while they wait: nothing our pages emit requests them.
+`favicon.ico` remains the 655-byte PNG file named `.ico` at `landing/public/favicon.ico`.
 
-#### Scenario: The framework logo is gone
+#### Scenario: The framework logo is gone — while unmet, the deferral is observable
 
-- GIVEN `landing/public/favicon.svg`
-- WHEN its path data is inspected
-- THEN it is not the Astro mark
-- AND it contains no non-brand literal fill
+- GIVEN the artwork precondition (BA-01) unmet at verify time
+- WHEN `landing/public/favicon.svg` path data and the deferral record are inspected
+- THEN the file is unchanged from the framework placeholder and the deferral is recorded in
+  `tasks.md` 4.5, design.md and this requirement — it is not marked done
 
 #### Scenario: The implicit request does not 404
 
 - GIVEN a browser requesting `/favicon.ico`
-- WHEN the file or its absence is checked
-- THEN it is a valid ICO, or it is absent and still unreferenced in the layout
+- WHEN every reference to it in the landing source is searched
+- THEN our pages emit no such request (0 references in `BaseLayout.astro` or any component; only
+  the SVG icon link at `BaseLayout.astro:21` exists), and its replacement or removal is tracked by
+  the deferral above
 
 ### Requirement: BA-03 — The three placeholder marks carry the mark's tonal axis
 
