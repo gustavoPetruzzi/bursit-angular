@@ -10,12 +10,15 @@ import {
   ElementRef,
   OnInit,
   OnDestroy,
+  computed,
   inject,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormFieldControl } from '../form-field';
+import { FormField } from '../form-field/form-field';
 import { FormFieldTypes } from '../form-field/form-field-types.enum';
 import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
+import { resolveDescribedBy } from '../aria-describedby';
 import { NgControl } from '@angular/forms';
 
 @Directive({
@@ -24,7 +27,10 @@ import { NgControl } from '@angular/forms';
     class: 'bursit-input', 
     '[disabled]': 'disabled()',
     '[attr.aria-required]': 'required()',
-    '[attr.aria-invalid]': 'invalid()'
+    // Coerced so the attribute is absent when valid, matching checkbox and select.
+    // aria-required stays a raw boolean because "false" is valid, meaningful ARIA.
+    '[attr.aria-invalid]': 'invalid() ? true : null',
+    '[attr.aria-describedby]': 'describedBy()'
   },
   providers: [
     {
@@ -47,6 +53,28 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
   disabled = model<boolean>(false);
 
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
+  private readonly _field = inject(FormField, { optional: true });
+  private readonly _hostEl = inject(ElementRef<HTMLElement>);
+  // Captured once in ngOnInit, before the host binding applies our value, so an
+  // author-supplied `[attr.aria-describedby]` survives every validity flip.
+  // This reads the control's OWN element, never the parent form-field's DOM.
+  private _authorDescribedBy: string | null = null;
+
+  // Derived reactively instead of written imperatively after render: the value
+  // depends only on the field's declared slots and this control's validity.
+  readonly describedBy = computed<string | null>(() => {
+    if (this._authorDescribedBy) {
+      return this._authorDescribedBy;
+    }
+    return this._field
+      ? resolveDescribedBy(
+          this._field.fieldId,
+          !!this._field.hasError(),
+          !!this._field.hasMessage(),
+          this.invalid(),
+        )
+      : null;
+  });
 
   constructor(
     private readonly el: ElementRef,
@@ -80,7 +108,11 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     this.invalid.set(this.isInputInvalid());
 
     this._wireId();
-    this._wireAriaDescribedBy();
+
+    // The author's aria-describedby, if any, rides on this same element and is
+    // applied by the template binding before ngOnInit. Capture it once here,
+    // before the host binding can overwrite it.
+    this._authorDescribedBy = this._hostEl.nativeElement.getAttribute('aria-describedby');
 
     if (this.control) {
       this.disabled.set(this.control.disabled || false);
@@ -100,16 +132,6 @@ export class InputDirective implements OnInit, OnDestroy, FormFieldControl<any> 
     const userSet = this.el.nativeElement.getAttribute('id');
     if (!userSet && this._fieldId) {
       this.el.nativeElement.setAttribute('id', this._fieldId);
-    }
-  }
-
-  private _wireAriaDescribedBy(): void {
-    const userSet = this.el.nativeElement.getAttribute('aria-describedby');
-    if (!userSet && this._fieldId) {
-      this.el.nativeElement.setAttribute(
-        'aria-describedby',
-        `${this._fieldId}-error ${this._fieldId}-message`,
-      );
     }
   }
 

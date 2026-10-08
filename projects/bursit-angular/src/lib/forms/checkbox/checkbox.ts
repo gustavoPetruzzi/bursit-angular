@@ -1,7 +1,21 @@
-import { AfterViewInit, Component, ElementRef, forwardRef, inject, input, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  computed,
+  forwardRef,
+  inject,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { FORM_FIELD_ID, FormFieldControl } from '../form-field';
+import { FORM_FIELD_ID, FormField, FormFieldControl } from '../form-field';
+import { resolveDescribedBy } from '../aria-describedby';
 
 @Component({
   selector: 'bursit-checkbox',
@@ -33,11 +47,31 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
   readonly invalid = signal(false);
   control = inject(NgControl, { self: true, optional: true });
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
+  private readonly _field = inject(FormField, { optional: true });
+  private readonly _hostEl = inject(ElementRef<HTMLElement>);
   private onChange?: (value: boolean) => void;
   private onTouched?: () => void;
   private readonly _subscriptions: Subscription[] = [];
 
   inputEl = viewChild<ElementRef<HTMLElement>>('input');
+
+  // Derived reactively instead of written imperatively after render. An author's
+  // `[attr.aria-describedby]` on the `<bursit-checkbox>` host wins; otherwise the
+  // value comes from the field's DECLARED slots and this control's validity.
+  readonly describedBy = computed<string | null>(() => {
+    const author = this._hostEl.nativeElement.getAttribute('aria-describedby');
+    if (author) {
+      return author;
+    }
+    return this._field
+      ? resolveDescribedBy(
+          this._field.fieldId,
+          !!this._field.hasError(),
+          !!this._field.hasMessage(),
+          this.invalid(),
+        )
+      : null;
+  });
 
   constructor() {
     if (this.control) {
@@ -57,7 +91,6 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
 
   ngAfterViewInit(): void {
     this._wireId();
-    this._wireAriaDescribedBy()
   }
 
   ngOnDestroy(): void {
@@ -123,17 +156,6 @@ export class Checkbox implements ControlValueAccessor, FormFieldControl<boolean>
     const userSet = el?.getAttribute('id');
     if (!userSet && this._fieldId) {
       el?.setAttribute('id', this._fieldId);
-    }
-  }
-
-  private _wireAriaDescribedBy(): void {
-    const el = this.inputEl()?.nativeElement;
-    const userSet = el?.getAttribute('aria-describedby');
-    if (!userSet && this._fieldId) {
-      el?.setAttribute(
-        'aria-describedby',
-        `${this._fieldId}-error`,
-      );
     }
   }
 }

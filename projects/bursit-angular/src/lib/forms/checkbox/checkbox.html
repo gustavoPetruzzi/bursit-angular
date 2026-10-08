@@ -10,6 +10,7 @@
     [indeterminate]="indeterminate()"
     [disabled]="disabled()"
     [attr.aria-invalid]="invalid() ? 'true' : null"
+    [attr.aria-describedby]="describedBy()"
     (change)="handleChange($event)"
     (focus)="onFocus()"
     (blur)="onBlur()"
