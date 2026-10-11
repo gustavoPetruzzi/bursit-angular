@@ -10,6 +10,7 @@
   [attr.aria-disabled]="disabled() || null"
   [attr.aria-required]="required() || null"
   [attr.aria-invalid]="invalid() || null"
+  [attr.aria-describedby]="describedBy()"
   [attr.aria-expanded]="isOpen()"
   (click)="toggle()"
   (focus)="onFocus()"

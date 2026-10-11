@@ -35,6 +35,11 @@ describe('FormField', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should expose role="group" on the host', () => {
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.getAttribute('role')).toBe('group');
+  });
+
   it('should have the base host class', () => {
     const host = fixture.nativeElement as HTMLElement;
     expect(host.classList.contains('bursit-form-field')).toBe(true);
@@ -60,5 +65,10 @@ describe('FormField with projected Select', () => {
   it('should add the select type class when a select control is projected', () => {
     const host = fixture.nativeElement.querySelector('bursit-form-field') as HTMLElement;
     expect(host.classList.contains('bursit-form-field-type-select')).toBe(true);
+  });
+
+  it('should expose role="group" on the host', () => {
+    const host = fixture.nativeElement.querySelector('bursit-form-field') as HTMLElement;
+    expect(host.getAttribute('role')).toBe('group');
   });
 });

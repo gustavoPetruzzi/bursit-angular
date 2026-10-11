@@ -15,12 +15,14 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormFieldControl } from '../form-field';
+import { FormField } from '../form-field/form-field';
 import { FormFieldTypes } from '../form-field/form-field-types.enum';
 import { FORM_FIELD_ID } from '../form-field/form-field-id.token';
 import { ConnectedPosition, OverlayModule, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { BursitIconComponent } from '../../icon';
 import { BURSIT_SELECT } from './select-token';
+import { resolveDescribedBy } from '../aria-describedby';
 import type { Option } from '../option/option';
 
 @Component({
@@ -51,6 +53,8 @@ export class Select
   private readonly scrollStrategyOptions = inject(ScrollStrategyOptions);
   protected readonly scrollStrategy = this.scrollStrategyOptions.reposition();
   private readonly _fieldId = inject(FORM_FIELD_ID, { optional: true });
+  private readonly _field = inject(FormField, { optional: true });
+  private readonly _hostEl = inject(ElementRef<HTMLElement>);
   control = inject(NgControl, { self: true, optional: true });
 
   readonly uid: string = this._fieldId ?? `bursit-select-${Select._nextUid++}`;
@@ -118,6 +122,24 @@ export class Select
 
   readonly hasOptions = computed(() => this.options().length > 0);
 
+  // Derived reactively instead of written imperatively after render. An author's
+  // `[attr.aria-describedby]` on the `<bursit-select>` host wins; otherwise the
+  // value comes from the field's DECLARED slots and this control's validity.
+  readonly describedBy = computed<string | null>(() => {
+    const author = this._hostEl.nativeElement.getAttribute('aria-describedby');
+    if (author) {
+      return author;
+    }
+    return this._field
+      ? resolveDescribedBy(
+          this._field.fieldId,
+          !!this._field.hasError(),
+          !!this._field.hasMessage(),
+          this.invalid(),
+        )
+      : null;
+  });
+
   private _onChange: (val: string) => void = () => {};
   private _onTouched: () => void = () => {};
   private readonly _subscriptions: Subscription[] = [];
@@ -156,7 +178,6 @@ export class Select
   ngAfterViewInit(): void {
     this._wireId();
     this._wireAriaLabelledBy();
-    this._wireAriaDescribedBy();
   }
 
   ngOnDestroy(): void {
@@ -299,14 +320,6 @@ export class Select
     const userSet = el.getAttribute('id');
     if (!userSet && this._fieldId) {
       el.setAttribute('id', this._fieldId);
-    }
-  }
-
-  private _wireAriaDescribedBy(): void {
-    const el = this.trigger().nativeElement;
-    const userSet = el.getAttribute('aria-describedby');
-    if (!userSet && this._fieldId) {
-      el.setAttribute('aria-describedby', `${this._fieldId}-error ${this._fieldId}-message`);
     }
   }
 
